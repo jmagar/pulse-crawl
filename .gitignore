@@ -17,6 +17,8 @@ dist/
 *.js.map
 !vitest.config.*.js
 !scripts/**/*.js
+!**/setup-dev.js
+!**/prepare-publish.js
 
 # IDE
 .vscode/
@@ -51,3 +53,8 @@ temp/
 .cache/
 .eslintcache
 .tsbuildinfo
+
+# Generated symlinks (created by setup-dev.js)
+local/shared
+remote/shared
+local/dist/shared

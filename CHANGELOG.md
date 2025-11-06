@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Search tool**: Web search with multi-source support (web, images, news)
+  - Filter by category: GitHub repositories, research papers, PDFs
+  - Optional content scraping for search results
+  - Geographic targeting with country and language preferences
+- **Map tool**: Fast URL discovery (8x faster than crawling)
+  - Sitemap integration with skip/include/only options
+  - Search filtering to find specific URLs
+  - Support for up to 100,000 URLs per request
+  - Subdomain and query parameter handling
+- **Crawl tool**: Consolidated recursive website crawling with job management
+  - Start crawl with `url` parameter (returns job ID)
+  - Check status with `jobId` parameter (monitor progress)
+  - Cancel with `jobId` + `cancel: true` (stop in-progress jobs)
+  - Path filtering with `includePaths` and `excludePaths`
+  - Depth control, domain scope, and rate limiting options
+- New client classes: `FirecrawlSearchClient`, `FirecrawlMapClient`, `FirecrawlCrawlClient`
+- Comprehensive test coverage for all new tools (78 tests passing)
+- Manual testing scripts for each tool in `tests/manual/features/`
+- Complete documentation in `docs/tools/` (SEARCH.md, MAP.md, CRAWL.md)
+
+### Changed
+
+- Extended tool registration to support 4 total tools (scrape, search, map, crawl)
+- Updated shared module exports to include new clients
+- Consolidated crawl operations into single tool to reduce token usage
+
 ### BREAKING CHANGES
 
 #### Removed BrightData Integration
