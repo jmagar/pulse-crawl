@@ -52,4 +52,67 @@ describe('FirecrawlCrawlClient', () => {
       );
     });
   });
+
+  describe('getStatus', () => {
+    it('should get crawl status and return results', async () => {
+      const mockResponse = {
+        status: 'scraping',
+        total: 100,
+        completed: 50,
+        creditsUsed: 50,
+        expiresAt: '2025-11-06T12:00:00Z',
+        data: [
+          {
+            markdown: '# Page content',
+            metadata: { title: 'Test Page', sourceURL: 'https://example.com/page1' },
+          },
+        ],
+      };
+
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => mockResponse,
+      });
+
+      const client = new FirecrawlCrawlClient(config);
+      const result = await client.getStatus('crawl-job-123');
+
+      expect(result).toEqual(mockResponse);
+      expect(fetch).toHaveBeenCalledWith(
+        'https://api.firecrawl.dev/v2/crawl/crawl-job-123',
+        expect.objectContaining({
+          method: 'GET',
+          headers: expect.objectContaining({
+            Authorization: 'Bearer fc-test-api-key',
+          }),
+        })
+      );
+    });
+  });
+
+  describe('cancel', () => {
+    it('should cancel crawl job', async () => {
+      const mockResponse = {
+        status: 'cancelled',
+      };
+
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => mockResponse,
+      });
+
+      const client = new FirecrawlCrawlClient(config);
+      const result = await client.cancel('crawl-job-123');
+
+      expect(result).toEqual(mockResponse);
+      expect(fetch).toHaveBeenCalledWith(
+        'https://api.firecrawl.dev/v2/crawl/crawl-job-123',
+        expect.objectContaining({
+          method: 'DELETE',
+        })
+      );
+    });
+  });
 });

@@ -27,6 +27,34 @@ export interface StartCrawlResult {
   url: string;
 }
 
+export interface CrawlStatusResult {
+  status: 'scraping' | 'completed' | 'failed' | 'cancelled';
+  total: number;
+  completed: number;
+  creditsUsed: number;
+  expiresAt: string;
+  next?: string;
+  data: Array<{
+    markdown?: string;
+    html?: string;
+    rawHtml?: string;
+    links?: string[];
+    screenshot?: string;
+    metadata?: {
+      title?: string;
+      description?: string;
+      language?: string;
+      sourceURL?: string;
+      statusCode?: number;
+      [key: string]: any;
+    };
+  }>;
+}
+
+export interface CancelResult {
+  status: 'cancelled';
+}
+
 export class FirecrawlCrawlClient {
   private readonly apiKey: string;
   private readonly baseUrl: string;
@@ -47,6 +75,38 @@ export class FirecrawlCrawlClient {
         Authorization: `Bearer ${this.apiKey}`,
       },
       body: JSON.stringify(options),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Firecrawl API error (${response.status}): ${errorText}`);
+    }
+
+    return response.json();
+  }
+
+  async getStatus(jobId: string): Promise<CrawlStatusResult> {
+    const response = await fetch(`${this.baseUrl}/crawl/${jobId}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${this.apiKey}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Firecrawl API error (${response.status}): ${errorText}`);
+    }
+
+    return response.json();
+  }
+
+  async cancel(jobId: string): Promise<CancelResult> {
+    const response = await fetch(`${this.baseUrl}/crawl/${jobId}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${this.apiKey}`,
+      },
     });
 
     if (!response.ok) {
