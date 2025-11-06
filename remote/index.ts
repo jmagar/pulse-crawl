@@ -3,6 +3,7 @@
 import { config } from 'dotenv';
 import { createExpressServer } from './server.js';
 import { runHealthChecks, type HealthCheckResult } from './shared/config/health-checks.js';
+import { logInfo, logError, logServerStart } from './shared/utils/logging.js';
 
 // Load environment variables
 config();
@@ -14,7 +15,9 @@ function validateEnvironment(): void {
   // Validate OPTIMIZE_FOR if provided
   const optimizeFor = process.env.OPTIMIZE_FOR;
   if (optimizeFor && !['cost', 'speed'].includes(optimizeFor)) {
-    console.error(`Invalid OPTIMIZE_FOR value: ${optimizeFor}. Must be 'cost' or 'speed'.`);
+    logError('validateEnvironment', new Error(`Invalid OPTIMIZE_FOR value: ${optimizeFor}`), {
+      validValues: ['cost', 'speed'],
+    });
     process.exit(1);
   }
 
@@ -24,18 +27,22 @@ function validateEnvironment(): void {
   if (process.env.ANTHROPIC_API_KEY) available.push('Anthropic');
   if (process.env.OPENAI_API_KEY) available.push('OpenAI');
 
-  console.error(
+  logInfo(
+    'startup',
     `Pulse Fetch HTTP Server starting with services: native${
       available.length > 0 ? ', ' + available.join(', ') : ''
-    }`
+    }`,
+    {
+      services: ['native', ...available],
+    }
   );
 
   if (optimizeFor) {
-    console.error(`Optimization strategy: ${optimizeFor}`);
+    logInfo('startup', `Optimization strategy: ${optimizeFor}`, { optimizeFor });
   }
 
   const resumability = process.env.ENABLE_RESUMABILITY === 'true';
-  console.error(`Resumability: ${resumability ? 'enabled' : 'disabled'}`);
+  logInfo('startup', `Resumability: ${resumability ? 'enabled' : 'disabled'}`, { resumability });
 }
 
 /**
@@ -46,25 +53,26 @@ async function main(): Promise<void> {
 
   // Run health checks if not skipped
   if (process.env.SKIP_HEALTH_CHECKS !== 'true') {
-    console.error('Running authentication health checks...');
+    logInfo('healthCheck', 'Running authentication health checks...');
     const healthResults = await runHealthChecks();
 
     const failedChecks = healthResults.filter((result: HealthCheckResult) => !result.success);
     if (failedChecks.length > 0) {
-      console.error('\nAuthentication health check failures:');
-      failedChecks.forEach((check: HealthCheckResult) => {
-        console.error(`  ${check.service}: ${check.error || 'Unknown error'}`);
+      logError('healthCheck', new Error('Authentication health check failures'), {
+        failures: failedChecks.map((check) => ({
+          service: check.service,
+          error: check.error || 'Unknown error',
+        })),
       });
-      console.error('\nTo skip health checks, set SKIP_HEALTH_CHECKS=true');
+      logInfo('healthCheck', 'To skip health checks, set SKIP_HEALTH_CHECKS=true');
       process.exit(1);
     }
 
     const successfulChecks = healthResults.filter((result: HealthCheckResult) => result.success);
     if (successfulChecks.length > 0) {
-      console.error(
-        'Health checks passed for:',
-        successfulChecks.map((r: HealthCheckResult) => r.service).join(', ')
-      );
+      logInfo('healthCheck', 'Health checks passed', {
+        services: successfulChecks.map((r: HealthCheckResult) => r.service),
+      });
     }
   }
 
@@ -74,22 +82,23 @@ async function main(): Promise<void> {
 
   // Start listening
   const server = app.listen(port, () => {
-    console.error(`\n${'='.repeat(60)}`);
-    console.error('Pulse Fetch HTTP Server is running');
-    console.error(`${'='.repeat(60)}`);
-    console.error(`Server:       http://localhost:${port}`);
-    console.error(`MCP endpoint: http://localhost:${port}/mcp`);
-    console.error(`Health check: http://localhost:${port}/health`);
-    console.error(`${'='.repeat(60)}\n`);
+    logServerStart('Pulse Fetch HTTP', 'http', {
+      port,
+      serverUrl: `http://localhost:${port}`,
+      mcpEndpoint: `http://localhost:${port}/mcp`,
+      healthEndpoint: `http://localhost:${port}/health`,
+    });
   });
 
   // Handle server startup errors
   server.on('error', (error: NodeJS.ErrnoException) => {
     if (error.code === 'EADDRINUSE') {
-      console.error(`Error: Port ${port} is already in use`);
-      console.error('Please set a different PORT in your environment variables');
+      logError('serverStartup', new Error(`Port ${port} is already in use`), {
+        port,
+        suggestion: 'Please set a different PORT in your environment variables',
+      });
     } else {
-      console.error('Server error:', error);
+      logError('serverStartup', error, { port });
     }
     process.exit(1);
   });
@@ -97,6 +106,6 @@ async function main(): Promise<void> {
 
 // Run main and handle errors
 main().catch((error) => {
-  console.error('Fatal error:', error);
+  logError('main', error);
   process.exit(1);
 });

@@ -10,7 +10,7 @@ services:
       - NODE_ENV=production
       - PORT=3060
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-*}
-      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost:3060}
       - ENABLE_RESUMABILITY=${ENABLE_RESUMABILITY:-true}
       - OPTIMIZE_FOR=${OPTIMIZE_FOR:-speed}
       - RESOURCE_STORAGE=${RESOURCE_STORAGE:-memory}

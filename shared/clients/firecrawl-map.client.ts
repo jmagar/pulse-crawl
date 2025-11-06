@@ -1,5 +1,20 @@
+/**
+ * @fileoverview Firecrawl Map API client
+ *
+ * Provides access to Firecrawl's Map API for URL discovery within websites.
+ * Supports sitemap parsing, subdomain discovery, and search filtering.
+ *
+ * @module shared/clients/firecrawl-map
+ */
+
 import type { FirecrawlConfig } from '../types.js';
 
+/**
+ * Options for Firecrawl map operation
+ *
+ * Controls URL discovery behavior including search filters, limits,
+ * sitemap handling, and location preferences.
+ */
 export interface MapOptions {
   url: string;
   search?: string;
@@ -14,6 +29,11 @@ export interface MapOptions {
   };
 }
 
+/**
+ * Result of Firecrawl map operation
+ *
+ * Contains discovered URLs with optional title and description metadata.
+ */
 export interface MapResult {
   success: boolean;
   links: Array<{
@@ -23,6 +43,23 @@ export interface MapResult {
   }>;
 }
 
+/**
+ * Client for Firecrawl Map API
+ *
+ * Discovers URLs within a website using Firecrawl's Map endpoint.
+ * Supports sitemap parsing, subdomain discovery, and advanced filtering.
+ *
+ * @example
+ * ```typescript
+ * const client = new FirecrawlMapClient({ apiKey: process.env.FIRECRAWL_API_KEY });
+ * const result = await client.map({
+ *   url: 'https://example.com',
+ *   limit: 100,
+ *   includeSubdomains: true
+ * });
+ * console.log(result.links);
+ * ```
+ */
 export class FirecrawlMapClient {
   private readonly apiKey: string;
   private readonly baseUrl: string;

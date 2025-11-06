@@ -1,10 +1,27 @@
+/**
+ * @fileoverview Scraping pipeline orchestration
+ *
+ * Coordinates the end-to-end scraping workflow including cache lookup,
+ * content fetching, cleaning, extraction, and storage operations.
+ *
+ * @module shared/mcp/tools/scrape/pipeline
+ */
+
 import { ResourceStorageFactory } from '../../../storage/index.js';
 import { ExtractClientFactory } from '../../../processing/extraction/index.js';
 import { createCleaner } from '../../../processing/cleaning/index.js';
 import type { IScrapingClients, StrategyConfigFactory } from '../../../server.js';
 import { scrapeWithStrategy } from '../../../scraping/strategies/selector.js';
 import { detectContentType, startBaseUrlCrawl } from './helpers.js';
+import type { ScrapeDiagnostics } from '../../../types.js';
+import { logWarning, logError } from '../../../utils/logging.js';
 
+/**
+ * Configuration options for scraping pipeline
+ *
+ * Defines all parameters needed to execute a complete scraping operation
+ * including caching, content processing, and result handling.
+ */
 export interface ScrapePipelineOptions {
   url: string;
   timeout: number;
@@ -16,6 +33,12 @@ export interface ScrapePipelineOptions {
   extract?: string;
 }
 
+/**
+ * Result of content processing pipeline
+ *
+ * Contains content in multiple stages (raw, cleaned, extracted) along
+ * with metadata about the processing and caching status.
+ */
 export interface ProcessedContent {
   raw: string;
   cleaned?: string;
@@ -71,7 +94,7 @@ export async function checkCache(
       };
     }
   } catch (error) {
-    console.error('Cache lookup failed, proceeding with fresh scrape:', error);
+    logWarning('checkCache', 'Cache lookup failed, proceeding with fresh scrape', { url, error });
   }
 
   return { found: false };
@@ -90,7 +113,7 @@ export async function scrapeContent(
   content?: string;
   source?: string;
   error?: string;
-  diagnostics?: any;
+  diagnostics?: ScrapeDiagnostics;
 }> {
   const result = await scrapeWithStrategy(clients, configClient, {
     url,
@@ -137,7 +160,10 @@ export async function processContent(
         displayContent = cleanedContent;
       }
     } catch (cleanError) {
-      console.warn('Content cleaning failed, proceeding with raw content:', cleanError);
+      logWarning('processContent', 'Content cleaning failed, proceeding with raw content', {
+        url,
+        error: cleanError,
+      });
       displayContent = rawContent;
     }
   }
@@ -157,7 +183,7 @@ export async function processContent(
         }
       }
     } catch (error) {
-      console.error('Extraction error:', error);
+      logError('processContent', error, { url, extract });
       displayContent = `Extraction error: ${error instanceof Error ? error.message : String(error)}\n\n---\nRaw content:\n${displayContent}`;
     }
   }
@@ -205,7 +231,7 @@ export async function saveToStorage(
 
     return uris;
   } catch (error) {
-    console.error('Failed to save scraped content as resource:', error);
+    logError('saveToStorage', error, { url, source });
     return null;
   }
 }

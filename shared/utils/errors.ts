@@ -1,5 +1,6 @@
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import type { ToolResponse } from '../types.js';
+import { logError } from './logging.js';
 
 /**
  * Safely extract error message from unknown error
@@ -18,6 +19,7 @@ export function getErrorMessage(error: unknown): string {
  * Create a standardized error response
  */
 export function createErrorResponse(error: unknown): ToolResponse {
+  logError('createErrorResponse', error);
   return {
     content: [
       {
@@ -47,6 +49,7 @@ export function createInvalidRequestError(message: string): McpError {
  * Create an internal MCP error
  */
 export function createInternalError(error: unknown): McpError {
+  logError('createInternalError', error);
   return new McpError(ErrorCode.InternalError, `Internal error: ${getErrorMessage(error)}`);
 }
 

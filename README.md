@@ -46,13 +46,18 @@ This project is built and maintained by [PulseMCP](https://www.pulsemcp.com/).
 
 This server is built and tested on macOS with Claude Desktop. It should work with other MCP clients as well.
 
-| Tool Name | Description                                                                                   |
-| --------- | --------------------------------------------------------------------------------------------- |
-| `scrape`  | Scrape a single webpage with advanced content extraction options and multiple output formats. |
+| Tool Name | Description                                                                                                                                                     |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `scrape`  | Scrape a single webpage with advanced content extraction options and multiple output formats.                                                                   |
+| `search`  | Search the web using Firecrawl with optional content scraping. Supports web, image, and news search with filtering by category (GitHub, research papers, PDFs). |
+| `map`     | Discover URLs from a website using Firecrawl. Fast URL discovery (8x faster than crawl) with sitemap integration and subdomain handling.                        |
+| `crawl`   | Manage website crawling jobs. Start multi-page crawls with url parameter, check status with jobId, or cancel with jobId + cancel=true.                          |
 
 # Usage Tips
 
-- The `scrape` tool handles all web content extraction needs and automatically bypasses anti-bot protection when necessary
+## Scrape Tool
+
+- Handles all single-page web content extraction needs and automatically bypasses anti-bot protection when necessary
 - **Result handling modes**: Control how scraped content is handled with the `resultHandling` parameter:
   - `saveAndReturn` (default): Saves content as MCP Resource AND returns it - best for reuse
   - `returnOnly`: Returns content without saving - use when you only need content once
@@ -62,6 +67,35 @@ This server is built and tested on macOS with Claude Desktop. It should work wit
 - Use `maxChars` and `startIndex` parameters to handle large content that exceeds token limits
 - Configure the timeout parameter (default 60s) for slow-loading sites
 - Use the `extract` parameter with natural language queries to extract specific information from pages (requires LLM configuration)
+
+## Search Tool
+
+- Search the web for relevant content across multiple sources (web, images, news)
+- Filter by category: GitHub repositories, research papers, PDFs
+- Control result count with the `limit` parameter (default: 5, max: 100)
+- Optionally scrape search results with `scrapeOptions` for full content extraction
+- Returns organized results by source type with URLs, titles, and descriptions
+
+## Map Tool
+
+- Discover URLs from a website 8x faster than crawl (no content extraction)
+- Perfect for site structure analysis and URL discovery before crawling
+- Control URL limits with the `limit` parameter (default: 5000, max: 100,000)
+- Filter URLs with `search` parameter to find specific pages
+- Options for sitemap inclusion (`include`, `skip`, `only`)
+- Subdomain and query parameter handling
+
+## Crawl Tool
+
+- Multi-page website crawling with content extraction from each page
+- **Three operations in one tool**:
+  - **Start crawl**: Provide `url` parameter to begin crawling
+  - **Check status**: Provide `jobId` to get progress and partial results
+  - **Cancel crawl**: Provide `jobId` + `cancel: true` to stop the job
+- Control crawl scope with `maxDepth`, `includePaths`, `excludePaths`
+- Limit pages with the `limit` parameter (default: 100, max: 100,000)
+- Configure `allowSubdomains` and `allowExternalLinks` for broader crawls
+- Customize scraping options for each page via `scrapeOptions`
 
 # Examples
 

@@ -46,6 +46,13 @@ export function createTransport(options?: TransportOptions): StreamableHTTPServe
     onSessionClosed,
   } = options || {};
 
+  // Parse allowed origins - treat "*" as undefined (allow all)
+  const allowedOriginsEnv = process.env.ALLOWED_ORIGINS;
+  const allowedOrigins =
+    allowedOriginsEnv && allowedOriginsEnv !== '*'
+      ? allowedOriginsEnv.split(',').filter(Boolean)
+      : undefined;
+
   return new StreamableHTTPServerTransport({
     // Generate cryptographically secure session IDs
     sessionIdGenerator: () => randomUUID(),
@@ -63,6 +70,6 @@ export function createTransport(options?: TransportOptions): StreamableHTTPServe
     // DNS rebinding protection (enabled in production)
     enableDnsRebindingProtection: process.env.NODE_ENV === 'production',
     allowedHosts: process.env.ALLOWED_HOSTS?.split(',').filter(Boolean),
-    allowedOrigins: process.env.ALLOWED_ORIGINS?.split(',').filter(Boolean),
+    allowedOrigins,
   });
 }

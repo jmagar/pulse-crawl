@@ -1,12 +1,34 @@
+/**
+ * @fileoverview Scraping strategy selection and execution
+ *
+ * This module provides intelligent strategy selection for web scraping,
+ * supporting both automatic strategy detection and learned pattern-based
+ * routing. Includes fallback logic and diagnostics tracking.
+ *
+ * @module shared/scraping/strategies/selector
+ */
+
 import type { IScrapingClients } from '../../server.js';
 import type { ScrapingStrategy, IStrategyConfigClient } from './learned/index.js';
 import { logDebug, logWarning } from '../../utils/logging.js';
+import type { ScrapeDiagnostics } from '../../types.js';
 
+/**
+ * Options for scraping strategy execution
+ *
+ * Defines the URL to scrape and optional timeout configuration.
+ */
 export interface StrategyOptions {
   url: string;
   timeout?: number;
 }
 
+/**
+ * Result of a strategy execution
+ *
+ * Contains the scraped content, source strategy used, error information,
+ * and diagnostics data about which strategies were attempted.
+ */
 export interface StrategyResult {
   success: boolean;
   content: string | null;
@@ -14,19 +36,26 @@ export interface StrategyResult {
   error?: string;
   metadata?: Record<string, unknown>;
   isAuthError?: boolean;
-  diagnostics?: {
-    strategiesAttempted: string[];
-    strategyErrors: Record<string, string>;
-    timing?: Record<string, number>;
-  };
+  diagnostics?: ScrapeDiagnostics;
 }
 
 /**
- * Extract URL pattern for strategy learning by taking the path up to the last segment.
- * For example:
- * - https://yelp.com/biz/dolly-san-francisco → yelp.com/biz/
- * - https://reddit.com/r/programming/comments/123/title → reddit.com/r/programming/comments/123/
- * - https://example.com/blog/2024/article → example.com/blog/2024/
+ * Extract URL pattern for strategy learning
+ *
+ * Generates a URL pattern by taking the path up to the last segment,
+ * which allows strategy configuration to match similar URLs.
+ *
+ * @param url - Full URL to extract pattern from
+ * @returns URL pattern suitable for strategy matching
+ *
+ * @example
+ * ```typescript
+ * extractUrlPattern('https://yelp.com/biz/dolly-san-francisco')
+ * // Returns: 'yelp.com/biz/'
+ *
+ * extractUrlPattern('https://reddit.com/r/programming/comments/123/title')
+ * // Returns: 'reddit.com/r/programming/comments/123/'
+ * ```
  */
 export function extractUrlPattern(url: string): string {
   try {
@@ -61,9 +90,28 @@ export function extractUrlPattern(url: string): string {
 }
 
 /**
- * Universal scraping that tries all strategies sequentially
- * Default (COST optimization): native -> firecrawl
- * SPEED optimization: firecrawl only (skips native)
+ * Universal scraping with automatic strategy fallback
+ *
+ * Tries all available scraping strategies sequentially based on optimization
+ * mode. Collects diagnostics about which strategies were attempted and why
+ * they failed. Supports cost optimization (native first) and speed optimization
+ * (Firecrawl only).
+ *
+ * @param clients - Available scraping clients (native and optionally Firecrawl)
+ * @param options - Scraping options including URL and timeout
+ * @returns Strategy result with content, source, and diagnostics
+ *
+ * @example
+ * ```typescript
+ * const result = await scrapeUniversal(clients, {
+ *   url: 'https://example.com',
+ *   timeout: 30000
+ * });
+ * if (!result.success) {
+ *   console.log('Failed strategies:', result.diagnostics?.strategiesAttempted);
+ *   console.log('Errors:', result.diagnostics?.strategyErrors);
+ * }
+ * ```
  */
 export async function scrapeUniversal(
   clients: IScrapingClients,

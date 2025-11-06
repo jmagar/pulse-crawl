@@ -1,3 +1,12 @@
+/**
+ * @fileoverview Crawl configuration and URL filtering
+ *
+ * Provides configuration for background crawl operations including
+ * language path exclusions and crawl depth limits.
+ *
+ * @module shared/config/crawl-config
+ */
+
 const DEFAULT_MAX_DEPTH = 5;
 
 const UNIVERSAL_LANGUAGE_EXCLUDES = [
@@ -34,6 +43,12 @@ const DOMAIN_LANGUAGE_EXCLUDES: Record<string, string[]> = {
   'docs.unraid.net': ['^/de/', '^/es/', '^/fr/', '^/zh/'],
 };
 
+/**
+ * Configuration for Firecrawl crawl request
+ *
+ * Defines crawl parameters including base URL, path exclusions,
+ * depth limits, and change detection settings.
+ */
 export interface CrawlRequestConfig {
   url: string;
   excludePaths: string[];
@@ -41,6 +56,15 @@ export interface CrawlRequestConfig {
   changeDetection: boolean;
 }
 
+/**
+ * Build crawl configuration for a target URL
+ *
+ * Generates crawl configuration with appropriate language path exclusions
+ * based on the domain. Returns null if URL is invalid.
+ *
+ * @param targetUrl - URL to generate crawl config for
+ * @returns Crawl configuration or null if URL is invalid
+ */
 export function buildCrawlRequestConfig(targetUrl: string): CrawlRequestConfig | null {
   try {
     const parsed = new URL(targetUrl);
@@ -60,6 +84,14 @@ export function buildCrawlRequestConfig(targetUrl: string): CrawlRequestConfig |
   }
 }
 
+/**
+ * Check if URL is suitable for crawling
+ *
+ * Validates that URL uses HTTP or HTTPS protocol.
+ *
+ * @param targetUrl - URL to validate
+ * @returns True if URL is crawlable, false otherwise
+ */
 export function shouldStartCrawl(targetUrl: string): boolean {
   try {
     const parsed = new URL(targetUrl);

@@ -17,8 +17,9 @@
     "!dist/**/*.integration-with-mock.*"
   ],
   "scripts": {
-    "build": "tsc && npm run build:integration",
+    "build": "tsc && npm run build:integration && npm run postbuild",
     "build:integration": "tsc -p tsconfig.integration.json",
+    "postbuild": "node -e \"import('fs/promises').then(fs => fs.rm('./dist/shared', {recursive: true, force: true}).then(() => fs.symlink('../../shared/dist', './dist/shared', 'dir')).then(() => console.log('Created dist symlink')).catch(e => console.error('Symlink error:', e.message)))\"",
     "start": "node dist/index.js",
     "dev": "tsx index.ts",
     "predev": "cd ../shared && npm run build && cd ../local && node setup-dev.js",

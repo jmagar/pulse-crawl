@@ -13,8 +13,8 @@
   "scripts": {
     "install-all": "npm install && cd local && npm install && cd ../shared && npm install",
     "ci:install": "npm ci && cd shared && npm ci && cd ../local && npm ci && cd ../../../libs/test-mcp-client && npm ci --ignore-scripts",
-    "build": "node ../../scripts/build-mcp-server.js",
-    "build:test": "node ../../scripts/build-mcp-server.js && cd ../../libs/test-mcp-client && npm run build",
+    "build": "npm run build -w shared && npm run build -w local",
+    "build:test": "npm run build && cd libs/test-mcp-client && npm run build",
     "clean": "find . -name '*.js' -not -path './node_modules/*' -not -path './*/node_modules/*' -not -path './local/dist/*' -not -path './shared/dist/*' -not -path './*/dist/*' -delete && find . -name '*.js.map' -not -path './node_modules/*' -not -path './*/node_modules/*' -not -path './local/dist/*' -not -path './shared/dist/*' -not -path './*/dist/*' -delete",
     "dev": "cd local && npm run dev",
     "test": "node scripts/run-vitest.js",
@@ -77,5 +77,8 @@
     "@rollup/rollup-linux-x64-musl": "^4.9.5",
     "@rollup/rollup-win32-arm64-msvc": "^4.9.5",
     "@rollup/rollup-win32-x64-msvc": "^4.9.5"
+  },
+  "dependencies": {
+    "happy-coder": "^0.11.2"
   }
 }

@@ -5,6 +5,7 @@ import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import { createMCPServer } from './shared/index.js';
 import { createTransport } from './transport.js';
 import { healthCheck, getCorsOptions } from './middleware/index.js';
+import { logInfo, logError } from './shared/utils/logging.js';
 
 /**
  * Creates and configures an Express server for HTTP streaming MCP transport
@@ -25,30 +26,8 @@ export async function createExpressServer(): Promise<Application> {
   // Health check endpoint
   app.get('/health', healthCheck);
 
-  // OAuth endpoints (not yet fully implemented)
-  const isOAuthEnabled = process.env.ENABLE_OAUTH === 'true';
-
-  app.post('/register', (req, res) => {
-    if (!isOAuthEnabled) {
-      return res.status(404).json({
-        error: 'OAuth is not enabled. Set ENABLE_OAUTH=true to enable OAuth authentication.',
-      });
-    }
-    return res.status(501).json({
-      error: 'OAuth client registration is not yet implemented.',
-    });
-  });
-
-  app.get('/authorize', (req, res) => {
-    if (!isOAuthEnabled) {
-      return res.status(404).json({
-        error: 'OAuth is not enabled. Set ENABLE_OAUTH=true to enable OAuth authentication.',
-      });
-    }
-    return res.status(501).json({
-      error: 'OAuth authorization is not yet implemented.',
-    });
-  });
+  // OAuth endpoints disabled - not yet implemented
+  // TODO: Implement OAuth when MCP SDK provides authentication support
 
   // Transport storage: maps session IDs to their transports
   const transports: Record<string, StreamableHTTPServerTransport> = {};
@@ -74,9 +53,9 @@ export async function createExpressServer(): Promise<Application> {
       (req.method === 'GET' ? (req.query.sessionId as string | undefined) : undefined);
 
     if (sessionId) {
-      console.error(`[MCP] ${req.method} request for session: ${sessionId}`);
+      logInfo('MCP', `${req.method} request for session`, { sessionId, method: req.method });
     } else {
-      console.error(`[MCP] ${req.method} request (no session)`);
+      logInfo('MCP', `${req.method} request (no session)`, { method: req.method });
     }
 
     try {
@@ -90,11 +69,11 @@ export async function createExpressServer(): Promise<Application> {
         transport = createTransport({
           enableResumability: process.env.ENABLE_RESUMABILITY === 'true',
           onSessionInitialized: (sid) => {
-            console.error(`[MCP] Session initialized: ${sid}`);
+            logInfo('MCP', 'Session initialized', { sessionId: sid });
             transports[sid] = transport;
           },
           onSessionClosed: (sid) => {
-            console.error(`[MCP] Session closed: ${sid}`);
+            logInfo('MCP', 'Session closed', { sessionId: sid });
             delete transports[sid];
           },
         });
@@ -103,7 +82,7 @@ export async function createExpressServer(): Promise<Application> {
         transport.onclose = () => {
           const sid = transport.sessionId;
           if (sid && transports[sid]) {
-            console.error(`[MCP] Transport closed for session ${sid}`);
+            logInfo('MCP', 'Transport closed for session', { sessionId: sid });
             delete transports[sid];
           }
         };
@@ -113,7 +92,7 @@ export async function createExpressServer(): Promise<Application> {
         await registerHandlers(server);
         await server.connect(transport);
 
-        console.error('[MCP] New server instance connected');
+        logInfo('MCP', 'New server instance connected');
       } else {
         // Invalid request - no session ID or not initialization request
         res.status(400).json({
@@ -136,7 +115,7 @@ export async function createExpressServer(): Promise<Application> {
       // Handle the request with the transport
       await transport.handleRequest(req, res, req.body);
     } catch (error) {
-      console.error('[MCP] Error handling request:', error);
+      logError('MCP', error, { method: req.method, sessionId });
       if (!res.headersSent) {
         res.status(500).json({
           jsonrpc: '2.0',
@@ -152,21 +131,21 @@ export async function createExpressServer(): Promise<Application> {
 
   // Graceful shutdown handler
   const shutdown = async () => {
-    console.error('\n[Server] Shutting down gracefully...');
+    logInfo('shutdown', 'Shutting down gracefully...');
 
     // Close all active transports
     const sessionIds = Object.keys(transports);
     for (const sessionId of sessionIds) {
       try {
-        console.error(`[Server] Closing transport for session ${sessionId}`);
+        logInfo('shutdown', 'Closing transport for session', { sessionId });
         await transports[sessionId].close();
         delete transports[sessionId];
       } catch (error) {
-        console.error(`[Server] Error closing transport for session ${sessionId}:`, error);
+        logError('shutdown', error, { sessionId });
       }
     }
 
-    console.error('[Server] Shutdown complete');
+    logInfo('shutdown', 'Shutdown complete');
     process.exit(0);
   };
 

@@ -1,4 +1,6 @@
 import { detectContentType } from './helpers.js';
+import type { ScrapeDiagnostics } from '../../../types.js';
+import { logError } from '../../../utils/logging.js';
 
 export interface ResponseContent {
   type: string;
@@ -94,7 +96,9 @@ export function buildCachedResponse(
       ],
     };
   } else {
-    throw new Error('Invalid state: saveOnly mode should bypass cache');
+    const error = new Error('Invalid state: saveOnly mode should bypass cache');
+    logError('buildCachedResponse', error, { resultHandling, cachedUri });
+    throw error;
   }
 }
 
@@ -104,7 +108,7 @@ export function buildCachedResponse(
 export function buildErrorResponse(
   url: string,
   error: string | undefined,
-  diagnostics: any | undefined
+  diagnostics: ScrapeDiagnostics | undefined
 ): ToolResponse {
   let errorMessage = `Failed to scrape ${url}`;
 

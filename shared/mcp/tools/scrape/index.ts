@@ -1,8 +1,44 @@
+/**
+ * @fileoverview Main scrape tool registration for MCP server
+ *
+ * This module exports the scrape tool definition including its name,
+ * description, input schema, and request handler. The tool provides
+ * intelligent web scraping with automatic strategy selection, caching,
+ * and flexible result handling.
+ *
+ * @module shared/mcp/tools/scrape
+ */
+
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import type { IScrapingClients, StrategyConfigFactory } from '../../../server.js';
 import { buildInputSchema } from './schema.js';
 import { handleScrapeRequest } from './handler.js';
 
+/**
+ * Create scrape tool definition for MCP server registration
+ *
+ * Builds a complete MCP tool definition with handler, schema, and documentation.
+ * The tool supports multiple result handling modes, automatic caching, and
+ * intelligent strategy selection based on URL patterns and available services.
+ *
+ * @param _server - MCP server instance (unused, kept for interface consistency)
+ * @param clientsFactory - Factory function that creates scraping clients
+ * @param strategyConfigFactory - Factory for loading/saving learned strategies
+ * @returns MCP tool definition object with name, description, schema, and handler
+ *
+ * @example
+ * ```typescript
+ * const tool = scrapeTool(
+ *   server,
+ *   () => createScrapingClients(),
+ *   strategyConfigFactory
+ * );
+ * // Register with MCP server
+ * server.setRequestHandler(ListToolsRequestSchema, async () => ({
+ *   tools: [tool]
+ * }));
+ * ```
+ */
 export function scrapeTool(
   _server: Server,
   clientsFactory: () => IScrapingClients,

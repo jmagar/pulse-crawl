@@ -1,5 +1,19 @@
+/**
+ * @fileoverview Service health check implementations
+ *
+ * Provides health check functions for external services (Firecrawl API)
+ * to validate configuration and connectivity at startup.
+ *
+ * @module shared/config/health-checks
+ */
+
 import https from 'https';
 
+/**
+ * Result of a service health check
+ *
+ * Contains success status and optional error message for diagnostics.
+ */
 export interface HealthCheckResult {
   service: string;
   success: boolean;

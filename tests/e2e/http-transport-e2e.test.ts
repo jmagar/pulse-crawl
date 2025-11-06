@@ -9,6 +9,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { createExpressServer } from '../../remote/server.js';
 import type { Application } from 'express';
 import type { Server } from 'http';
+import type { Tool, ContentBlock, TextContent, ResourceLink } from '../../shared/types.js';
 
 describe('HTTP Transport End-to-End', () => {
   let app: Application;
@@ -136,7 +137,7 @@ describe('HTTP Transport End-to-End', () => {
       expect(data.result.tools.length).toBeGreaterThan(0);
 
       // Verify scrape tool exists
-      const scrapeTool = data.result.tools.find((t: any) => t.name === 'scrape');
+      const scrapeTool = data.result.tools.find((t: Tool) => t.name === 'scrape');
       expect(scrapeTool).toBeTruthy();
       expect(scrapeTool.description).toBeTruthy();
       expect(scrapeTool.inputSchema).toBeTruthy();
@@ -175,9 +176,9 @@ describe('HTTP Transport End-to-End', () => {
       expect(data.result.content.length).toBeGreaterThan(0);
 
       // Verify content includes expected text from example.com
-      const textContent = data.result.content.find((c: any) => c.type === 'text');
+      const textContent = data.result.content.find((c: ContentBlock): c is TextContent => c.type === 'text');
       expect(textContent).toBeTruthy();
-      expect(textContent.text).toContain('Example Domain');
+      expect(textContent?.text).toContain('Example Domain');
     }, 30000); // 30s timeout for actual network request
 
     it('should list resources after scraping', async () => {
@@ -283,7 +284,7 @@ describe('HTTP Transport End-to-End', () => {
       expect(data.result.content).toBeTruthy();
 
       // Find resource link in response
-      const resourceLink = data.result.content.find((c: any) => c.type === 'resource_link');
+      const resourceLink = data.result.content.find((c: ContentBlock): c is ResourceLink => c.type === 'resource_link');
       if (resourceLink) {
         resourceUri = resourceLink.uri;
       }

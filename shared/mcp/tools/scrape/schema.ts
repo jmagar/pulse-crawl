@@ -1,7 +1,22 @@
+/**
+ * @fileoverview Zod schemas and input validation for the scrape tool
+ *
+ * This module provides schema definitions and validation logic for scraping
+ * operations. It dynamically adjusts the schema based on available features
+ * (like LLM extraction) and provides user-friendly parameter descriptions.
+ *
+ * @module shared/mcp/tools/scrape/schema
+ */
+
 import { z } from 'zod';
 import { ExtractClientFactory } from '../../../processing/extraction/index.js';
 
-// Parameter descriptions - single source of truth
+/**
+ * Parameter descriptions for scraping tool options
+ *
+ * Single source of truth for parameter documentation used in both
+ * Zod schemas and MCP input schemas.
+ */
 export const PARAM_DESCRIPTIONS = {
   url: 'The webpage URL to scrape (e.g., "https://example.com/article", "https://api.example.com/docs")',
   timeout:
@@ -47,7 +62,22 @@ Complex queries:
 The LLM will intelligently parse the page content and return only the requested information in a clear, readable format.`,
 } as const;
 
-// Preprocess URL to make it more forgiving
+/**
+ * Normalize and validate URL format
+ *
+ * Preprocesses user input to make URL handling more forgiving by:
+ * - Trimming whitespace
+ * - Adding https:// protocol if missing
+ *
+ * @param url - Raw URL string from user input
+ * @returns Normalized URL with protocol
+ *
+ * @example
+ * ```typescript
+ * preprocessUrl('example.com') // Returns: 'https://example.com'
+ * preprocessUrl(' https://example.com ') // Returns: 'https://example.com'
+ * ```
+ */
 export function preprocessUrl(url: string): string {
   // Trim whitespace
   url = url.trim();
@@ -60,7 +90,25 @@ export function preprocessUrl(url: string): string {
   return url;
 }
 
-// Build the Zod schema dynamically based on available features
+/**
+ * Build Zod validation schema for scrape tool arguments
+ *
+ * Creates a Zod schema that validates scraping parameters. The schema
+ * dynamically includes the 'extract' parameter only when LLM extraction
+ * is available (configured with API keys).
+ *
+ * @returns Zod schema for validating scrape arguments
+ *
+ * @example
+ * ```typescript
+ * const schema = buildScrapeArgsSchema();
+ * const validated = schema.parse({
+ *   url: 'example.com', // Will be normalized to https://example.com
+ *   timeout: 30000,
+ *   extract: 'the main article text' // Only if LLM is available
+ * });
+ * ```
+ */
 export const buildScrapeArgsSchema = () => {
   const baseSchema = {
     url: z
@@ -91,7 +139,24 @@ export const buildScrapeArgsSchema = () => {
   return z.object(baseSchema);
 };
 
-// Build the MCP input schema dynamically
+/**
+ * Build MCP-compatible input schema for scrape tool
+ *
+ * Creates a JSON Schema compatible with the MCP protocol for tool registration.
+ * Like buildScrapeArgsSchema, this dynamically includes the 'extract' parameter
+ * only when LLM extraction is available.
+ *
+ * @returns MCP input schema object with properties and required fields
+ *
+ * @example
+ * ```typescript
+ * const schema = buildInputSchema();
+ * // Use in MCP tool registration
+ * server.setRequestHandler(CallToolRequestSchema, async (request) => {
+ *   // Schema is used for validation and documentation
+ * });
+ * ```
+ */
 export const buildInputSchema = () => {
   const baseProperties = {
     url: {

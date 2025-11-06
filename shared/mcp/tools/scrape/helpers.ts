@@ -1,7 +1,24 @@
+/**
+ * @fileoverview Helper functions for scraping operations
+ *
+ * Provides utility functions for content type detection and background
+ * crawl initiation.
+ *
+ * @module shared/mcp/tools/scrape/helpers
+ */
+
 import type { IScrapingClients } from '../../../server.js';
 import { buildCrawlRequestConfig, shouldStartCrawl } from '../../../config/crawl-config.js';
 
-// Detect content type based on content
+/**
+ * Detect content type from content analysis
+ *
+ * Analyzes content string to determine MIME type by checking for HTML,
+ * JSON, XML, or plain text patterns.
+ *
+ * @param content - Content string to analyze
+ * @returns Detected MIME type
+ */
 export function detectContentType(content: string): string {
   // Check if content is HTML
   const htmlRegex =
@@ -28,7 +45,16 @@ export function detectContentType(content: string): string {
   return 'text/plain';
 }
 
-// Start async crawl of base URL using Firecrawl
+/**
+ * Initiate background crawl of base URL
+ *
+ * Starts an asynchronous Firecrawl crawl operation for the base URL
+ * to discover and cache related pages. Fails silently if Firecrawl is
+ * not available or crawl conditions aren't met.
+ *
+ * @param url - URL to extract base from and crawl
+ * @param clients - Scraping clients with optional Firecrawl support
+ */
 export function startBaseUrlCrawl(url: string, clients: IScrapingClients): void {
   if (!clients.firecrawl) return;
   if (typeof clients.firecrawl.startCrawl !== 'function') return;

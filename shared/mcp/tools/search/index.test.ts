@@ -16,7 +16,7 @@ describe('Search Tool', () => {
     const tool = createSearchTool(config);
 
     expect(tool.name).toBe('search');
-    expect(tool.description).toContain('Search the web');
+    expect(tool.description.toLowerCase()).toContain('search the web');
     expect(tool.inputSchema).toBeDefined();
     expect(typeof tool.handler).toBe('function');
   });
