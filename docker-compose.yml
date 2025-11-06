@@ -1,13 +1,12 @@
 services:
   pulse-fetch-http:
     build:
-      context: ..
-      dockerfile: remote/Dockerfile
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "${PORT:-3000}:3000"
+      - "${HOST_PORT:-3000}:3000"
     environment:
       - NODE_ENV=production
-      - PORT=3060
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-*}
       - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost}
       - ENABLE_RESUMABILITY=${ENABLE_RESUMABILITY:-true}
