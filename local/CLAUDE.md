@@ -57,14 +57,14 @@ Minimal config (macOS: `~/Library/Application Support/Claude/claude_desktop_conf
 
 All environment variables are passed from Claude Desktop config. See [../.env.example](../.env.example) for options.
 
-## Pre-build Scripts
+## Prebuild Scripts
 
 - **predev**: Builds shared before starting dev server
 - **prebuild**: Builds shared before building local
 
 ## Publishing
 
-See [/docs/PUBLISHING_SERVERS.md](../../docs/PUBLISHING_SERVERS.md) for the complete publication process.
+See [../docs/PUBLISHING_SERVERS.md](../docs/PUBLISHING_SERVERS.md) for the complete publication process.
 
 Quick version:
 

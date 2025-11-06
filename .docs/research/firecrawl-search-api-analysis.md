@@ -17,7 +17,7 @@ The Firecrawl Search API combines web search (SERP) capabilities with Firecrawl'
 - **URL**: `https://api.firecrawl.dev/v2/search`
 - **Method**: `POST`
 - **Authentication**: Bearer token (API key format: `fc-YOUR_API_KEY`)
-- **Base URL Override**: Configurable via `FIRECRAWL_API_BASE_URL` environment variable
+- **Base URL Override**: Configurable via `FIRECRAWL_BASE_URL` environment variable
 
 ---
 
@@ -487,7 +487,7 @@ curl -X POST https://api.firecrawl.dev/v2/search \
 
 ```bash
 FIRECRAWL_API_KEY=fc-your-api-key-here
-FIRECRAWL_API_BASE_URL=https://api.firecrawl.dev  # Optional, defaults to this
+FIRECRAWL_BASE_URL=https://api.firecrawl.dev  # Optional, defaults to this
 ```
 
 ### Recommended Tool Structure

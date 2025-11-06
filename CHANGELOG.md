@@ -35,6 +35,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated shared module exports to include new clients
 - Consolidated crawl operations into single tool to reduce token usage
 
+### Fixed
+
+- **Environment Variable Consistency**: Standardized all Firecrawl tools to use `FIRECRAWL_BASE_URL` (previously had inconsistent naming causing authentication failures)
+- **Crawl Tool Schema Compatibility**: Fixed Anthropic API validation error by flattening crawl schema to avoid `anyOf` at root level (previously used Zod `.or()` union which generated incompatible JSON schema)
+- **Debug Logging**: Added server-side logging to detect schema validation issues at startup (enable with `DEBUG=true` or `NODE_ENV=development`)
+
 ### BREAKING CHANGES
 
 #### Removed BrightData Integration

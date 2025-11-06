@@ -23,6 +23,7 @@ import { createMapTool } from './tools/map/index.js';
 import { createCrawlTool } from './tools/crawl/index.js';
 import { ResourceStorageFactory } from '../storage/index.js';
 import type { FirecrawlConfig } from '../types.js';
+import { logInfo, logError } from '../utils/logging.js';
 
 /**
  * Register MCP tools with the server
@@ -50,7 +51,7 @@ export function registerTools(
   // Create Firecrawl config from environment
   const firecrawlConfig: FirecrawlConfig = {
     apiKey: process.env.FIRECRAWL_API_KEY || '',
-    baseUrl: process.env.FIRECRAWL_BASE_URL || 'https://api.firecrawl.dev/v2',
+    baseUrl: process.env.FIRECRAWL_BASE_URL || 'https://api.firecrawl.dev',
   };
 
   // Create tool instances
@@ -60,6 +61,31 @@ export function registerTools(
     createMapTool(firecrawlConfig),
     createCrawlTool(firecrawlConfig),
   ];
+
+  // Log tool schemas for debugging (only in development or when DEBUG env var is set)
+  if (process.env.DEBUG === 'true' || process.env.NODE_ENV === 'development') {
+    console.error('[pulse-fetch] Registered tools:');
+    tools.forEach((tool, index) => {
+      console.error(`[pulse-fetch]   ${index + 1}. ${tool.name}`);
+      console.error(`[pulse-fetch]      Schema type: ${tool.inputSchema.type || 'unknown'}`);
+
+      // Check for problematic top-level schema properties
+      const hasProblematicProps = [
+        'oneOf' in tool.inputSchema,
+        'allOf' in tool.inputSchema,
+        'anyOf' in tool.inputSchema,
+      ];
+
+      if (hasProblematicProps.some(Boolean)) {
+        console.error(
+          `[pulse-fetch]      ⚠️ WARNING: Schema contains oneOf/allOf/anyOf at root level`
+        );
+        console.error(
+          `[pulse-fetch]         This may cause issues with some AI providers (like Anthropic)`
+        );
+      }
+    });
+  }
 
   // Register tool definitions
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
@@ -73,15 +99,29 @@ export function registerTools(
   // Register tool handlers
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const { name, arguments: args } = request.params;
+    const startTime = Date.now();
 
-    const tool = tools.find((t) => t.name === name);
-    if (!tool) {
-      throw new Error(`Unknown tool: ${name}`);
+    logInfo('tool-call', `Calling tool: ${name}`, { tool: name });
+
+    try {
+      const tool = tools.find((t) => t.name === name);
+      if (!tool) {
+        throw new Error(`Unknown tool: ${name}`);
+      }
+
+      // Cast to any to satisfy MCP SDK type expectations
+      // The ToolResponse interface matches the CallToolResult schema
+      const result = (await (tool.handler as any)(args)) as any;
+
+      const duration = Date.now() - startTime;
+      logInfo('tool-call', `Tool completed: ${name}`, { tool: name, duration: `${duration}ms` });
+
+      return result;
+    } catch (error) {
+      const duration = Date.now() - startTime;
+      logError('tool-call', error, { tool: name, duration: `${duration}ms` });
+      throw error;
     }
-
-    // Cast to any to satisfy MCP SDK type expectations
-    // The ToolResponse interface matches the CallToolResult schema
-    return (await (tool.handler as any)(args)) as any;
   });
 }
 
@@ -103,8 +143,12 @@ export function registerTools(
  */
 export function registerResources(server: Server): void {
   server.setRequestHandler(ListResourcesRequestSchema, async () => {
+    logInfo('resources/list', 'Listing resources');
+
     const storage = await ResourceStorageFactory.create();
     const resources = await storage.list();
+
+    logInfo('resources/list', `Found ${resources.length} resources`, { count: resources.length });
 
     return {
       resources: resources.map((resource) => ({
@@ -117,18 +161,28 @@ export function registerResources(server: Server): void {
   });
 
   server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
-    const storage = await ResourceStorageFactory.create();
     const { uri } = request.params;
-    const resource = await storage.read(uri);
 
-    return {
-      contents: [
-        {
-          uri: resource.uri,
-          mimeType: resource.mimeType,
-          text: resource.text,
-        },
-      ],
-    };
+    logInfo('resources/read', `Reading resource: ${uri}`, { uri });
+
+    try {
+      const storage = await ResourceStorageFactory.create();
+      const resource = await storage.read(uri);
+
+      logInfo('resources/read', `Resource read successfully: ${uri}`, { uri });
+
+      return {
+        contents: [
+          {
+            uri: resource.uri,
+            mimeType: resource.mimeType,
+            text: resource.text,
+          },
+        ],
+      };
+    } catch (error) {
+      logError('resources/read', error, { uri });
+      throw error;
+    }
   });
 }

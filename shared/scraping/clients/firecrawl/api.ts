@@ -2,11 +2,11 @@ import type { CrawlRequestConfig } from '../../../config/crawl-config.js';
 
 // Validate and cache the base URL at module load time
 const getBaseUrl = (): string => {
-  const baseUrl = process.env.FIRECRAWL_API_BASE_URL || 'https://api.firecrawl.dev';
+  const baseUrl = process.env.FIRECRAWL_BASE_URL || 'https://api.firecrawl.dev';
 
   // Validate baseUrl to prevent injection attacks
   if (baseUrl && (!/^https?:\/\/[^\\]+$/.test(baseUrl) || baseUrl.includes('..'))) {
-    throw new Error('Invalid FIRECRAWL_API_BASE_URL');
+    throw new Error('Invalid FIRECRAWL_BASE_URL');
   }
 
   return baseUrl;

@@ -13,7 +13,7 @@ export function createMapTool(config: FirecrawlConfig): Tool {
     name: 'map',
     description:
       'Discover URLs from a website using Firecrawl. Fast URL discovery (8x faster than crawl) with optional search filtering, sitemap integration, and subdomain handling.',
-    inputSchema: zodToJsonSchema(mapOptionsSchema, 'mapOptions') as any,
+    inputSchema: zodToJsonSchema(mapOptionsSchema) as any,
 
     handler: async (args: unknown) => {
       try {

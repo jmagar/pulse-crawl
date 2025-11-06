@@ -19,10 +19,12 @@ function validateEnvironment() {
     process.exit(1);
   }
 
-  // Validate OPTIMIZE_FOR if provided
-  const optimizeFor = process.env.OPTIMIZE_FOR;
-  if (optimizeFor && !['cost', 'speed'].includes(optimizeFor)) {
-    logError('validateEnvironment', new Error(`Invalid OPTIMIZE_FOR value: ${optimizeFor}`), {
+  // Validate OPTIMIZE_FOR if provided (normalize to lowercase for compatibility)
+  const optimizeForRaw = process.env.OPTIMIZE_FOR;
+  const optimizeFor = optimizeForRaw?.toLowerCase();
+
+  if (optimizeForRaw && !['cost', 'speed'].includes(optimizeFor!)) {
+    logError('validateEnvironment', new Error(`Invalid OPTIMIZE_FOR value: ${optimizeForRaw}`), {
       validValues: ['cost', 'speed'],
     });
     process.exit(1);
@@ -43,6 +45,13 @@ function validateEnvironment() {
   if (optimizeFor) {
     logInfo('startup', `Optimization strategy: ${optimizeFor}`, { optimizeFor });
   }
+
+  // Log debug mode status
+  if (process.env.DEBUG === 'true' || process.env.NODE_ENV === 'development') {
+    logInfo('startup', 'Debug mode enabled - tool schemas will be logged');
+  } else {
+    logInfo('startup', 'To enable debug logging, set DEBUG=true environment variable');
+  }
 }
 
 async function main() {
@@ -51,7 +60,23 @@ async function main() {
   // Run health checks if SKIP_HEALTH_CHECKS is not set
   if (process.env.SKIP_HEALTH_CHECKS !== 'true') {
     logInfo('healthCheck', 'Running authentication health checks...');
-    const healthResults = await runHealthChecks();
+
+    const HEALTH_CHECK_TIMEOUT = 30000; // 30 seconds
+    const healthCheckPromise = runHealthChecks();
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Health check timeout')), HEALTH_CHECK_TIMEOUT)
+    );
+
+    let healthResults: HealthCheckResult[];
+    try {
+      healthResults = await Promise.race([healthCheckPromise, timeoutPromise]);
+    } catch (error) {
+      logError('healthCheck', error as Error, {
+        message: 'Health check failed or timed out',
+      });
+      logInfo('healthCheck', 'To skip health checks, set SKIP_HEALTH_CHECKS=true');
+      process.exit(1);
+    }
 
     const failedChecks = healthResults.filter((result: HealthCheckResult) => !result.success);
     if (failedChecks.length > 0) {

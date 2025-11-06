@@ -1,7 +1,8 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { healthCheck } from '../../remote/middleware/health.js';
 import { getCorsOptions } from '../../remote/middleware/cors.js';
 import { authMiddleware } from '../../remote/middleware/auth.js';
+import { hostValidationLogger } from '../../remote/middleware/hostValidation.js';
 import type { Request, Response, NextFunction } from 'express';
 
 describe('Middleware', () => {
@@ -114,6 +115,199 @@ describe('Middleware', () => {
 
       expect(req.test).toBe('value');
       expect(res.test).toBe('value');
+    });
+  });
+
+  describe('hostValidationLogger', () => {
+    const originalEnv = process.env;
+    let consoleWarnSpy: any;
+
+    beforeEach(() => {
+      // Reset environment before each test
+      process.env = { ...originalEnv };
+      // Spy on console.warn to capture log output
+      consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      // Restore original environment
+      process.env = originalEnv;
+      // Restore console.warn
+      consoleWarnSpy.mockRestore();
+    });
+
+    it('should call next() when DNS protection is disabled', () => {
+      process.env.NODE_ENV = 'development';
+
+      const req = {
+        headers: { host: 'unknown-host.com' },
+        ip: '192.168.1.1',
+        method: 'POST',
+        path: '/mcp',
+      } as unknown as Request;
+      const res = {} as Response;
+      const next = vi.fn() as NextFunction;
+
+      hostValidationLogger(req, res, next);
+
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(consoleWarnSpy).not.toHaveBeenCalled();
+    });
+
+    it('should log warning when Host header is missing in production', () => {
+      process.env.NODE_ENV = 'production';
+
+      const req = {
+        headers: {},
+        ip: '192.168.1.1',
+        method: 'POST',
+        path: '/mcp',
+      } as unknown as Request;
+      const res = {} as Response;
+      const next = vi.fn() as NextFunction;
+
+      hostValidationLogger(req, res, next);
+
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(consoleWarnSpy).toHaveBeenCalledTimes(1);
+      const logMessage = consoleWarnSpy.mock.calls[0][0];
+      expect(logMessage).toContain('Missing Host header');
+    });
+
+    it('should allow request when no ALLOWED_HOSTS configured in production', () => {
+      process.env.NODE_ENV = 'production';
+      delete process.env.ALLOWED_HOSTS;
+
+      const req = {
+        headers: { host: 'any-host.com' },
+        ip: '192.168.1.1',
+        method: 'POST',
+        path: '/mcp',
+      } as unknown as Request;
+      const res = {} as Response;
+      const next = vi.fn() as NextFunction;
+
+      hostValidationLogger(req, res, next);
+
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(consoleWarnSpy).not.toHaveBeenCalled();
+    });
+
+    it('should log warning when Host header does not match allowed hosts', () => {
+      process.env.NODE_ENV = 'production';
+      process.env.ALLOWED_HOSTS = 'localhost:3060,api.example.com';
+
+      const req = {
+        headers: {
+          host: '100.122.19.93:3060',
+          'user-agent': 'TestClient/1.0',
+          origin: 'http://100.122.19.93:3060',
+        },
+        ip: '100.122.19.93',
+        method: 'POST',
+        path: '/mcp',
+      } as unknown as Request;
+      const res = {} as Response;
+      const next = vi.fn() as NextFunction;
+
+      hostValidationLogger(req, res, next);
+
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(consoleWarnSpy).toHaveBeenCalledTimes(1);
+
+      const logMessage = consoleWarnSpy.mock.calls[0][0];
+      expect(logMessage).toContain('Invalid Host header: 100.122.19.93:3060');
+      expect(logMessage).toContain('blockedHost');
+      expect(logMessage).toContain('allowedHosts');
+    });
+
+    it('should allow request when Host header matches allowed host exactly', () => {
+      process.env.NODE_ENV = 'production';
+      process.env.ALLOWED_HOSTS = 'localhost:3060,api.example.com';
+
+      const req = {
+        headers: { host: 'localhost:3060' },
+        ip: '127.0.0.1',
+        method: 'POST',
+        path: '/mcp',
+      } as unknown as Request;
+      const res = {} as Response;
+      const next = vi.fn() as NextFunction;
+
+      hostValidationLogger(req, res, next);
+
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(consoleWarnSpy).not.toHaveBeenCalled();
+    });
+
+    it('should support wildcard subdomain matching', () => {
+      process.env.NODE_ENV = 'production';
+      process.env.ALLOWED_HOSTS = '*.example.com';
+
+      const req = {
+        headers: { host: 'api.example.com' },
+        ip: '192.168.1.1',
+        method: 'POST',
+        path: '/mcp',
+      } as unknown as Request;
+      const res = {} as Response;
+      const next = vi.fn() as NextFunction;
+
+      hostValidationLogger(req, res, next);
+
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(consoleWarnSpy).not.toHaveBeenCalled();
+    });
+
+    it('should log warning when wildcard does not match', () => {
+      process.env.NODE_ENV = 'production';
+      process.env.ALLOWED_HOSTS = '*.example.com';
+
+      const req = {
+        headers: { host: 'evil.com' },
+        ip: '192.168.1.1',
+        method: 'POST',
+        path: '/mcp',
+      } as unknown as Request;
+      const res = {} as Response;
+      const next = vi.fn() as NextFunction;
+
+      hostValidationLogger(req, res, next);
+
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(consoleWarnSpy).toHaveBeenCalledTimes(1);
+
+      const logMessage = consoleWarnSpy.mock.calls[0][0];
+      expect(logMessage).toContain('Invalid Host header: evil.com');
+    });
+
+    it('should include detailed metadata in log message', () => {
+      process.env.NODE_ENV = 'production';
+      process.env.ALLOWED_HOSTS = 'localhost:3060';
+
+      const req = {
+        headers: {
+          host: 'attacker.com',
+          'user-agent': 'Evil Browser/1.0',
+          origin: 'http://attacker.com',
+          referer: 'http://attacker.com/attack.html',
+        },
+        ip: '1.2.3.4',
+        method: 'POST',
+        path: '/mcp',
+      } as unknown as Request;
+      const res = {} as Response;
+      const next = vi.fn() as NextFunction;
+
+      hostValidationLogger(req, res, next);
+
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(consoleWarnSpy).toHaveBeenCalledTimes(1);
+
+      const logMessage = consoleWarnSpy.mock.calls[0][0];
+      expect(logMessage).toContain('attacker.com');
+      expect(logMessage).toContain('1.2.3.4');
+      expect(logMessage).toContain('Evil Browser/1.0');
     });
   });
 });

@@ -23,6 +23,8 @@ This project is built and maintained by [PulseMCP](https://www.pulsemcp.com/).
     - [Local Setup](#local-setup)
     - [Remote Setup](#remote-setup)
 - [Development](#development)
+- [Troubleshooting](#troubleshooting)
+  - [Remote HTTP Server Connection Issues](#remote-http-server-connection-issues)
 - [Scraping Strategy Configuration](#scraping-strategy-configuration)
 - [Extract Feature](#extract-feature)
 
@@ -488,6 +490,160 @@ Disable cleaning (`cleanScrape: false`) only when:
 - `imageMaxHeight/Width`: Image dimension limits
 - `imageQuality`: JPEG quality (1-100)
 - `enableFetchImages`: Enable image fetching and processing
+
+## Troubleshooting
+
+### Remote HTTP Server Connection Issues
+
+When connecting to the Pulse Fetch HTTP server, you may encounter connection errors. Here are the most common issues and solutions:
+
+#### Issue 1: Invalid Host Header (403 Forbidden)
+
+**Symptoms:**
+
+```
+HTTP 403: Invalid Host header: 100.122.19.93:3060
+Streamable HTTP connection failed
+```
+
+**Cause:** DNS rebinding protection is blocking your client's Host header. The server validates the `Host` header against an allowlist for security.
+
+**Solution:** Add your connection IP/hostname to the `ALLOWED_HOSTS` environment variable:
+
+```bash
+# In .env file
+ALLOWED_HOSTS=localhost:3060,100.122.19.93:3060,127.0.0.1:3060
+```
+
+**Important notes:**
+
+- Include the **port number** (e.g., `:3060`) in each entry
+- Separate multiple entries with commas
+- Include all variations: localhost, 127.0.0.1, Docker bridge IPs, Tailscale IPs, etc.
+- For Tailscale connections, IPs typically start with `100.x.x.x`
+
+**For development only:** Set `NODE_ENV=development` to disable DNS rebinding protection:
+
+```bash
+NODE_ENV=development
+```
+
+⚠️ **Security Warning:** Only disable protection in trusted development environments, never in production.
+
+#### Issue 2: Tool Schema Validation Errors (400 Bad Request)
+
+**Symptoms:**
+
+```
+ZodError: Invalid literal value, expected "object"
+Path: tools[1].inputSchema.type
+```
+
+**Cause:** MCP clients expect tool `inputSchema` to have `type: "object"` at the root level, but some schema conversion methods wrap schemas in `$ref` or use union types (`anyOf`/`oneOf`) at the root.
+
+**Solution:** This should be fixed in the latest version. If you encounter this:
+
+1. Ensure you're on the latest version: `npm update`
+2. Rebuild the project: `npm run build`
+3. Restart the server
+
+**For developers:** When using `zodToJsonSchema()`, avoid passing a name parameter:
+
+```typescript
+// ❌ Wrong - creates $ref wrapper
+inputSchema: zodToJsonSchema(schema, 'schemaName');
+
+// ✅ Correct - creates object at root
+inputSchema: zodToJsonSchema(schema);
+
+// ✅ For union schemas, add type manually
+const baseSchema = zodToJsonSchema(unionSchema);
+const inputSchema = { type: 'object' as const, ...baseSchema };
+```
+
+#### Issue 3: Session Not Found / "no session" in Logs
+
+**Symptoms:**
+
+```
+[INFO] MCP: POST request (no session)
+Session not found
+```
+
+**Understanding the behavior:**
+
+The log message `POST request (no session)` is **normal for the first request** from any client. This is the initialization request that creates the session. You should see these logs in sequence:
+
+```
+1. POST request (no session)        ← First request (normal)
+2. Session initialized {sessionId}  ← Session created
+3. POST request for session         ← Subsequent requests reuse session
+```
+
+**If you only see "no session" repeatedly:**
+
+- Check that the client is properly handling the `Mcp-Session-Id` header
+- Verify the client extracts and sends the session ID on subsequent requests
+- Check for Host header issues (see Issue 1 above) blocking initialization
+
+#### Issue 4: CORS Policy Violations
+
+**Symptoms:**
+
+```
+Access to fetch at 'http://localhost:3060/mcp' has been blocked by CORS policy
+No 'Access-Control-Allow-Origin' header present
+```
+
+**Solution:** Configure `ALLOWED_ORIGINS` in your `.env` file:
+
+```bash
+# Allow specific origins
+ALLOWED_ORIGINS=https://app.example.com,http://localhost:3000
+
+# Or allow all origins (development only)
+ALLOWED_ORIGINS=*
+```
+
+**Note:** When using `ALLOWED_ORIGINS=*`, credentials are automatically disabled per CORS spec.
+
+### General Debugging Steps
+
+1. **Check server logs:**
+
+   ```bash
+   docker compose logs -f pulse-fetch-http
+   ```
+
+2. **Verify environment variables:**
+
+   ```bash
+   docker compose exec pulse-fetch-http env | grep -E 'ALLOWED_HOSTS|NODE_ENV|PORT'
+   ```
+
+3. **Test health endpoint:**
+
+   ```bash
+   curl http://localhost:3060/health
+   ```
+
+4. **Test with proper headers:**
+
+   ```bash
+   curl -v -H "Host: localhost:3060" http://localhost:3060/health
+   ```
+
+5. **Check MCP initialization:**
+   ```bash
+   curl -X POST http://localhost:3060/mcp \
+     -H "Content-Type: application/json" \
+     -H "Accept: application/json, text/event-stream" \
+     -d '{"jsonrpc":"2.0","method":"initialize","params":{"protocolVersion":"2024-11-05","clientInfo":{"name":"test","version":"1.0.0"}},"id":1}'
+   ```
+
+### Still Having Issues?
+
+For detailed HTTP server documentation, including security configuration and production deployment, see [Pulse Fetch HTTP Server Documentation](remote/README.md).
 
 ## License
 

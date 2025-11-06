@@ -4,7 +4,7 @@ import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import { createMCPServer } from './shared/index.js';
 import { createTransport } from './transport.js';
-import { healthCheck, getCorsOptions } from './middleware/index.js';
+import { healthCheck, getCorsOptions, hostValidationLogger } from './middleware/index.js';
 import { logInfo, logError } from './shared/utils/logging.js';
 
 /**
@@ -26,8 +26,34 @@ export async function createExpressServer(): Promise<Application> {
   // Health check endpoint
   app.get('/health', healthCheck);
 
-  // OAuth endpoints disabled - not yet implemented
-  // TODO: Implement OAuth when MCP SDK provides authentication support
+  // OAuth endpoints - check ENABLE_OAUTH environment variable
+  const oauthEnabled = process.env.ENABLE_OAUTH === 'true';
+
+  app.post('/register', (req, res) => {
+    if (!oauthEnabled) {
+      res.status(404).json({
+        error:
+          'OAuth is not enabled on this server. Set ENABLE_OAUTH=true to enable OAuth authentication.',
+      });
+    } else {
+      res.status(501).json({
+        error: 'OAuth is not yet implemented. This feature is planned for a future release.',
+      });
+    }
+  });
+
+  app.get('/authorize', (req, res) => {
+    if (!oauthEnabled) {
+      res.status(404).json({
+        error:
+          'OAuth is not enabled on this server. Set ENABLE_OAUTH=true to enable OAuth authentication.',
+      });
+    } else {
+      res.status(501).json({
+        error: 'OAuth is not yet implemented. This feature is planned for a future release.',
+      });
+    }
+  });
 
   // Transport storage: maps session IDs to their transports
   const transports: Record<string, StreamableHTTPServerTransport> = {};
@@ -36,17 +62,18 @@ export async function createExpressServer(): Promise<Application> {
    * Main MCP endpoint - handles all HTTP methods (GET, POST, DELETE)
    *
    * Request flow:
-   * 1. Check for existing session ID in headers or query params (for GET)
-   * 2. If session exists, reuse its transport
-   * 3. If new initialization request, create transport and MCP server
-   * 4. Otherwise, return error
-   * 5. Handle request via transport
+   * 1. Log potential DNS rebinding protection blocks
+   * 2. Check for existing session ID in headers or query params (for GET)
+   * 3. If session exists, reuse its transport
+   * 4. If new initialization request, create transport and MCP server
+   * 5. Otherwise, return error
+   * 6. Handle request via transport
    *
    * Note: Session ID can come from:
    * - Mcp-Session-Id header (POST, DELETE requests)
    * - sessionId query parameter (GET requests for SSE)
    */
-  app.all('/mcp', async (req, res) => {
+  app.all('/mcp', hostValidationLogger, async (req, res) => {
     // Accept session ID from header or query param (for EventSource/GET requests)
     const sessionId =
       (req.headers['mcp-session-id'] as string | undefined) ||

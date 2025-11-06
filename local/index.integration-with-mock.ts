@@ -14,7 +14,7 @@ class MockNativeFetcher implements INativeFetcher {
   }> {
     const mockData = process.env.MOCK_NATIVE_DATA;
     const mockSuccess = process.env.MOCK_NATIVE_SUCCESS === 'true';
-    const mockStatus = parseInt(process.env.MOCK_NATIVE_STATUS || '200');
+    const mockStatus = parseInt(process.env.MOCK_NATIVE_STATUS || '200', 10);
 
     if (mockSuccess && mockData) {
       return {

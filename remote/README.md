@@ -75,6 +75,7 @@ ALLOWED_HOSTS=your-server.com
 
 # Features
 ENABLE_RESUMABILITY=true
+ENABLE_OAUTH=false  # OAuth not yet implemented
 OPTIMIZE_FOR=speed  # or 'cost'
 
 # API Keys (same as stdio version)
@@ -225,6 +226,26 @@ When `ENABLE_RESUMABILITY=true`, the server stores events in memory and allows c
 **Note:** In-memory event storage is suitable for development but not for production. For production, implement a persistent event store (Redis, PostgreSQL, etc.) by extending the `EventStore` interface in `eventStore.ts`.
 
 ## Security
+
+### OAuth Authentication
+
+OAuth authentication is **not yet implemented** but can be enabled via the `ENABLE_OAUTH` environment variable:
+
+```bash
+# Default: OAuth disabled (recommended until implementation is complete)
+ENABLE_OAUTH=false
+
+# When enabled: /register and /authorize endpoints return 501 (Not Implemented)
+ENABLE_OAUTH=true
+```
+
+**Current behavior:**
+
+- `ENABLE_OAUTH=false` (default): OAuth endpoints (`/register`, `/authorize`) return 404 with a clear error message
+- `ENABLE_OAUTH=true`: OAuth endpoints return 501 (Not Implemented) to indicate the feature is planned
+
+**Client configuration:**
+If you're seeing "Cannot POST /register" errors, your MCP client is configured to use OAuth. Since OAuth is not yet implemented, configure your client to connect without OAuth.
 
 ### Production Checklist
 

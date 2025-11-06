@@ -49,7 +49,8 @@ export class FirecrawlSearchClient {
       throw new Error('API key is required');
     }
     this.apiKey = config.apiKey;
-    this.baseUrl = config.baseUrl || 'https://api.firecrawl.dev/v2';
+    const base = config.baseUrl || 'https://api.firecrawl.dev';
+    this.baseUrl = `${base}/v2`;
   }
 
   async search(options: SearchOptions): Promise<SearchResult> {

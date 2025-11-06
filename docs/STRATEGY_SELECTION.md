@@ -19,7 +19,7 @@ If you're self-hosting Firecrawl (cost is not a factor), use **speed mode** for 
 ```bash
 OPTIMIZE_FOR=speed
 FIRECRAWL_API_KEY=your-self-hosted-key
-FIRECRAWL_API_BASE_URL=https://your-firecrawl-instance.com
+FIRECRAWL_BASE_URL=https://your-firecrawl-instance.com
 ```
 
 This will:
@@ -38,7 +38,7 @@ This will:
 
 **Behavior:**
 
-```
+```text
 Request → Native (free) → Firecrawl (if native fails)
 ```
 
@@ -74,7 +74,7 @@ OPTIMIZE_FOR=cost  # or omit (default)
 
 **Behavior:**
 
-```
+```text
 Request → Firecrawl (only) → No fallback to native
 ```
 
@@ -109,7 +109,7 @@ Beyond optimization modes, you can configure **URL-specific strategies** that ov
 
 The strategy selection follows this priority order:
 
-```
+```text
 1. Check URL-specific configuration (highest priority)
    ↓
 2. Try configured strategy for that URL pattern
@@ -175,7 +175,7 @@ Patterns are matched by **prefix**, removing the last path segment:
 
 ### Cost Mode Flow
 
-```
+```text
 User makes scrape request
         ↓
 Check strategy config for URL pattern
@@ -201,7 +201,7 @@ Check strategy config for URL pattern
 
 ### Speed Mode Flow
 
-```
+```text
 User makes scrape request
         ↓
 Check strategy config for URL pattern
@@ -233,7 +233,7 @@ Check strategy config for URL pattern
 ```bash
 OPTIMIZE_FOR=speed
 FIRECRAWL_API_KEY=your-key
-FIRECRAWL_API_BASE_URL=https://firecrawl.yourcompany.com
+FIRECRAWL_BASE_URL=https://firecrawl.yourcompany.com
 ```
 
 **Behavior:**
@@ -334,7 +334,7 @@ Every scrape response includes diagnostics showing exactly what happened:
 ```bash
 OPTIMIZE_FOR=speed
 FIRECRAWL_API_KEY=your-key
-FIRECRAWL_API_BASE_URL=https://your-instance.com
+FIRECRAWL_BASE_URL=https://your-instance.com
 ```
 
 **Why:**
@@ -381,7 +381,9 @@ FIRECRAWL_API_KEY=your-key
 
 ### Native always fails for a site
 
-**Solution:** Add to strategy config:
+#### Solution
+
+Add to strategy config:
 
 ```markdown
 | that-site.com/ | firecrawl | Native returns 403 |
@@ -389,7 +391,9 @@ FIRECRAWL_API_KEY=your-key
 
 ### Want to force native for API endpoints
 
-**Solution:** Add to strategy config:
+#### Solution
+
+Add to strategy config:
 
 ```markdown
 | api.site.com/ | native | Simple JSON API |
@@ -397,7 +401,9 @@ FIRECRAWL_API_KEY=your-key
 
 ### Not sure which strategy works best
 
-**Solution:** Let auto-learning figure it out:
+#### Solution
+
+Let auto-learning figure it out:
 
 1. Start with default (cost mode)
 2. Make requests to the site
@@ -406,7 +412,9 @@ FIRECRAWL_API_KEY=your-key
 
 ### Want to see what's happening
 
-**Solution:** Check response diagnostics:
+#### Solution
+
+Check response diagnostics:
 
 ```javascript
 const result = await scrape(url);
@@ -425,7 +433,7 @@ OPTIMIZE_FOR=cost           # native → firecrawl (default)
 
 # Firecrawl configuration
 FIRECRAWL_API_KEY=your-key
-FIRECRAWL_API_BASE_URL=https://api.firecrawl.dev  # optional
+FIRECRAWL_BASE_URL=https://api.firecrawl.dev  # optional
 
 # Strategy config file
 PULSE_FETCH_STRATEGY_CONFIG_PATH=/path/to/config.md  # optional

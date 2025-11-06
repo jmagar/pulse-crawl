@@ -85,7 +85,7 @@ These authenticate Pulse Fetch to third-party services, NOT client authenticatio
 ```bash
 # Web Content Extraction
 FIRECRAWL_API_KEY=your-firecrawl-api-key-here
-FIRECRAWL_API_BASE_URL=https://api.firecrawl.dev  # Optional custom base URL
+FIRECRAWL_BASE_URL=https://api.firecrawl.dev  # Optional custom base URL
 
 # LLM Extraction (Anthropic)
 ANTHROPIC_API_KEY=your-anthropic-api-key-here
