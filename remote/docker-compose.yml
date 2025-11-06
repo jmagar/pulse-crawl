@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   pulse-fetch-http:
     build:
@@ -9,7 +7,7 @@ services:
       - "${PORT:-3000}:3000"
     environment:
       - NODE_ENV=production
-      - PORT=3000
+      - PORT=3060
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-*}
       - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost}
       - ENABLE_RESUMABILITY=${ENABLE_RESUMABILITY:-true}
