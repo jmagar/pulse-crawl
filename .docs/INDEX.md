@@ -296,7 +296,8 @@ remote/    ← HTTP streaming (THIS NEEDS AUTH)
 
 - **Version**: 2025-03-26
 - **Transport**: StreamableHTTPServerTransport
-- **Streaming**: Server-Sent Events (SSE)
+- **Primary Mode**: HTTP POST with JSON responses
+- **Optional Streaming**: Server-Sent Events (SSE) for server-initiated messages
 - **Session Header**: Mcp-Session-Id (UUID v4)
 
 ### Current Data Flow

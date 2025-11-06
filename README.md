@@ -326,10 +326,10 @@ pulse-fetch/
 
 Pulse Fetch provides two transport mechanisms:
 
-| Transport          | Package                        | Use Case                             | Protocol     |
-| ------------------ | ------------------------------ | ------------------------------------ | ------------ |
-| **stdio**          | `@pulsemcp/pulse-fetch`        | Claude Desktop, local CLI tools      | stdin/stdout |
-| **HTTP Streaming** | `@pulsemcp/pulse-fetch-remote` | Remote servers, Docker, multi-client | HTTP + SSE   |
+| Transport          | Package                        | Use Case                             | Protocol               |
+| ------------------ | ------------------------------ | ------------------------------------ | ---------------------- |
+| **stdio**          | `@pulsemcp/pulse-fetch`        | Claude Desktop, local CLI tools      | stdin/stdout           |
+| **HTTP Streaming** | `@pulsemcp/pulse-fetch-remote` | Remote servers, Docker, multi-client | HTTP (JSON) + opt. SSE |
 
 Both implementations share the same core functionality (`shared/`) ensuring feature parity.
 

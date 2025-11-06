@@ -113,7 +113,7 @@ Three-Layer Design:
 
 MCP Protocol:
   - Version: 2025-03-26
-  - Transport: StreamableHTTPServerTransport (HTTP + Server-Sent Events)
+  - Transport: StreamableHTTPServerTransport (HTTP POST with JSON + optional SSE)
   - Session Headers: mcp-session-id, Last-Event-ID
 
 Session Management:

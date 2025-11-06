@@ -64,7 +64,7 @@ Tests actual external services:
 Tests the remote server implementation:
 
 - [middleware.test.ts](remote/middleware.test.ts) - Express middleware
-- [transport.test.ts](remote/transport.test.ts) - SSE streaming
+- [transport.test.ts](remote/transport.test.ts) - StreamableHTTP transport
 - [eventStore.test.ts](remote/eventStore.test.ts) - Event replay
 
 ## Running Tests

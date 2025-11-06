@@ -20,7 +20,7 @@ The pulse-fetch project currently supports API key-based authentication for exte
 ```
 1. shared/          - Core business logic (shared between local & remote)
 2. local/           - Stdio transport (Claude Desktop integration)
-3. remote/          - HTTP streaming transport (HTTP + Server-Sent Events)
+3. remote/          - StreamableHTTP transport (HTTP POST with JSON + optional SSE)
 ```
 
 ### Remote Directory Structure
@@ -177,8 +177,8 @@ console.error(
 
 **Endpoints**:
 
-- `POST /mcp` - Main MCP endpoint (handles JSON-RPC requests)
-- `GET /mcp` - SSE stream for server-initiated messages
+- `POST /mcp` - Main MCP endpoint (handles JSON-RPC requests, returns JSON responses)
+- `GET /mcp` - Optional SSE stream for server-initiated messages
 - `DELETE /mcp` - Terminate session
 - `GET /health` - Health check
 
@@ -316,7 +316,8 @@ const transports: Record<string, StreamableHTTPServerTransport> = {};
 
 - **Version**: 2025-03-26
 - **Transport**: StreamableHTTPServerTransport
-- **Streaming**: Server-Sent Events (SSE)
+- **Primary Mode**: HTTP POST with JSON responses
+- **Optional Streaming**: Server-Sent Events (SSE) for server-initiated messages
 
 ### Request/Response Format
 

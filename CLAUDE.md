@@ -20,9 +20,11 @@ The server uses a three-layer architecture:
    - Uses StdioServerTransport for Claude Desktop integration
    - References shared via: `"pulse-fetch-shared": "file:../shared"`
 
-3. **`remote/`**: HTTP transport implementation (planned)
-   - Will provide hosted/remote access
-   - Will share same features from shared module
+3. **`remote/`**: StreamableHTTP transport implementation
+   - Provides hosted/remote access via HTTP POST with JSON responses
+   - Optional SSE streaming for server-initiated messages
+   - Uses StreamableHTTPServerTransport from MCP SDK
+   - Shares same features from shared module
 
 ## Development Commands
 

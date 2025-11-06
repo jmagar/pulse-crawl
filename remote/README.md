@@ -4,7 +4,7 @@ HTTP streaming transport implementation of the Pulse Fetch MCP server using the 
 
 ## Overview
 
-This package provides an HTTP-based MCP server that exposes the same tools and resources as the stdio version (`@pulsemcp/pulse-fetch`), but over HTTP with Server-Sent Events (SSE) for streaming responses.
+This package provides an HTTP-based MCP server that exposes the same tools and resources as the stdio version (`@pulsemcp/pulse-fetch`), using HTTP POST requests with JSON responses and optional Server-Sent Events (SSE) for server-initiated messages.
 
 ### Key Features
 
@@ -249,7 +249,7 @@ When `enableDnsRebindingProtection` is enabled (automatic in production), the se
 
 | Feature            | Stdio (`@pulsemcp/pulse-fetch`) | HTTP (`@pulsemcp/pulse-fetch-remote`) |
 | ------------------ | ------------------------------- | ------------------------------------- |
-| Transport          | stdin/stdout                    | HTTP + SSE                            |
+| Transport          | stdin/stdout                    | HTTP (JSON) + optional SSE            |
 | Session Management | N/A                             | Session IDs required                  |
 | Resumability       | N/A                             | Optional (configurable)               |
 | Multiple Clients   | No                              | Yes (multi-session)                   |

@@ -1,10 +1,9 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { registerResources } from './resources.js';
-import { createRegisterTools } from './tools.js';
-import type { IStrategyConfigClient } from './strategy-config/index.js';
-import { FilesystemStrategyConfigClient } from './strategy-config/index.js';
-import { NativeScrapingClient } from './scraping-client/native-scrape-client.js';
-import type { CrawlRequestConfig } from './crawl/config.js';
+import { registerResources, registerTools } from './mcp/registration.js';
+import type { IStrategyConfigClient } from './scraping/strategies/learned/index.js';
+import { FilesystemStrategyConfigClient } from './scraping/strategies/learned/index.js';
+import { NativeScrapingClient } from './scraping/clients/native/native-scrape-client.js';
+import type { CrawlRequestConfig } from './config/crawl-config.js';
 
 // Scraping client interfaces for external services
 export interface IFirecrawlClient {
@@ -87,7 +86,7 @@ export class FirecrawlClient implements IFirecrawlClient {
     };
     error?: string;
   }> {
-    const { scrapeWithFirecrawl } = await import('./scraping-client/lib/firecrawl-scrape.js');
+    const { scrapeWithFirecrawl } = await import('./scraping/clients/firecrawl/api.js');
     return scrapeWithFirecrawl(this.apiKey, url, options);
   }
 
@@ -96,7 +95,7 @@ export class FirecrawlClient implements IFirecrawlClient {
     crawlId?: string;
     error?: string;
   }> {
-    const { startFirecrawlCrawl } = await import('./scraping-client/lib/firecrawl-scrape.js');
+    const { startFirecrawlCrawl } = await import('./scraping/clients/firecrawl/api.js');
     return startFirecrawlCrawl(this.apiKey, config);
   }
 }
@@ -149,8 +148,7 @@ export function createMCPServer() {
     const configFactory = strategyConfigFactory || (() => new FilesystemStrategyConfigClient());
 
     registerResources(server);
-    const registerTools = createRegisterTools(factory, configFactory);
-    registerTools(server);
+    registerTools(server, factory, configFactory);
   };
 
   return { server, registerHandlers };

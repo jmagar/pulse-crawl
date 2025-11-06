@@ -77,12 +77,12 @@ Client → [No Auth Check] → Express Server → MCP Transport → External API
 
 ## MCP Endpoints
 
-| Endpoint  | Method | Purpose           | Auth  | Status |
-| --------- | ------ | ----------------- | ----- | ------ |
-| `/mcp`    | POST   | JSON-RPC requests | ❌ NO | Active |
-| `/mcp`    | GET    | SSE stream        | ❌ NO | Active |
-| `/mcp`    | DELETE | Close session     | ❌ NO | Active |
-| `/health` | GET    | Health check      | ❌ NO | Active |
+| Endpoint  | Method | Purpose                            | Auth  | Status |
+| --------- | ------ | ---------------------------------- | ----- | ------ |
+| `/mcp`    | POST   | JSON-RPC requests (primary mode)   | ❌ NO | Active |
+| `/mcp`    | GET    | SSE stream (optional, server push) | ❌ NO | Active |
+| `/mcp`    | DELETE | Close session                      | ❌ NO | Active |
+| `/health` | GET    | Health check                       | ❌ NO | Active |
 
 ## Session Management
 
@@ -236,7 +236,8 @@ These are service authentication checks, NOT client authentication.
 
 - **MCP Version**: 2025-03-26
 - **Transport**: StreamableHTTPServerTransport
-- **Streaming**: Server-Sent Events (SSE)
+- **Primary Mode**: HTTP POST with JSON responses
+- **Optional Streaming**: Server-Sent Events (SSE) for server-initiated messages
 - **Session Header**: `Mcp-Session-Id` (UUID v4)
 
 ## Key Insights
