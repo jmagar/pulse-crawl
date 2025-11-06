@@ -26,6 +26,9 @@ RUN npm run build
 # Stage 2: Production
 FROM node:20-alpine
 
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
+
 WORKDIR /app
 
 # Copy root package files (workspace configuration)
@@ -37,26 +40,31 @@ COPY --from=builder /app/remote/package*.json ./remote/
 
 # Copy built files
 COPY --from=builder /app/remote/dist ./remote/dist
-COPY --from=builder /app/shared/dist ./shared/dist
 # Copy shared dist into remote/dist/shared to match compiled import paths
 COPY --from=builder /app/shared/dist ./remote/dist/shared
 
 # Install all production dependencies via workspace
 RUN npm ci --omit=dev --ignore-scripts
 
+# Change ownership to non-root user
+RUN chown -R nodejs:nodejs /app
+
 # Move to remote directory for runtime
 WORKDIR /app/remote
 
+# Switch to non-root user
+USER nodejs
+
 # Set environment
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=3060
 
 # Expose port
-EXPOSE 3000
+EXPOSE 3060
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"
+  CMD node -e "require('http').get('http://localhost:' + (process.env.PORT || 3060) + '/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"
 
 # Start server
 CMD ["node", "/app/remote/dist/index.js"]
