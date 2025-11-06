@@ -1,3 +1,14 @@
+/**
+ * @fileoverview MCP tool and resource registration
+ *
+ * This module provides functions to register MCP tools and resources
+ * with an MCP server instance. It handles the wiring between the
+ * shared business logic and the MCP protocol by setting up request
+ * handlers for tool execution and resource access.
+ *
+ * @module shared/mcp/registration
+ */
+
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import {
   ListToolsRequestSchema,
@@ -7,18 +18,48 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import type { ClientFactory, StrategyConfigFactory } from '../server.js';
 import { scrapeTool } from './tools/scrape/index.js';
+import { createSearchTool } from './tools/search/index.js';
+import { createMapTool } from './tools/map/index.js';
+import { createCrawlTool } from './tools/crawl/index.js';
 import { ResourceStorageFactory } from '../storage/index.js';
+import type { FirecrawlConfig } from '../types.js';
 
 /**
  * Register MCP tools with the server
+ *
+ * Sets up request handlers for tool listing and execution. Creates tool
+ * instances with their dependencies and registers them with the MCP server
+ * to handle ListTools and CallTool requests.
+ *
+ * @param server - MCP server instance to register tools with
+ * @param clientFactory - Factory function for creating scraping clients
+ * @param strategyConfigFactory - Factory for loading/saving learned strategies
+ *
+ * @example
+ * ```typescript
+ * const server = new Server({ name: 'pulse-fetch', version: '1.0.0' }, {});
+ * registerTools(server, () => createClients(), strategyFactory);
+ * // Server now handles tool requests
+ * ```
  */
 export function registerTools(
   server: Server,
   clientFactory: ClientFactory,
   strategyConfigFactory: StrategyConfigFactory
 ): void {
+  // Create Firecrawl config from environment
+  const firecrawlConfig: FirecrawlConfig = {
+    apiKey: process.env.FIRECRAWL_API_KEY || '',
+    baseUrl: process.env.FIRECRAWL_BASE_URL || 'https://api.firecrawl.dev/v2',
+  };
+
   // Create tool instances
-  const tools = [scrapeTool(server, clientFactory, strategyConfigFactory)];
+  const tools = [
+    scrapeTool(server, clientFactory, strategyConfigFactory),
+    createSearchTool(firecrawlConfig),
+    createMapTool(firecrawlConfig),
+    createCrawlTool(firecrawlConfig),
+  ];
 
   // Register tool definitions
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
@@ -46,6 +87,19 @@ export function registerTools(
 
 /**
  * Register MCP resources with the server
+ *
+ * Sets up request handlers for resource listing and reading. Integrates
+ * with the resource storage system to expose scraped content as MCP
+ * resources that can be accessed via ListResources and ReadResource requests.
+ *
+ * @param server - MCP server instance to register resources with
+ *
+ * @example
+ * ```typescript
+ * const server = new Server({ name: 'pulse-fetch', version: '1.0.0' }, {});
+ * registerResources(server);
+ * // Server now handles resource requests
+ * ```
  */
 export function registerResources(server: Server): void {
   server.setRequestHandler(ListResourcesRequestSchema, async () => {
