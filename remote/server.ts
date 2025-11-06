@@ -25,6 +25,31 @@ export async function createExpressServer(): Promise<Application> {
   // Health check endpoint
   app.get('/health', healthCheck);
 
+  // OAuth endpoints (not yet fully implemented)
+  const isOAuthEnabled = process.env.ENABLE_OAUTH === 'true';
+
+  app.post('/register', (req, res) => {
+    if (!isOAuthEnabled) {
+      return res.status(404).json({
+        error: 'OAuth is not enabled. Set ENABLE_OAUTH=true to enable OAuth authentication.',
+      });
+    }
+    return res.status(501).json({
+      error: 'OAuth client registration is not yet implemented.',
+    });
+  });
+
+  app.get('/authorize', (req, res) => {
+    if (!isOAuthEnabled) {
+      return res.status(404).json({
+        error: 'OAuth is not enabled. Set ENABLE_OAUTH=true to enable OAuth authentication.',
+      });
+    }
+    return res.status(501).json({
+      error: 'OAuth authorization is not yet implemented.',
+    });
+  });
+
   // Transport storage: maps session IDs to their transports
   const transports: Record<string, StreamableHTTPServerTransport> = {};
 
@@ -32,14 +57,21 @@ export async function createExpressServer(): Promise<Application> {
    * Main MCP endpoint - handles all HTTP methods (GET, POST, DELETE)
    *
    * Request flow:
-   * 1. Check for existing session ID in headers
+   * 1. Check for existing session ID in headers or query params (for GET)
    * 2. If session exists, reuse its transport
    * 3. If new initialization request, create transport and MCP server
    * 4. Otherwise, return error
    * 5. Handle request via transport
+   *
+   * Note: Session ID can come from:
+   * - Mcp-Session-Id header (POST, DELETE requests)
+   * - sessionId query parameter (GET requests for SSE)
    */
   app.all('/mcp', async (req, res) => {
-    const sessionId = req.headers['mcp-session-id'] as string | undefined;
+    // Accept session ID from header or query param (for EventSource/GET requests)
+    const sessionId =
+      (req.headers['mcp-session-id'] as string | undefined) ||
+      (req.method === 'GET' ? (req.query.sessionId as string | undefined) : undefined);
 
     if (sessionId) {
       console.error(`[MCP] ${req.method} request for session: ${sessionId}`);
@@ -93,6 +125,12 @@ export async function createExpressServer(): Promise<Application> {
           id: null,
         });
         return;
+      }
+
+      // Copy query param session ID to header for SDK compatibility
+      // The SDK's validateSession checks req.headers['mcp-session-id']
+      if (sessionId && req.method === 'GET' && !req.headers['mcp-session-id']) {
+        req.headers['mcp-session-id'] = sessionId;
       }
 
       // Handle the request with the transport

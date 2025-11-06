@@ -47,7 +47,8 @@ describe('Middleware', () => {
 
       expect(options).toHaveProperty('origin');
       expect(options).toHaveProperty('exposedHeaders');
-      expect(options).toHaveProperty('credentials', true);
+      // Wildcard origin ('*') cannot be used with credentials: true per CORS spec
+      expect(options).toHaveProperty('credentials', false);
       expect(options).toHaveProperty('methods');
       expect(options.exposedHeaders).toContain('Mcp-Session-Id');
     });

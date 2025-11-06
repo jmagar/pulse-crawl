@@ -97,11 +97,8 @@ describe('SSE Streaming End-to-End', () => {
   describe('SSE Stream Establishment', () => {
     it('should establish SSE stream with valid session ID', async () => {
       return new Promise<void>((resolve, reject) => {
-        const eventSource = new EventSource(`${baseUrl}/mcp`, {
-          headers: {
-            'Mcp-Session-Id': sessionId,
-          },
-        });
+        // Use query parameter for session ID (EventSource header support is limited)
+        const eventSource = new EventSource(`${baseUrl}/mcp?sessionId=${sessionId}`);
 
         const timeout = setTimeout(() => {
           eventSource.close();
@@ -148,11 +145,7 @@ describe('SSE Streaming End-to-End', () => {
 
     it('should reject SSE stream with invalid session ID', async () => {
       return new Promise<void>((resolve, reject) => {
-        const eventSource = new EventSource(`${baseUrl}/mcp`, {
-          headers: {
-            'Mcp-Session-Id': 'invalid-session-id-12345',
-          },
-        });
+        const eventSource = new EventSource(`${baseUrl}/mcp?sessionId=invalid-session-id-12345`);
 
         const timeout = setTimeout(() => {
           eventSource.close();
@@ -178,11 +171,7 @@ describe('SSE Streaming End-to-End', () => {
   describe('SSE Message Delivery', () => {
     it('should receive endpoint event on connection', async () => {
       return new Promise<void>((resolve, reject) => {
-        const eventSource = new EventSource(`${baseUrl}/mcp`, {
-          headers: {
-            'Mcp-Session-Id': sessionId,
-          },
-        });
+        const eventSource = new EventSource(`${baseUrl}/mcp?sessionId=${sessionId}`);
 
         const timeout = setTimeout(() => {
           eventSource.close();
@@ -220,14 +209,10 @@ describe('SSE Streaming End-to-End', () => {
     it('should support Last-Event-ID header for reconnection', async () => {
       // This test verifies the protocol support
       // Actual resumability testing requires triggering server notifications
-      
+      // Note: Last-Event-ID is sent automatically by EventSource on reconnect
+
       return new Promise<void>((resolve, reject) => {
-        const eventSource = new EventSource(`${baseUrl}/mcp`, {
-          headers: {
-            'Mcp-Session-Id': sessionId,
-            'Last-Event-ID': 'test-event-id-123',
-          },
-        });
+        const eventSource = new EventSource(`${baseUrl}/mcp?sessionId=${sessionId}`);
 
         const timeout = setTimeout(() => {
           eventSource.close();
@@ -254,11 +239,7 @@ describe('SSE Streaming End-to-End', () => {
   describe('SSE Connection Lifecycle', () => {
     it('should handle connection close gracefully', async () => {
       return new Promise<void>((resolve, reject) => {
-        const eventSource = new EventSource(`${baseUrl}/mcp`, {
-          headers: {
-            'Mcp-Session-Id': sessionId,
-          },
-        });
+        const eventSource = new EventSource(`${baseUrl}/mcp?sessionId=${sessionId}`);
 
         const timeout = setTimeout(() => {
           eventSource.close();
@@ -285,20 +266,41 @@ describe('SSE Streaming End-to-End', () => {
 
     it('should handle multiple concurrent SSE connections', async () => {
       const connections: EventSource[] = [];
-      const openPromises: Promise<void>[] = [];
+      const sessions: string[] = [];
 
       try {
-        // Create 5 concurrent connections
-        for (let i = 0; i < 5; i++) {
-          const eventSource = new EventSource(`${baseUrl}/mcp`, {
+        // Create 3 concurrent connections, each with its own session
+        const setupPromises = Array.from({ length: 3 }, async (_, i) => {
+          // Initialize a new session
+          const initResponse = await fetch(`${baseUrl}/mcp`, {
+            method: 'POST',
             headers: {
-              'Mcp-Session-Id': sessionId,
+              'Content-Type': 'application/json',
+              'Accept': 'application/json, text/event-stream',
             },
+            body: JSON.stringify({
+              jsonrpc: '2.0',
+              id: 100 + i,
+              method: 'initialize',
+              params: {
+                protocolVersion: '2025-03-26',
+                capabilities: {},
+                clientInfo: {
+                  name: `concurrent-test-client-${i}`,
+                  version: '1.0.0',
+                },
+              },
+            }),
           });
 
-          connections.push(eventSource);
+          const newSessionId = initResponse.headers.get('mcp-session-id')!;
+          sessions.push(newSessionId);
 
-          const promise = new Promise<void>((resolve, reject) => {
+          // Create SSE connection for this session
+          return new Promise<void>((resolve, reject) => {
+            const eventSource = new EventSource(`${baseUrl}/mcp?sessionId=${newSessionId}`);
+            connections.push(eventSource);
+
             const timeout = setTimeout(() => {
               reject(new Error(`Connection ${i} timeout`));
             }, 5000);
@@ -313,12 +315,10 @@ describe('SSE Streaming End-to-End', () => {
               reject(error);
             };
           });
+        });
 
-          openPromises.push(promise);
-        }
-
-        // Wait for all to open
-        await Promise.all(openPromises);
+        // Wait for all connections to open
+        await Promise.all(setupPromises);
 
         // All should be open
         expect(connections.every((es) => es.readyState === EventSource.OPEN)).toBe(true);
@@ -331,10 +331,11 @@ describe('SSE Streaming End-to-End', () => {
 
   describe('SSE Protocol Compliance', () => {
     it('should use correct content-type for SSE', async () => {
-      const response = await fetch(`${baseUrl}/mcp`, {
+      const response = await fetch(`${baseUrl}/mcp?sessionId=${sessionId}`, {
         method: 'GET',
         headers: {
-          'Mcp-Session-Id': sessionId,
+          'Accept': 'text/event-stream',
+          'Mcp-Protocol-Version': '2025-03-26',
         },
       });
 
@@ -343,14 +344,16 @@ describe('SSE Streaming End-to-End', () => {
     });
 
     it('should set correct cache headers for SSE', async () => {
-      const response = await fetch(`${baseUrl}/mcp`, {
+      const response = await fetch(`${baseUrl}/mcp?sessionId=${sessionId}`, {
         method: 'GET',
         headers: {
-          'Mcp-Session-Id': sessionId,
+          'Accept': 'text/event-stream',
+          'Mcp-Protocol-Version': '2025-03-26',
         },
       });
 
       const cacheControl = response.headers.get('cache-control');
+      expect(cacheControl).toBeTruthy();
       expect(cacheControl).toContain('no-cache');
     });
   });

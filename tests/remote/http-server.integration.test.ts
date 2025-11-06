@@ -13,6 +13,7 @@ describe('HTTP Server Integration', () => {
     process.env.NODE_ENV = 'test';
     process.env.SKIP_HEALTH_CHECKS = 'true';
     process.env.ENABLE_RESUMABILITY = 'false';
+    process.env.ALLOWED_ORIGINS = '*';
 
     // Create server
     app = await createExpressServer();
@@ -193,7 +194,8 @@ describe('HTTP Server Integration', () => {
         body: JSON.stringify(initializedRequest),
       });
 
-      expect(response.status).toBe(200);
+      // Notifications return 202 Accepted (no response expected)
+      expect(response.status).toBe(202);
     });
   });
 

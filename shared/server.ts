@@ -119,7 +119,6 @@ export function createMCPServer() {
       capabilities: {
         resources: {},
         tools: {},
-        prompts: {},
       },
     }
   );

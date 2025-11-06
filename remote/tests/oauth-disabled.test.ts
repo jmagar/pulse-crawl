@@ -54,7 +54,11 @@ describe('OAuth Disabled', () => {
       },
     };
 
-    const response = await request(app).post('/mcp').send(initRequest).expect(200);
+    const response = await request(app)
+      .post('/mcp')
+      .set('Accept', 'application/json, text/event-stream')
+      .send(initRequest)
+      .expect(200);
 
     expect(response.body).toHaveProperty('result');
   });
