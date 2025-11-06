@@ -2,7 +2,7 @@
 
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { createMCPServer } from './shared/index.js';
-import { runHealthChecks } from './shared/healthcheck.js';
+import { runHealthChecks, type HealthCheckResult } from './shared/config/health-checks.js';
 
 // Validate environment variables
 function validateEnvironment() {
@@ -47,19 +47,22 @@ async function main() {
     console.error('Running authentication health checks...');
     const healthResults = await runHealthChecks();
 
-    const failedChecks = healthResults.filter((result) => !result.success);
+    const failedChecks = healthResults.filter((result: HealthCheckResult) => !result.success);
     if (failedChecks.length > 0) {
       console.error('\nAuthentication health check failures:');
-      failedChecks.forEach(({ service, error }) => {
-        console.error(`  ${service}: ${error}`);
+      failedChecks.forEach((check: HealthCheckResult) => {
+        console.error(`  ${check.service}: ${check.error || 'Unknown error'}`);
       });
       console.error('\nTo skip health checks, set SKIP_HEALTH_CHECKS=true');
       process.exit(1);
     }
 
-    const successfulChecks = healthResults.filter((result) => result.success);
+    const successfulChecks = healthResults.filter((result: HealthCheckResult) => result.success);
     if (successfulChecks.length > 0) {
-      console.error('Health checks passed for:', successfulChecks.map((r) => r.service).join(', '));
+      console.error(
+        'Health checks passed for:',
+        successfulChecks.map((r: HealthCheckResult) => r.service).join(', ')
+      );
     }
   }
 

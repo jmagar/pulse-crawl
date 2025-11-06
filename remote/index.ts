@@ -2,7 +2,7 @@
 
 import { config } from 'dotenv';
 import { createExpressServer } from './server.js';
-import { runHealthChecks, type HealthCheckResult } from './shared/healthcheck.js';
+import { runHealthChecks, type HealthCheckResult } from './shared/config/health-checks.js';
 
 // Load environment variables
 config();
@@ -52,8 +52,8 @@ async function main(): Promise<void> {
     const failedChecks = healthResults.filter((result: HealthCheckResult) => !result.success);
     if (failedChecks.length > 0) {
       console.error('\nAuthentication health check failures:');
-      failedChecks.forEach(({ service, error }: { service: string; error?: string }) => {
-        console.error(`  ${service}: ${error}`);
+      failedChecks.forEach((check: HealthCheckResult) => {
+        console.error(`  ${check.service}: ${check.error || 'Unknown error'}`);
       });
       console.error('\nTo skip health checks, set SKIP_HEALTH_CHECKS=true');
       process.exit(1);
