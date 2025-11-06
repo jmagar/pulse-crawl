@@ -12,9 +12,11 @@
 
 ## Implementation Status
 
-**Last Updated:** 2025-11-06 11:28 EST
+**Last Updated:** 2025-11-06 15:58 EST
 
-### ✅ Completed Tasks (5/17)
+### ✅ Completed Tasks (13/17)
+
+**Client Layer (Tasks 1-5):**
 
 - **Task 1: Search Client - Test Setup** ✅ (Commit: b04294f)
   - Created FirecrawlSearchClient with initialization tests
@@ -36,22 +38,48 @@
   - Added getStatus() and cancel() methods to CrawlClient
   - Tests: 4 passing
 
-**Total Tests Passing:** 13 unit tests across 3 client implementations
+**MCP Tool Layer (Tasks 6-13):**
 
-### 🔄 In Progress
+- **Task 6: Search Tool - Schema and Pipeline Setup** ✅ (Commit: b993ce0)
+  - Created searchOptionsSchema with Zod validation
+  - Tests: 3 passing
 
-- **Tasks 6-12:** MCP Tool Layer Implementation (search, map, crawl tools + registration)
+- **Task 7: Search Tool - Pipeline Implementation** ✅ (Commit: b993ce0)
+  - Implemented searchPipeline function
+  - Tests: 2 passing
 
-### ⏳ Remaining Tasks (12)
+- **Task 8: Search Tool - Response Formatting** ✅ (Commit: b993ce0)
+  - Created formatSearchResponse with multi-source support
+  - Tests: 2 passing
 
-- Task 6: Search Tool - Schema and Pipeline Setup
-- Task 7: Search Tool - Pipeline Implementation
-- Task 8: Search Tool - Response Formatting
-- Task 9: Search Tool - MCP Tool Registration
-- Task 10: Map Tool - Complete Implementation
-- Task 11: Crawl Tool - Consolidated Implementation
-- Task 12: Register New Tools in Shared Module
-- Task 13: Build and Integration Test
+- **Task 9: Search Tool - MCP Tool Registration** ✅ (Commit: b073440)
+  - Implemented createSearchTool with handler
+  - Fixed test assertion (case-insensitive match)
+  - Tests: 2 passing
+
+- **Task 10: Map Tool - Complete Implementation** ✅ (Commit: b073440)
+  - Complete map tool with schema, pipeline, response, index
+  - Support for sitemap and URL filtering
+  - Tests: 5 passing
+
+- **Task 11: Crawl Tool - Consolidated Implementation** ✅ (Commit: b073440)
+  - Single tool handles start/status/cancel operations
+  - Discriminated union schema for operation routing
+  - Tests: 5 passing
+
+- **Task 12: Register New Tools in Shared Module** ✅ (Commit: b073440)
+  - Updated mcp/tools/index.ts with all 4 tools
+  - All tools registered in ListTools and CallTool handlers
+
+- **Task 13: Build and Integration Test** ✅ (Commit: b073440)
+  - All modules build successfully
+  - 78 tests passing across all modules
+  - All 4 tools (scrape, search, map, crawl) operational
+
+**Total Tests Passing:** 78 tests across clients, tools, and infrastructure
+
+### ⏳ Remaining Tasks (4/17)
+
 - Task 14: Integration Tests for New Tools
 - Task 15: Manual Testing Scripts
 - Task 16: Documentation Updates
