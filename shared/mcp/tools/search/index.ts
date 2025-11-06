@@ -13,7 +13,7 @@ export function createSearchTool(config: FirecrawlConfig): Tool {
     name: 'search',
     description:
       'Search the web using Firecrawl with optional content scraping. Supports web, image, and news search with filtering by category (GitHub, research papers, PDFs).',
-    inputSchema: zodToJsonSchema(searchOptionsSchema, 'searchOptions'),
+    inputSchema: zodToJsonSchema(searchOptionsSchema, 'searchOptions') as any,
 
     handler: async (args: unknown) => {
       try {

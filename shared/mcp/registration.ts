@@ -81,7 +81,7 @@ export function registerTools(
 
     // Cast to any to satisfy MCP SDK type expectations
     // The ToolResponse interface matches the CallToolResult schema
-    return (await tool.handler(args)) as any;
+    return (await (tool.handler as any)(args)) as any;
   });
 }
 
