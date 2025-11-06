@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { createTransport } from '../../remote/src/transport.js';
+import { createTransport } from '../../remote/transport.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 
 describe('Transport Factory', () => {

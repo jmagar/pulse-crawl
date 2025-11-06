@@ -24,14 +24,14 @@ import type {
   StrategyConfigFactory,
   IScrapingClients,
 } from '../../../shared/src/server.js';
-import { NativeFetcher, FirecrawlClient, BrightDataClient } from '../../../shared/src/server.js';
+import { NativeFetcher, FirecrawlClient } from '../../../shared/src/server.js';
 
 interface TestResult {
   page: PageTestCase;
   config: EnvVarConfig;
   expected: 'pass' | 'fail';
   actual: 'pass' | 'fail';
-  actualStrategy?: 'native' | 'firecrawl' | 'brightdata' | 'none';
+  actualStrategy?: 'native' | 'firecrawl' | 'none';
   strategiesAttempted?: string[];
   details?: string;
   duration: number;
@@ -47,7 +47,6 @@ async function testPageWithConfig(page: PageTestCase, config: EnvVarConfig): Pro
   // Save original env vars
   const originalEnv = {
     FIRECRAWL_API_KEY: process.env.FIRECRAWL_API_KEY,
-    BRIGHTDATA_API_KEY: process.env.BRIGHTDATA_API_KEY,
     OPTIMIZE_FOR: process.env.OPTIMIZE_FOR,
   };
 
@@ -60,14 +59,6 @@ async function testPageWithConfig(page: PageTestCase, config: EnvVarConfig): Pro
     } else {
       delete process.env.FIRECRAWL_API_KEY;
       // FIRECRAWL_API_KEY is not set for this config
-    }
-
-    if (config.BRIGHTDATA_API_KEY) {
-      process.env.BRIGHTDATA_API_KEY = config.BRIGHTDATA_API_KEY;
-      // BRIGHTDATA_API_KEY is set for this config
-    } else {
-      delete process.env.BRIGHTDATA_API_KEY;
-      // BRIGHTDATA_API_KEY is not set for this config
     }
 
     if (config.OPTIMIZE_FOR) {
@@ -85,7 +76,6 @@ async function testPageWithConfig(page: PageTestCase, config: EnvVarConfig): Pro
     // Create the client factory based on current env vars
     const clientFactory: ClientFactory = () => {
       const firecrawlApiKey = process.env.FIRECRAWL_API_KEY;
-      const brightDataToken = process.env.BRIGHTDATA_API_KEY;
 
       // Create clients based on available API keys
 
@@ -95,10 +85,6 @@ async function testPageWithConfig(page: PageTestCase, config: EnvVarConfig): Pro
 
       if (firecrawlApiKey) {
         clients.firecrawl = new FirecrawlClient(firecrawlApiKey);
-      }
-
-      if (brightDataToken) {
-        clients.brightData = new BrightDataClient(brightDataToken);
       }
 
       return clients;
@@ -129,7 +115,7 @@ async function testPageWithConfig(page: PageTestCase, config: EnvVarConfig): Pro
       const actual = 'isError' in result && result.isError ? 'fail' : 'pass';
 
       // Extract strategy information from the result text
-      let actualStrategy: 'native' | 'firecrawl' | 'brightdata' | 'none' = 'none';
+      let actualStrategy: 'native' | 'firecrawl' | 'none' = 'none';
       let strategiesAttempted: string[] = [];
 
       if (!('isError' in result) || !result.isError) {
@@ -137,7 +123,7 @@ async function testPageWithConfig(page: PageTestCase, config: EnvVarConfig): Pro
         const resultText = result.content?.[0]?.text || '';
         const strategyMatch = resultText.match(/Scraped using: (\w+)/);
         if (strategyMatch) {
-          actualStrategy = strategyMatch[1] as 'native' | 'firecrawl' | 'brightdata';
+          actualStrategy = strategyMatch[1] as 'native' | 'firecrawl';
         }
       } else {
         // Error case - extract diagnostics from error text
@@ -198,7 +184,6 @@ async function runPagesTestSuite() {
   // Store actual env values
   const actualEnvValues = {
     FIRECRAWL_API_KEY: process.env.FIRECRAWL_API_KEY,
-    BRIGHTDATA_API_KEY: process.env.BRIGHTDATA_API_KEY,
   };
 
   // Update configs with actual values
@@ -209,10 +194,6 @@ async function runPagesTestSuite() {
         config.FIRECRAWL_API_KEY === 'from_env'
           ? actualEnvValues.FIRECRAWL_API_KEY
           : config.FIRECRAWL_API_KEY,
-      BRIGHTDATA_API_KEY:
-        config.BRIGHTDATA_API_KEY === 'from_env'
-          ? actualEnvValues.BRIGHTDATA_API_KEY
-          : config.BRIGHTDATA_API_KEY,
     };
     // Config resolved with appropriate API keys
     return resolved;

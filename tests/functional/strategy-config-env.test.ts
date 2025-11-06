@@ -2,8 +2,8 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import { FilesystemStrategyConfigClient } from '../../shared/src/strategy-config/filesystem-client.js';
-import type { StrategyConfigEntry } from '../../shared/src/strategy-config/types.js';
+import { FilesystemStrategyConfigClient } from '../../shared/strategy-config/filesystem-client.js';
+import type { StrategyConfigEntry } from '../../shared/strategy-config/types.js';
 
 describe('FilesystemStrategyConfigClient with Environment', () => {
   const originalEnv = process.env.STRATEGY_CONFIG_PATH;
@@ -91,7 +91,7 @@ describe('FilesystemStrategyConfigClient with Environment', () => {
     // Add an entry
     const testEntry: StrategyConfigEntry = {
       prefix: 'default.com',
-      default_strategy: 'brightdata',
+      default_strategy: 'firecrawl',
       notes: 'Default location',
     };
 
@@ -104,7 +104,7 @@ describe('FilesystemStrategyConfigClient with Environment', () => {
     // The config should contain our entry (among possibly others from initialization)
     const addedEntry = config.find((e) => e.prefix === 'default.com');
     expect(addedEntry).toBeDefined();
-    expect(addedEntry?.default_strategy).toBe('brightdata');
+    expect(addedEntry?.default_strategy).toBe('firecrawl');
     expect(addedEntry?.notes).toBe('Default location');
 
     // Clean up after test

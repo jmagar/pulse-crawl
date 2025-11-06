@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { InMemoryEventStore } from '../../remote/src/eventStore.js';
+import { InMemoryEventStore } from '../../remote/eventStore.js';
 import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 
 describe('InMemoryEventStore', () => {

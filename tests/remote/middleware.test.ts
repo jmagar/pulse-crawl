@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
-import { healthCheck } from '../../remote/src/middleware/health.js';
-import { getCorsOptions } from '../../remote/src/middleware/cors.js';
-import { authMiddleware } from '../../remote/src/middleware/auth.js';
+import { healthCheck } from '../../remote/middleware/health.js';
+import { getCorsOptions } from '../../remote/middleware/cors.js';
+import { authMiddleware } from '../../remote/middleware/auth.js';
 import type { Request, Response, NextFunction } from 'express';
 
 describe('Middleware', () => {

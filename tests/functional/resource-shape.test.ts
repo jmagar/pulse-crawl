@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { CallToolResultSchema } from '@modelcontextprotocol/sdk/types.js';
-import { scrapeTool } from '../../shared/src/tools/scrape.js';
+import { scrapeTool } from '../../shared/tools/scrape.js';
 import type { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import type { IScrapingClients, StrategyConfigFactory } from '../../shared/src/server.js';
-import { ResourceStorageFactory } from '../../shared/src/storage/index.js';
+import type { IScrapingClients, StrategyConfigFactory } from '../../shared/server.js';
+import { ResourceStorageFactory } from '../../shared/storage/index.js';
 
 // Mock dependencies
 vi.mock('../../shared/src/scraping-strategies.js', () => ({

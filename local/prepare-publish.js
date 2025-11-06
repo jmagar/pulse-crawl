@@ -1,4 +1,19 @@
 #!/usr/bin/env node
+/**
+ * Publish Preparation: Convert Symlink to Real Files
+ *
+ * During development, local/shared/ is a symlink to ../shared/dist/.
+ * For npm publishing, we need real files (symlinks don't publish well).
+ *
+ * This script:
+ * 1. Builds the shared package
+ * 2. Removes the symlink
+ * 3. Copies actual files from ../shared/dist/ to ./shared/
+ *
+ * The published package includes both:
+ * - dist/ (our transpiled local code)
+ * - shared/ (copied shared code)
+ */
 import { cp, rm } from 'fs/promises';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -56,7 +71,7 @@ async function prepare() {
   }
 
   // Copy the built shared files
-  await cp(join(__dirname, '../shared/build'), join(__dirname, 'shared'), { recursive: true });
+  await cp(join(__dirname, '../shared/dist'), join(__dirname, 'shared'), { recursive: true });
 
   console.log('Copied shared files to local package');
 }

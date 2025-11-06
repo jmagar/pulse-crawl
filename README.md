@@ -6,7 +6,7 @@ Haven't heard about MCP yet? The easiest way to keep up-to-date is to read our [
 
 This is an MCP ([Model Context Protocol](https://modelcontextprotocol.io/)) Server that pulls specific resources from the open internet into context, designed for agent-building frameworks and MCP clients that lack built-in fetch capabilities.
 
-Pulse Fetch is purpose-built for extracting clean, structured content from web pages while minimizing token usage and providing reliable access to protected content through advanced anti-bot bypassing capabilities.
+Pulse Fetch is purpose-built for extracting clean, structured content from web pages while minimizing token usage and providing reliable access through intelligent fallback strategies.
 
 This project is built and maintained by [PulseMCP](https://www.pulsemcp.com/).
 
@@ -32,7 +32,7 @@ This project is built and maintained by [PulseMCP](https://www.pulsemcp.com/).
 
 **Intelligent caching**: Automatically caches scraped content as MCP Resources. Subsequent requests for the same URL return cached content instantly without network calls, dramatically improving performance.
 
-**Anti-bot bypass**: Integrates with Firecrawl and BrightData APIs to reliably work around anti-scraping technology.
+**Enhanced scraping**: Integrates with Firecrawl API for enhanced content extraction and anti-scraping bypass.
 
 **Smart strategy selection**: Automatically learns and applies the best scraping method for specific URL patterns, improving performance over time.
 
@@ -97,9 +97,9 @@ I've extracted the product information:
 User: "This page is blocking me with CAPTCHA. Can you get the content from https://protected.example.com/data"
 Assistant: I'll extract the content from that protected page for you.
 
-[Uses scrape tool with automatic anti-bot bypass]
+[Uses scrape tool with automatic fallback to Firecrawl]
 
-I successfully bypassed the protection and extracted the content from the page using BrightData's Web Unlocker capabilities.
+I successfully bypassed the protection and extracted the content from the page using Firecrawl's enhanced scraping capabilities.
 ```
 
 ## Intelligent Caching
@@ -162,7 +162,6 @@ Most other alternatives fall short on one or more vectors:
 - Node.js (recommended: use the version specified in package.json)
 - Claude Desktop application (for local setup)
 - Optional: Firecrawl API key for enhanced scraping capabilities
-- Optional: BrightData bearer token for web unlocking features
 
 ## Environment Variables
 
@@ -170,8 +169,7 @@ Most other alternatives fall short on one or more vectors:
 
 | Environment Variable           | Description                                                         | Required | Default Value                | Example                           |
 | ------------------------------ | ------------------------------------------------------------------- | -------- | ---------------------------- | --------------------------------- |
-| `FIRECRAWL_API_KEY`            | API key for Firecrawl service to bypass anti-bot measures           | No       | N/A                          | `fc-abc123...`                    |
-| `BRIGHTDATA_API_KEY`           | Bearer token for BrightData Web Unlocker service                    | No       | N/A                          | `Bearer bd_abc123...`             |
+| `FIRECRAWL_API_KEY`            | API key for Firecrawl service for enhanced scraping                 | No       | N/A                          | `fc-abc123...`                    |
 | `STRATEGY_CONFIG_PATH`         | Path to markdown file containing scraping strategy configuration    | No       | OS temp dir                  | `/path/to/scraping-strategies.md` |
 | `OPTIMIZE_FOR`                 | Optimization strategy for scraping: `cost` or `speed`               | No       | `cost`                       | `speed`                           |
 | `MCP_RESOURCE_STORAGE`         | Storage backend for saved resources: `memory` or `filesystem`       | No       | `memory`                     | `filesystem`                      |
@@ -230,7 +228,6 @@ Add this configuration to your Claude Desktop config file:
       "args": ["-y", "@pulsemcp/pulse-fetch"],
       "env": {
         "FIRECRAWL_API_KEY": "your-firecrawl-api-key",
-        "BRIGHTDATA_API_KEY": "your-brightdata-bearer-token",
         "STRATEGY_CONFIG_PATH": "/path/to/your/scraping-strategies.md",
         "OPTIMIZE_FOR": "cost",
         "MCP_RESOURCE_STORAGE": "filesystem",
@@ -278,7 +275,7 @@ npm run build
 npm start
 ```
 
-The server will start on `http://localhost:3000` (configurable via PORT environment variable).
+The server will start on `http://localhost:3060` (configurable via PORT environment variable).
 
 **Docker Deployment:**
 
@@ -289,8 +286,8 @@ docker-compose up -d
 
 **Connecting Clients:**
 
-- **MCP Inspector**: `npx @modelcontextprotocol/inspector` → Connect to `http://localhost:3000/mcp`
-- **Claude Code**: `claude mcp add --transport http pulse-fetch-remote http://localhost:3000/mcp`
+- **MCP Inspector**: `npx @modelcontextprotocol/inspector` → Connect to `http://localhost:3060/mcp`
+- **Claude Code**: `claude mcp add --transport http pulse-fetch-remote http://localhost:3060/mcp`
 
 For detailed documentation, configuration options, security considerations, and production deployment guides, refer to [Pulse Fetch HTTP Server Documentation](remote/README.md).
 
@@ -329,10 +326,10 @@ pulse-fetch/
 
 Pulse Fetch provides two transport mechanisms:
 
-| Transport | Package | Use Case | Protocol |
-|-----------|---------|----------|----------|
-| **stdio** | `@pulsemcp/pulse-fetch` | Claude Desktop, local CLI tools | stdin/stdout |
-| **HTTP Streaming** | `@pulsemcp/pulse-fetch-remote` | Remote servers, Docker, multi-client | HTTP + SSE |
+| Transport          | Package                        | Use Case                             | Protocol     |
+| ------------------ | ------------------------------ | ------------------------------------ | ------------ |
+| **stdio**          | `@pulsemcp/pulse-fetch`        | Claude Desktop, local CLI tools      | stdin/stdout |
+| **HTTP Streaming** | `@pulsemcp/pulse-fetch-remote` | Remote servers, Docker, multi-client | HTTP + SSE   |
 
 Both implementations share the same core functionality (`shared/`) ensuring feature parity.
 
@@ -480,7 +477,6 @@ Running authentication health checks...
 
 Authentication health check failures:
   Firecrawl: Invalid API key - authentication failed
-  BrightData: Invalid bearer token - authentication failed
 
 To skip health checks, set SKIP_HEALTH_CHECKS=true
 ```
@@ -493,15 +489,15 @@ The pulse-fetch MCP server includes an intelligent strategy system that automati
 
 The `OPTIMIZE_FOR` environment variable controls the order and selection of scraping strategies:
 
-- **`COST` (default)**: Optimizes for the lowest cost by trying native fetch first, then Firecrawl, then BrightData
-  - Order: `native → firecrawl → brightdata`
+- **`COST` (default)**: Optimizes for the lowest cost by trying native fetch first, then Firecrawl
+  - Order: `native → firecrawl`
   - Best for: Most use cases where cost is a concern
   - Behavior: Always tries the free native method first before paid services
 
-- **`SPEED`**: Optimizes for faster results by skipping native fetch and starting with more powerful scrapers
-  - Order: `firecrawl → brightdata` (skips native entirely)
+- **`SPEED`**: Optimizes for faster results by using Firecrawl directly
+  - Order: `firecrawl` (skips native entirely)
   - Best for: Time-sensitive applications or sites known to block native fetch
-  - Behavior: Goes straight to advanced scrapers that are more likely to succeed on complex sites
+  - Behavior: Goes straight to Firecrawl which is more likely to succeed on complex sites
 
 Example configuration:
 
@@ -510,17 +506,26 @@ export OPTIMIZE_FOR=SPEED  # For faster, more reliable scraping
 export OPTIMIZE_FOR=COST   # For cost-effective scraping (default)
 ```
 
+> **📚 For detailed information on strategy selection, see [docs/STRATEGY_SELECTION.md](docs/STRATEGY_SELECTION.md)**
+>
+> This comprehensive guide covers:
+>
+> - How the system decides between native and Firecrawl
+> - Optimization mode recommendations for different use cases
+> - URL-specific strategy configuration
+> - Auto-learning and diagnostics
+> - Best practices for self-hosted Firecrawl
+
 ## How It Works
 
 1. **Configured Strategy**: The server checks a local config file for URL-specific strategies
-2. **Universal Fallback**: If no configured strategy exists or it fails, falls back to the universal approach (native → firecrawl → brightdata)
+2. **Universal Fallback**: If no configured strategy exists or it fails, falls back to the universal approach (native → firecrawl)
 3. **Auto-Learning**: When a strategy succeeds, it's automatically saved to the config file with an intelligent URL pattern for future use
 
 ## Strategy Types
 
 - **`native`**: Fast native fetch using Node.js fetch API (best for simple pages)
-- **`firecrawl`**: Enhanced content extraction using Firecrawl API (good for complex layouts)
-- **`brightdata`**: Anti-bot bypass using BrightData Web Unlocker (for protected content)
+- **`firecrawl`**: Enhanced content extraction using Firecrawl API (good for complex layouts and anti-bot bypass)
 
 ## Configuration File
 
@@ -529,17 +534,17 @@ The configuration is stored in a markdown table. By default, it's automatically 
 The table has three columns:
 
 - **prefix**: Domain or URL prefix to match (e.g., `reddit.com` or `reddit.com/r/`)
-- **default_strategy**: The strategy to use (`native`, `firecrawl`, or `brightdata`)
+- **default_strategy**: The strategy to use (`native` or `firecrawl`)
 - **notes**: Optional description or reasoning
 
 ### Example Configuration
 
 ```markdown
-| prefix        | default_strategy | notes                                               |
-| ------------- | ---------------- | --------------------------------------------------- |
-| reddit.com/r/ | brightdata       | Reddit requires anti-bot bypass for subreddit pages |
-| reddit.com    | firecrawl        | General Reddit pages work well with Firecrawl       |
-| github.com    | native           | GitHub pages are simple and work with native fetch  |
+| prefix        | default_strategy | notes                                                 |
+| ------------- | ---------------- | ----------------------------------------------------- |
+| reddit.com/r/ | firecrawl        | Reddit requires enhanced scraping for subreddit pages |
+| reddit.com    | firecrawl        | General Reddit pages work well with Firecrawl         |
+| github.com    | native           | GitHub pages are simple and work with native fetch    |
 ```
 
 ### Prefix Matching Rules
@@ -552,7 +557,7 @@ The table has three columns:
 
 When scraping a new URL:
 
-1. The system tries the universal fallback sequence (native → firecrawl → brightdata)
+1. The system tries the universal fallback sequence (native → firecrawl)
 2. The first successful strategy is automatically saved to the config file with an intelligently extracted URL pattern
 3. Future requests matching that pattern will use the discovered strategy
 

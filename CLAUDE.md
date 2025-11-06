@@ -55,10 +55,9 @@ npm run dev       # Development with auto-reload (builds shared first)
 
 The server now includes:
 
-- **Smart scraping tool** with three-tier fallback logic:
+- **Smart scraping tool** with two-tier fallback logic:
   1. Native fetch (fastest, basic)
-  2. Firecrawl API (enhanced content extraction)
-  3. BrightData Web Unlocker (anti-bot bypass)
+  2. Firecrawl API (enhanced content extraction and anti-bot bypass)
 - **Comprehensive test suite** with functional, integration, and mock tests
 - **Environment variable validation** with startup logging
 - **Content processing** with truncation and pagination support

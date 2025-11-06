@@ -9,9 +9,6 @@ interface MockConfig {
   enableFirecrawl?: boolean;
   firecrawlSuccess?: boolean;
   firecrawlData?: string;
-  enableBrightData?: boolean;
-  brightDataSuccess?: boolean;
-  brightDataData?: string;
 }
 
 interface TestMode {
@@ -48,17 +45,6 @@ async function createTestMCPClientWithMocks(
     }
     if (config.firecrawlData) {
       env.MOCK_FIRECRAWL_DATA = config.firecrawlData;
-    }
-  }
-
-  // BrightData mocks
-  if (config.enableBrightData) {
-    env.ENABLE_BRIGHTDATA_MOCK = 'true';
-    if (config.brightDataSuccess !== undefined) {
-      env.MOCK_BRIGHTDATA_SUCCESS = config.brightDataSuccess.toString();
-    }
-    if (config.brightDataData) {
-      env.MOCK_BRIGHTDATA_DATA = config.brightDataData;
     }
   }
 
@@ -146,39 +132,11 @@ export function runIntegrationTests(mode: TestMode) {
         expect(result.content[0].text).toContain('Scraped using: firecrawl');
       });
 
-      it('should fallback to BrightData when others fail', async () => {
-        client = await createTestMCPClientWithMocks(mode.serverPath, {
-          nativeSuccess: false,
-          enableFirecrawl: true,
-          firecrawlSuccess: false,
-          enableBrightData: true,
-          brightDataSuccess: true,
-          brightDataData: 'BrightData final fallback success!',
-        });
-
-        const result = await client.callTool('scrape', {
-          url: 'https://example.com',
-          resultHandling: 'returnOnly',
-        });
-
-        expect(result).toMatchObject({
-          content: [
-            {
-              type: 'text',
-              text: expect.stringContaining('BrightData final fallback success!'),
-            },
-          ],
-        });
-        expect(result.content[0].text).toContain('Scraped using: brightdata');
-      });
-
       it('should handle complete failure gracefully', async () => {
         client = await createTestMCPClientWithMocks(mode.serverPath, {
           nativeSuccess: false,
           enableFirecrawl: true,
           firecrawlSuccess: false,
-          enableBrightData: true,
-          brightDataSuccess: false,
         });
 
         const result = await client.callTool('scrape', {

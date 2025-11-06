@@ -5,7 +5,7 @@ import {
   OpenAICompatibleExtractClient,
   ExtractClientFactory,
   type LLMConfig,
-} from '../../shared/src/extract/index.js';
+} from '../../shared/extract/index.js';
 
 // Mock the SDK modules
 vi.mock('@anthropic-ai/sdk', () => {

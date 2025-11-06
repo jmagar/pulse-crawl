@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { MemoryResourceStorage } from '../../shared/src/storage/memory.js';
-import { FileSystemResourceStorage } from '../../shared/src/storage/filesystem.js';
+import { MemoryResourceStorage } from '../../shared/storage/memory.js';
+import { FileSystemResourceStorage } from '../../shared/storage/filesystem.js';
 import { join } from 'path';
 import { mkdtemp, rm } from 'fs/promises';
 import { tmpdir } from 'os';

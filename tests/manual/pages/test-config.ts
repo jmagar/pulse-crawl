@@ -12,14 +12,13 @@ export interface PageTestCase {
     [configName: string]: 'pass' | 'fail';
   };
   expectedStrategies?: {
-    [configName: string]: 'native' | 'firecrawl' | 'brightdata' | 'none';
+    [configName: string]: 'native' | 'firecrawl' | 'none';
   };
 }
 
 export interface EnvVarConfig {
   name: string;
   FIRECRAWL_API_KEY?: string;
-  BRIGHTDATA_API_KEY?: string;
   OPTIMIZE_FOR?: 'cost' | 'speed';
   description: string;
 }
@@ -32,16 +31,14 @@ export const TEST_PAGES: PageTestCase[] = [
     expectedResults: {
       'Native Only': 'pass', // GitHub usually works with native
       'Firecrawl Only': 'pass',
-      'BrightData Only': 'pass',
-      'All Services (Cost Optimized)': 'pass',
-      'All Services (Speed Optimized)': 'pass',
+      'Both Services (Cost Optimized)': 'pass',
+      'Both Services (Speed Optimized)': 'pass',
     },
     expectedStrategies: {
       'Native Only': 'native',
       'Firecrawl Only': 'firecrawl',
-      'BrightData Only': 'brightdata',
-      'All Services (Cost Optimized)': 'native', // Cost optimized tries native first
-      'All Services (Speed Optimized)': 'firecrawl', // Speed optimized skips native
+      'Both Services (Cost Optimized)': 'native', // Cost optimized tries native first
+      'Both Services (Speed Optimized)': 'firecrawl', // Speed optimized skips native
     },
   },
   {
@@ -50,16 +47,14 @@ export const TEST_PAGES: PageTestCase[] = [
     expectedResults: {
       'Native Only': 'pass', // Simple page works everywhere
       'Firecrawl Only': 'pass',
-      'BrightData Only': 'pass',
-      'All Services (Cost Optimized)': 'pass',
-      'All Services (Speed Optimized)': 'pass',
+      'Both Services (Cost Optimized)': 'pass',
+      'Both Services (Speed Optimized)': 'pass',
     },
     expectedStrategies: {
       'Native Only': 'native',
       'Firecrawl Only': 'firecrawl',
-      'BrightData Only': 'brightdata',
-      'All Services (Cost Optimized)': 'native', // Simple page should work with native
-      'All Services (Speed Optimized)': 'firecrawl', // Speed mode starts with firecrawl
+      'Both Services (Cost Optimized)': 'native', // Simple page should work with native
+      'Both Services (Speed Optimized)': 'firecrawl', // Speed mode starts with firecrawl
     },
   },
   {
@@ -68,16 +63,14 @@ export const TEST_PAGES: PageTestCase[] = [
     expectedResults: {
       'Native Only': 'fail', // 403 should fail everywhere
       'Firecrawl Only': 'fail',
-      'BrightData Only': 'fail',
-      'All Services (Cost Optimized)': 'fail',
-      'All Services (Speed Optimized)': 'fail',
+      'Both Services (Cost Optimized)': 'fail',
+      'Both Services (Speed Optimized)': 'fail',
     },
     expectedStrategies: {
       'Native Only': 'none',
       'Firecrawl Only': 'none',
-      'BrightData Only': 'none',
-      'All Services (Cost Optimized)': 'none',
-      'All Services (Speed Optimized)': 'none',
+      'Both Services (Cost Optimized)': 'none',
+      'Both Services (Speed Optimized)': 'none',
     },
   },
   {
@@ -86,16 +79,14 @@ export const TEST_PAGES: PageTestCase[] = [
     expectedResults: {
       'Native Only': 'fail', // 500 should fail everywhere
       'Firecrawl Only': 'fail',
-      'BrightData Only': 'fail',
-      'All Services (Cost Optimized)': 'fail',
-      'All Services (Speed Optimized)': 'fail',
+      'Both Services (Cost Optimized)': 'fail',
+      'Both Services (Speed Optimized)': 'fail',
     },
     expectedStrategies: {
       'Native Only': 'none',
       'Firecrawl Only': 'none',
-      'BrightData Only': 'none',
-      'All Services (Cost Optimized)': 'none',
-      'All Services (Speed Optimized)': 'none',
+      'Both Services (Cost Optimized)': 'none',
+      'Both Services (Speed Optimized)': 'none',
     },
   },
   {
@@ -104,16 +95,14 @@ export const TEST_PAGES: PageTestCase[] = [
     expectedResults: {
       'Native Only': 'pass', // Native now handles PDFs correctly
       'Firecrawl Only': 'pass', // Firecrawl might handle PDFs
-      'BrightData Only': 'pass', // BrightData might handle PDFs
-      'All Services (Cost Optimized)': 'pass', // Native should succeed
-      'All Services (Speed Optimized)': 'pass', // Should use Firecrawl
+      'Both Services (Cost Optimized)': 'pass', // Native should succeed
+      'Both Services (Speed Optimized)': 'pass', // Should use Firecrawl
     },
     expectedStrategies: {
       'Native Only': 'native', // Native can now parse PDFs
       'Firecrawl Only': 'firecrawl',
-      'BrightData Only': 'brightdata',
-      'All Services (Cost Optimized)': 'native', // Native should succeed on first try
-      'All Services (Speed Optimized)': 'firecrawl',
+      'Both Services (Cost Optimized)': 'native', // Native should succeed on first try
+      'Both Services (Speed Optimized)': 'firecrawl',
     },
   },
 ];
@@ -132,23 +121,15 @@ export const ENV_CONFIGS: EnvVarConfig[] = [
     OPTIMIZE_FOR: 'speed',
   },
   {
-    name: 'BrightData Only',
-    description: 'Only BrightData API available',
-    BRIGHTDATA_API_KEY: 'from_env',
-    OPTIMIZE_FOR: 'speed',
-  },
-  {
-    name: 'All Services (Cost Optimized)',
-    description: 'All scraping services available, optimized for cost',
+    name: 'Both Services (Cost Optimized)',
+    description: 'Both scraping services available, optimized for cost',
     FIRECRAWL_API_KEY: 'from_env',
-    BRIGHTDATA_API_KEY: 'from_env',
     OPTIMIZE_FOR: 'cost',
   },
   {
-    name: 'All Services (Speed Optimized)',
-    description: 'All scraping services available, optimized for speed',
+    name: 'Both Services (Speed Optimized)',
+    description: 'Both scraping services available, optimized for speed',
     FIRECRAWL_API_KEY: 'from_env',
-    BRIGHTDATA_API_KEY: 'from_env',
     OPTIMIZE_FOR: 'speed',
   },
 ];
@@ -171,6 +152,6 @@ export function getExpectedOutcome(page: PageTestCase, config: EnvVarConfig): 'p
 export function getExpectedStrategy(
   page: PageTestCase,
   config: EnvVarConfig
-): 'native' | 'firecrawl' | 'brightdata' | 'none' | undefined {
+): 'native' | 'firecrawl' | 'none' | undefined {
   return page.expectedStrategies?.[config.name];
 }

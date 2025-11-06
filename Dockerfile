@@ -1,51 +1,51 @@
 # Multi-stage build for Pulse Fetch HTTP Server
 
 # Stage 1: Builder
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy root package files and shared package
+# Copy root package files (includes workspace configuration)
 COPY package*.json ./
-COPY shared/package*.json ./shared/
+
+# Copy workspace packages
 COPY shared/ ./shared/
+COPY remote/ ./remote/
 
-# Copy remote package files
-COPY remote/package*.json ./remote/
-
-# Install dependencies for shared
-WORKDIR /app/shared
+# Install all dependencies via root workspace
 RUN npm ci
 
 # Build shared
+WORKDIR /app/shared
 RUN npm run build
 
-# Install dependencies for remote
-WORKDIR /app/remote
-RUN npm ci
-
-# Copy remote source
-COPY remote/src ./src
-COPY remote/tsconfig.json ./
-
 # Build remote
+WORKDIR /app/remote
 RUN npm run build
 
 # Stage 2: Production
-FROM node:18-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy package files
-COPY --from=builder /app/remote/package*.json ./
+# Copy root package files (workspace configuration)
+COPY --from=builder /app/package*.json ./
+
+# Copy workspace package files
 COPY --from=builder /app/shared/package*.json ./shared/
+COPY --from=builder /app/remote/package*.json ./remote/
 
 # Copy built files
-COPY --from=builder /app/remote/build ./build
-COPY --from=builder /app/shared/build ./shared/build
+COPY --from=builder /app/remote/dist ./remote/dist
+COPY --from=builder /app/shared/dist ./shared/dist
+# Copy shared dist into remote/dist/shared to match compiled import paths
+COPY --from=builder /app/shared/dist ./remote/dist/shared
 
-# Install production dependencies only
-RUN npm ci --only=production
+# Install all production dependencies via workspace
+RUN npm ci --omit=dev --ignore-scripts
+
+# Move to remote directory for runtime
+WORKDIR /app/remote
 
 # Set environment
 ENV NODE_ENV=production
@@ -59,4 +59,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3000/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"
 
 # Start server
-CMD ["node", "build/index.js"]
+CMD ["node", "/app/remote/dist/index.js"]

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { ResourceStorageFactory } from '../../src/storage/factory.js';
-import { MemoryResourceStorage } from '../../src/storage/memory.js';
-import { FileSystemResourceStorage } from '../../src/storage/filesystem.js';
+import { ResourceStorageFactory } from '../../storage/factory.js';
+import { MemoryResourceStorage } from '../../storage/memory.js';
+import { FileSystemResourceStorage } from '../../storage/filesystem.js';
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';

@@ -3,9 +3,9 @@ import {
   scrapeUniversal,
   scrapeWithSingleStrategy,
   scrapeWithStrategy,
-} from '../../shared/src/scraping-strategies.js';
-import type { IScrapingClients, IStrategyConfigClient } from '../../shared/src/server.js';
-import type { ScrapingStrategy } from '../../shared/src/strategy-config/types.js';
+} from '../../shared/scraping-strategies.js';
+import type { IScrapingClients, IStrategyConfigClient } from '../../shared/server.js';
+import type { ScrapingStrategy } from '../../shared/strategy-config/types.js';
 
 describe('Scraping Strategies', () => {
   let mockClients: IScrapingClients;
@@ -34,9 +34,6 @@ describe('Scraping Strategies', () => {
         scrape: vi.fn(),
       },
       firecrawl: {
-        scrape: vi.fn(),
-      },
-      brightData: {
         scrape: vi.fn(),
       },
     };
@@ -97,31 +94,9 @@ describe('Scraping Strategies', () => {
       });
     });
 
-    it('should fall back to brightdata when both native and firecrawl fail', async () => {
-      const mockBrightDataResult = {
-        success: true,
-        data: 'BrightData content',
-      };
-
-      vi.mocked(mockClients.native.scrape).mockResolvedValue({ success: false });
-      vi.mocked(mockClients.firecrawl!.scrape).mockResolvedValue({ success: false });
-      vi.mocked(mockClients.brightData!.scrape).mockResolvedValue(mockBrightDataResult);
-
-      const result = await scrapeUniversal(mockClients, {
-        url: 'https://example.com',
-      });
-
-      expectResultWithoutDiagnostics(result, {
-        success: true,
-        content: 'BrightData content',
-        source: 'brightdata',
-      });
-    });
-
     it('should return failure when all strategies fail', async () => {
       vi.mocked(mockClients.native.scrape).mockResolvedValue({ success: false });
       vi.mocked(mockClients.firecrawl!.scrape).mockResolvedValue({ success: false });
-      vi.mocked(mockClients.brightData!.scrape).mockResolvedValue({ success: false });
 
       const result = await scrapeUniversal(mockClients, {
         url: 'https://example.com',
@@ -141,7 +116,7 @@ describe('Scraping Strategies', () => {
         process.env.OPTIMIZE_FOR = originalEnv;
       });
 
-      it('should use cost optimization by default (native -> firecrawl -> brightdata)', async () => {
+      it('should use cost optimization by default (native -> firecrawl)', async () => {
         delete process.env.OPTIMIZE_FOR;
 
         const mockNativeResult = {
@@ -184,30 +159,6 @@ describe('Scraping Strategies', () => {
         });
         expect(mockClients.native.scrape).not.toHaveBeenCalled();
         expect(mockClients.firecrawl!.scrape).toHaveBeenCalled();
-      });
-
-      it('should fall back to brightdata in speed mode when firecrawl fails', async () => {
-        process.env.OPTIMIZE_FOR = 'speed';
-
-        vi.mocked(mockClients.firecrawl!.scrape).mockResolvedValue({ success: false });
-        const mockBrightDataResult = {
-          success: true,
-          data: 'BrightData content',
-        };
-        vi.mocked(mockClients.brightData!.scrape).mockResolvedValue(mockBrightDataResult);
-
-        const result = await scrapeUniversal(mockClients, {
-          url: 'https://example.com',
-        });
-
-        expectResultWithoutDiagnostics(result, {
-          success: true,
-          content: 'BrightData content',
-          source: 'brightdata',
-        });
-        expect(mockClients.native.scrape).not.toHaveBeenCalled();
-        expect(mockClients.firecrawl!.scrape).toHaveBeenCalled();
-        expect(mockClients.brightData!.scrape).toHaveBeenCalled();
       });
 
       it('should handle cost mode explicitly set', async () => {
@@ -350,10 +301,13 @@ describe('Scraping Strategies', () => {
     });
 
     it('should use configured strategy from config file', async () => {
-      vi.mocked(mockConfigClient.getStrategyForUrl).mockResolvedValue('brightdata');
+      vi.mocked(mockConfigClient.getStrategyForUrl).mockResolvedValue('firecrawl');
 
-      const mockBrightDataResult = { success: true, data: 'BrightData content' };
-      vi.mocked(mockClients.brightData!.scrape).mockResolvedValue(mockBrightDataResult);
+      const mockFirecrawlResult = {
+        success: true,
+        data: { markdown: 'Firecrawl content', html: '<p>Firecrawl content</p>' },
+      };
+      vi.mocked(mockClients.firecrawl!.scrape).mockResolvedValue(mockFirecrawlResult);
 
       const result = await scrapeWithStrategy(mockClients, mockConfigClient, {
         url: 'https://example.com',
@@ -361,8 +315,8 @@ describe('Scraping Strategies', () => {
 
       expect(result).toEqual({
         success: true,
-        content: 'BrightData content',
-        source: 'brightdata',
+        content: '<p>Firecrawl content</p>',
+        source: 'firecrawl',
       });
       expect(mockConfigClient.getStrategyForUrl).toHaveBeenCalledWith('https://example.com');
     });
@@ -412,10 +366,12 @@ describe('Scraping Strategies', () => {
       it('should save Yelp business pattern when successful', async () => {
         vi.mocked(mockConfigClient.getStrategyForUrl).mockResolvedValue(null);
 
-        const mockBrightDataResult = { success: true, data: 'Yelp content' };
+        const mockFirecrawlResult = {
+          success: true,
+          data: { markdown: 'Yelp content', html: '<p>Yelp content</p>' },
+        };
         vi.mocked(mockClients.native.scrape).mockResolvedValue({ success: false });
-        vi.mocked(mockClients.firecrawl!.scrape).mockResolvedValue({ success: false });
-        vi.mocked(mockClients.brightData!.scrape).mockResolvedValue(mockBrightDataResult);
+        vi.mocked(mockClients.firecrawl!.scrape).mockResolvedValue(mockFirecrawlResult);
 
         const result = await scrapeWithStrategy(mockClients, mockConfigClient, {
           url: 'https://yelp.com/biz/dolly-san-francisco',
@@ -424,7 +380,7 @@ describe('Scraping Strategies', () => {
         expect(result.success).toBe(true);
         expect(mockConfigClient.upsertEntry).toHaveBeenCalledWith({
           prefix: 'yelp.com/biz/',
-          default_strategy: 'brightdata',
+          default_strategy: 'firecrawl',
           notes: 'Auto-discovered via universal fallback',
         });
       });
@@ -473,10 +429,10 @@ describe('Scraping Strategies', () => {
         // Explicit firecrawl strategy fails
         vi.mocked(mockClients.firecrawl!.scrape).mockResolvedValue({ success: false });
 
-        // Universal fallback succeeds with brightdata
-        vi.mocked(mockClients.native.scrape).mockResolvedValue({ success: false });
-        vi.mocked(mockClients.brightData!.scrape).mockResolvedValue({
+        // Universal fallback succeeds with native
+        vi.mocked(mockClients.native.scrape).mockResolvedValue({
           success: true,
+          status: 200,
           data: 'Stack Overflow content',
         });
 
@@ -490,7 +446,7 @@ describe('Scraping Strategies', () => {
         expect(result.success).toBe(true);
         expect(mockConfigClient.upsertEntry).toHaveBeenCalledWith({
           prefix: 'stackoverflow.com/questions/123456/',
-          default_strategy: 'brightdata',
+          default_strategy: 'native',
           notes: 'Auto-discovered after firecrawl failed',
         });
       });

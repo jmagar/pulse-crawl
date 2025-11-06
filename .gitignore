@@ -12,7 +12,6 @@ resources/
 
 # Build outputs
 dist/
-build/
 *.js
 *.d.ts
 *.js.map

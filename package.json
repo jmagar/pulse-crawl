@@ -6,7 +6,8 @@
   "license": "MIT",
   "workspaces": [
     "local",
-    "shared"
+    "shared",
+    "remote"
   ],
   "type": "module",
   "scripts": {
@@ -14,7 +15,7 @@
     "ci:install": "npm ci && cd shared && npm ci && cd ../local && npm ci && cd ../../../libs/test-mcp-client && npm ci --ignore-scripts",
     "build": "node ../../scripts/build-mcp-server.js",
     "build:test": "node ../../scripts/build-mcp-server.js && cd ../../libs/test-mcp-client && npm run build",
-    "clean": "find . -name '*.js' -not -path './node_modules/*' -not -path './*/node_modules/*' -not -path './local/build/*' -not -path './shared/build/*' -not -path './*/build/*' -delete && find . -name '*.js.map' -not -path './node_modules/*' -not -path './*/node_modules/*' -not -path './local/build/*' -not -path './shared/build/*' -not -path './*/build/*' -delete",
+    "clean": "find . -name '*.js' -not -path './node_modules/*' -not -path './*/node_modules/*' -not -path './local/dist/*' -not -path './shared/dist/*' -not -path './*/dist/*' -delete && find . -name '*.js.map' -not -path './node_modules/*' -not -path './*/node_modules/*' -not -path './local/dist/*' -not -path './shared/dist/*' -not -path './*/dist/*' -delete",
     "dev": "cd local && npm run dev",
     "test": "node scripts/run-vitest.js",
     "test:ui": "node scripts/run-vitest.js --ui",
@@ -31,7 +32,25 @@
     "lint": "cd .. && npm run lint",
     "lint:fix": "cd .. && npm run lint:fix",
     "format": "cd .. && npm run format",
-    "format:check": "cd .. && npm run format:check"
+    "format:check": "cd .. && npm run format:check",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "shared/**/*.ts": [
+      "eslint --fix --config shared/eslint.config.js",
+      "prettier --write"
+    ],
+    "local/**/*.ts": [
+      "eslint --fix --config local/eslint.config.js",
+      "prettier --write"
+    ],
+    "remote/**/*.ts": [
+      "eslint --fix --config remote/eslint.config.js",
+      "prettier --write"
+    ],
+    "*.{js,json,md}": [
+      "prettier --write"
+    ]
   },
   "repository": {
     "type": "git",
@@ -44,6 +63,8 @@
     "@vitest/ui": "^3.2.3",
     "dotenv": "^16.6.1",
     "eventsource": "^4.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.6",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"
   },

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import { getStrategyConfigPath } from '../../shared/src/strategy-config/default-config.js';
+import { getStrategyConfigPath } from '../../shared/strategy-config/default-config.js';
 
 describe('Default Config Path', () => {
   const originalEnv = process.env.STRATEGY_CONFIG_PATH;
@@ -60,7 +60,7 @@ describe('Default Config Path', () => {
     const content = await fs.readFile(configPath, 'utf-8');
     expect(content).toContain('# Scraping Strategy Configuration');
     expect(content).toContain('yelp.com/biz/');
-    expect(content).toContain('brightdata');
+    expect(content).toContain('firecrawl');
   });
 
   it('should reuse existing temp config on subsequent calls', async () => {

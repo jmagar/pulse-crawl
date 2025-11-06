@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { createExpressServer } from '../../remote/src/server.js';
+import { createExpressServer } from '../../remote/server.js';
 import type { Application } from 'express';
 import type { Server } from 'http';
 
@@ -75,6 +75,7 @@ describe('HTTP Transport End-to-End', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
         },
         body: JSON.stringify(initRequest),
       });
@@ -100,6 +101,7 @@ describe('HTTP Transport End-to-End', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
           'Mcp-Session-Id': sessionId,
         },
         body: JSON.stringify(initializedNotification),
@@ -119,6 +121,7 @@ describe('HTTP Transport End-to-End', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
           'Mcp-Session-Id': sessionId,
         },
         body: JSON.stringify(request),
@@ -157,6 +160,7 @@ describe('HTTP Transport End-to-End', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
           'Mcp-Session-Id': sessionId,
         },
         body: JSON.stringify(request),
@@ -187,6 +191,7 @@ describe('HTTP Transport End-to-End', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
           'Mcp-Session-Id': sessionId,
         },
         body: JSON.stringify(request),
@@ -225,6 +230,7 @@ describe('HTTP Transport End-to-End', () => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
               'Mcp-Session-Id': sessionId,
             },
             body: JSON.stringify(req),
@@ -262,6 +268,7 @@ describe('HTTP Transport End-to-End', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
           'Mcp-Session-Id': sessionId,
         },
         body: JSON.stringify(request),
@@ -298,6 +305,7 @@ describe('HTTP Transport End-to-End', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
           'Mcp-Session-Id': sessionId,
         },
         body: JSON.stringify(request),
@@ -328,6 +336,7 @@ describe('HTTP Transport End-to-End', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
           'Mcp-Session-Id': sessionId,
         },
         body: JSON.stringify(request),
@@ -357,6 +366,7 @@ describe('HTTP Transport End-to-End', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
           'Mcp-Session-Id': sessionId,
         },
         body: JSON.stringify(request),
@@ -380,6 +390,7 @@ describe('HTTP Transport End-to-End', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
           'Mcp-Session-Id': sessionId,
         },
         body: JSON.stringify(request),
@@ -412,6 +423,7 @@ describe('HTTP Transport End-to-End', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
         },
         body: JSON.stringify(initRequest),
       });
@@ -434,6 +446,7 @@ describe('HTTP Transport End-to-End', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
           'Mcp-Session-Id': sessionId,
         },
         body: JSON.stringify(request),
@@ -444,6 +457,7 @@ describe('HTTP Transport End-to-End', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
           'Mcp-Session-Id': session2Id,
         },
         body: JSON.stringify(request),
@@ -472,6 +486,7 @@ describe('HTTP Transport End-to-End', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
           'Mcp-Session-Id': sessionId,
         },
         body: JSON.stringify(request),
@@ -498,6 +513,7 @@ describe('HTTP Transport End-to-End', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
           'Mcp-Session-Id': sessionId,
         },
         body: JSON.stringify(notification),
@@ -526,6 +542,7 @@ describe('HTTP Transport End-to-End', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
         },
         body: JSON.stringify(initRequest),
       });
@@ -554,6 +571,7 @@ describe('HTTP Transport End-to-End', () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
             'Mcp-Session-Id': sessionId,
           },
           body: JSON.stringify(request),
@@ -584,6 +602,7 @@ describe('HTTP Transport End-to-End', () => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
               'Mcp-Session-Id': sessionId,
             },
             body: JSON.stringify(req),

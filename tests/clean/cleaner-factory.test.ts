@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { createCleaner } from '../../shared/src/clean/cleaner-factory.js';
-import { HtmlCleaner } from '../../shared/src/clean/html-cleaner.js';
-import { PassThroughCleaner } from '../../shared/src/clean/pass-through-cleaner.js';
+import { createCleaner } from '../../shared/clean/cleaner-factory.js';
+import { HtmlCleaner } from '../../shared/clean/html-cleaner.js';
+import { PassThroughCleaner } from '../../shared/clean/pass-through-cleaner.js';
 
 describe('createCleaner', () => {
   it('should create HtmlCleaner for HTML content', () => {

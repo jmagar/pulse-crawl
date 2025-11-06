@@ -4,8 +4,7 @@
     "module": "ESNext",
     "lib": ["ES2020"],
     "moduleResolution": "node",
-    "rootDir": "./src",
-    "outDir": "./build",
+    "outDir": "./dist",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
@@ -16,6 +15,6 @@
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "build"]
+  "include": ["*.ts", "middleware/**/*", "tests/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

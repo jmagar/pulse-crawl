@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { FilesystemStrategyConfigClient } from '../../shared/src/strategy-config/filesystem-client.js';
-import type { StrategyConfigEntry } from '../../shared/src/strategy-config/types.js';
+import { FilesystemStrategyConfigClient } from '../../shared/strategy-config/filesystem-client.js';
+import type { StrategyConfigEntry } from '../../shared/strategy-config/types.js';
 import { promises as fs } from 'fs';
 
 // Mock fs
@@ -40,7 +40,7 @@ describe('FilesystemStrategyConfigClient', () => {
 | prefix | default_strategy | notes |
 |--------|------------------|-------|
 | example.com | firecrawl | Works well |
-| reddit.com/r/ | brightdata | Needs anti-bot |
+| reddit.com/r/ | firecrawl | Needs anti-bot |
 | github.com | native | Simple pages |
 `;
 
@@ -50,7 +50,7 @@ describe('FilesystemStrategyConfigClient', () => {
 
       expect(result).toEqual([
         { prefix: 'example.com', default_strategy: 'firecrawl', notes: 'Works well' },
-        { prefix: 'reddit.com/r/', default_strategy: 'brightdata', notes: 'Needs anti-bot' },
+        { prefix: 'reddit.com/r/', default_strategy: 'firecrawl', notes: 'Needs anti-bot' },
         { prefix: 'github.com', default_strategy: 'native', notes: 'Simple pages' },
       ]);
     });
@@ -101,8 +101,8 @@ describe('FilesystemStrategyConfigClient', () => {
       const markdownContent = `# Config
 | prefix | default_strategy | notes |
 |--------|------------------|-------|
-| reddit.com/r/ | brightdata | Specific path |
-| reddit.com | firecrawl | General domain |
+| reddit.com/r/ | firecrawl | Specific path |
+| reddit.com | native | General domain |
 | github.com | native | Simple domain |
 | example.com | firecrawl | Another domain |
 `;
@@ -112,12 +112,12 @@ describe('FilesystemStrategyConfigClient', () => {
 
     it('should match longest prefix first', async () => {
       const strategy = await client.getStrategyForUrl('https://reddit.com/r/programming');
-      expect(strategy).toBe('brightdata');
+      expect(strategy).toBe('firecrawl');
     });
 
     it('should match domain when path prefix does not match', async () => {
       const strategy = await client.getStrategyForUrl('https://reddit.com/user/test');
-      expect(strategy).toBe('firecrawl');
+      expect(strategy).toBe('native');
     });
 
     it('should match exact domain', async () => {
@@ -171,7 +171,7 @@ describe('FilesystemStrategyConfigClient', () => {
     it('should add new entry', async () => {
       const newEntry: StrategyConfigEntry = {
         prefix: 'new.com',
-        default_strategy: 'brightdata',
+        default_strategy: 'firecrawl',
         notes: 'New entry',
       };
 
@@ -179,7 +179,7 @@ describe('FilesystemStrategyConfigClient', () => {
 
       expect(mockWriteFile).toHaveBeenCalledWith(
         '/test/config.md',
-        expect.stringContaining('| new.com | brightdata | New entry |'),
+        expect.stringContaining('| new.com | firecrawl | New entry |'),
         'utf-8'
       );
     });
@@ -187,7 +187,7 @@ describe('FilesystemStrategyConfigClient', () => {
     it('should sort entries by prefix length (longest first)', async () => {
       const newEntry: StrategyConfigEntry = {
         prefix: 'example.com/very/long/path',
-        default_strategy: 'brightdata',
+        default_strategy: 'firecrawl',
         notes: 'Long path',
       };
 

@@ -1,1 +1,5 @@
-.env
+# Build outputs
+dist/
+
+# Symlinked shared code (points to ../shared/dist during development)
+shared/

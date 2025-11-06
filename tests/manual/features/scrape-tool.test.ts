@@ -6,7 +6,7 @@ import type {
   StrategyConfigFactory,
   IScrapingClients,
 } from '../../../shared/src/server.js';
-import { NativeFetcher, FirecrawlClient, BrightDataClient } from '../../../shared/src/server.js';
+import { NativeFetcher, FirecrawlClient } from '../../../shared/src/server.js';
 import { FilesystemStrategyConfigClient } from '../../../shared/src/strategy-config/index.js';
 
 describe('Scrape Tool', () => {
@@ -19,7 +19,6 @@ describe('Scrape Tool', () => {
   const createClientFactory = (): ClientFactory => {
     return () => {
       const firecrawlApiKey = process.env.FIRECRAWL_API_KEY;
-      const brightDataToken = process.env.BRIGHTDATA_API_KEY;
 
       const clients: IScrapingClients = {
         native: new NativeFetcher(),
@@ -27,10 +26,6 @@ describe('Scrape Tool', () => {
 
       if (firecrawlApiKey) {
         clients.firecrawl = new FirecrawlClient(firecrawlApiKey);
-      }
-
-      if (brightDataToken) {
-        clients.brightData = new BrightDataClient(brightDataToken);
       }
 
       return clients;

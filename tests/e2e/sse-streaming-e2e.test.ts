@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { createExpressServer } from '../../remote/src/server.js';
+import { createExpressServer } from '../../remote/server.js';
 import type { Application } from 'express';
 import type { Server } from 'http';
 import { EventSource } from 'eventsource';
@@ -58,6 +58,7 @@ describe('SSE Streaming End-to-End', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json, text/event-stream',
       },
       body: JSON.stringify(initRequest),
     });
@@ -75,6 +76,7 @@ describe('SSE Streaming End-to-End', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json, text/event-stream',
         'Mcp-Session-Id': sessionId,
       },
       body: JSON.stringify(initializedNotification),
