@@ -4,8 +4,11 @@ node_modules/
 .mcp.json
 
 # Runtime resource storage (filesystem backend)
+# Exclude runtime resource directories but NOT source code
 /resources/
 /tmp/pulse-crawl/resources/
+# Allow source code in shared/storage/resources/
+!shared/storage/resources/
 
 # Environment variables
 .env
