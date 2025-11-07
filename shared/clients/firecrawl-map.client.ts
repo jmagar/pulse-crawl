@@ -71,7 +71,8 @@ export class FirecrawlMapClient {
     }
     this.apiKey = config.apiKey;
     const base = config.baseUrl || 'https://api.firecrawl.dev';
-    this.baseUrl = `${base}/v2`;
+    // Don't add /v2 if baseUrl already includes it
+    this.baseUrl = base.endsWith('/v2') ? base : `${base}/v2`;
   }
 
   async map(options: MapOptions): Promise<MapResult> {
