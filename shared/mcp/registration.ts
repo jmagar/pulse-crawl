@@ -24,6 +24,7 @@ import { createCrawlTool } from './tools/crawl/index.js';
 import { ResourceStorageFactory } from '../storage/index.js';
 import type { FirecrawlConfig } from '../types.js';
 import { logInfo, logError } from '../utils/logging.js';
+import { registrationTracker } from '../utils/mcp-status.js';
 
 /**
  * Register MCP tools with the server
@@ -54,13 +55,42 @@ export function registerTools(
     baseUrl: process.env.FIRECRAWL_BASE_URL || 'https://api.firecrawl.dev',
   };
 
-  // Create tool instances
-  const tools = [
-    scrapeTool(server, clientFactory, strategyConfigFactory),
-    createSearchTool(firecrawlConfig),
-    createMapTool(firecrawlConfig),
-    createCrawlTool(firecrawlConfig),
+  // Create tool instances with tracking
+  // Each tool is wrapped in a factory to enable error handling during registration
+  const toolConfigs = [
+    { name: 'scrape', factory: () => scrapeTool(server, clientFactory, strategyConfigFactory) },
+    { name: 'search', factory: () => createSearchTool(firecrawlConfig) },
+    { name: 'map', factory: () => createMapTool(firecrawlConfig) },
+    { name: 'crawl', factory: () => createCrawlTool(firecrawlConfig) },
   ];
+
+  const tools: any[] = [];
+
+  // Register each tool, tracking success/failure
+  // Continue registration even if individual tools fail
+  for (const { name, factory } of toolConfigs) {
+    try {
+      const tool = factory();
+      tools.push(tool);
+
+      // Record successful registration
+      registrationTracker.recordRegistration({
+        name: tool.name,
+        type: 'tool',
+        success: true,
+      });
+    } catch (error) {
+      // Record failed registration but continue with other tools
+      registrationTracker.recordRegistration({
+        name,
+        type: 'tool',
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+
+      logError('tool-registration', error, { tool: name });
+    }
+  }
 
   // Log tool schemas for debugging (only in development or when DEBUG env var is set)
   if (process.env.DEBUG === 'true' || process.env.NODE_ENV === 'development') {
@@ -142,47 +172,68 @@ export function registerTools(
  * ```
  */
 export function registerResources(server: Server): void {
-  server.setRequestHandler(ListResourcesRequestSchema, async () => {
-    logInfo('resources/list', 'Listing resources');
+  try {
+    // Set up resource handlers with error tracking
+    server.setRequestHandler(ListResourcesRequestSchema, async () => {
+      logInfo('resources/list', 'Listing resources');
 
-    const storage = await ResourceStorageFactory.create();
-    const resources = await storage.list();
-
-    logInfo('resources/list', `Found ${resources.length} resources`, { count: resources.length });
-
-    return {
-      resources: resources.map((resource) => ({
-        uri: resource.uri,
-        name: resource.name,
-        mimeType: resource.mimeType,
-        description: resource.description,
-      })),
-    };
-  });
-
-  server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
-    const { uri } = request.params;
-
-    logInfo('resources/read', `Reading resource: ${uri}`, { uri });
-
-    try {
       const storage = await ResourceStorageFactory.create();
-      const resource = await storage.read(uri);
+      const resources = await storage.list();
 
-      logInfo('resources/read', `Resource read successfully: ${uri}`, { uri });
+      logInfo('resources/list', `Found ${resources.length} resources`, { count: resources.length });
 
       return {
-        contents: [
-          {
-            uri: resource.uri,
-            mimeType: resource.mimeType,
-            text: resource.text,
-          },
-        ],
+        resources: resources.map((resource) => ({
+          uri: resource.uri,
+          name: resource.name,
+          mimeType: resource.mimeType,
+          description: resource.description,
+        })),
       };
-    } catch (error) {
-      logError('resources/read', error, { uri });
-      throw error;
-    }
-  });
+    });
+
+    server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
+      const { uri } = request.params;
+
+      logInfo('resources/read', `Reading resource: ${uri}`, { uri });
+
+      try {
+        const storage = await ResourceStorageFactory.create();
+        const resource = await storage.read(uri);
+
+        logInfo('resources/read', `Resource read successfully: ${uri}`, { uri });
+
+        return {
+          contents: [
+            {
+              uri: resource.uri,
+              mimeType: resource.mimeType,
+              text: resource.text,
+            },
+          ],
+        };
+      } catch (error) {
+        logError('resources/read', error, { uri });
+        throw error;
+      }
+    });
+
+    // Record successful resource registration
+    registrationTracker.recordRegistration({
+      name: 'Resource Handlers',
+      type: 'resource',
+      success: true,
+    });
+  } catch (error) {
+    // Record failed resource registration
+    registrationTracker.recordRegistration({
+      name: 'Resource Handlers',
+      type: 'resource',
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+
+    logError('resource-registration', error);
+    throw error;
+  }
 }
