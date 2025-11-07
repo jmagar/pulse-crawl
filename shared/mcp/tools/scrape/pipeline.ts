@@ -76,7 +76,14 @@ export async function checkCache(
 
   try {
     const storage = await ResourceStorageFactory.create();
-    const cachedResources = await storage.findByUrlAndExtract(url, extract);
+
+    // Use findByUrlAndExtract if available and extract is provided
+    let cachedResources;
+    if (extract && storage.findByUrlAndExtract) {
+      cachedResources = await storage.findByUrlAndExtract(url, extract);
+    } else {
+      cachedResources = await storage.findByUrl(url);
+    }
 
     if (cachedResources.length > 0) {
       const cachedResource = cachedResources[0];
