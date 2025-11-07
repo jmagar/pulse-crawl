@@ -250,6 +250,11 @@ export class MetricsCollector implements IMetricsCollector {
     this.totalResponseTimeMs += durationMs;
     this.requestLatencies.push(durationMs);
 
+    // Cap latency samples to prevent unbounded memory growth
+    if (this.requestLatencies.length > 5000) {
+      this.requestLatencies.shift();
+    }
+
     if (isError) {
       this.totalErrors++;
     }

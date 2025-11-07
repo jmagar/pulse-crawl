@@ -12,7 +12,11 @@ export class ResourceStorageFactory {
       return this.instance;
     }
 
-    const storageType = (process.env.MCP_RESOURCE_STORAGE || 'memory').toLowerCase() as StorageType;
+    const rawType = (process.env.MCP_RESOURCE_STORAGE || 'memory').toLowerCase();
+    const validTypes: StorageType[] = ['memory', 'filesystem'];
+    const storageType = validTypes.includes(rawType as StorageType)
+      ? (rawType as StorageType)
+      : 'memory';
 
     switch (storageType) {
       case 'memory': {

@@ -13,17 +13,22 @@ import os from 'os';
 
 export class FileSystemResourceStorage implements ResourceStorage {
   private rootDir: string;
+  private initialized = false;
 
   constructor(rootDir?: string) {
     this.rootDir = rootDir || path.join(os.tmpdir(), 'pulse-fetch', 'resources');
   }
 
   async init(): Promise<void> {
+    if (this.initialized) return;
+
     await fs.mkdir(this.rootDir, { recursive: true });
     // Create subdirectories for each resource type
     await fs.mkdir(path.join(this.rootDir, 'raw'), { recursive: true });
     await fs.mkdir(path.join(this.rootDir, 'cleaned'), { recursive: true });
     await fs.mkdir(path.join(this.rootDir, 'extracted'), { recursive: true });
+
+    this.initialized = true;
   }
 
   async list(): Promise<ResourceData[]> {
@@ -140,11 +145,11 @@ export class FileSystemResourceStorage implements ResourceStorage {
     // Save extracted content if provided
     if (data.extracted) {
       const extractedMetadata: ResourceMetadata = {
+        ...data.metadata,
         url: data.url,
         timestamp,
         resourceType: 'extracted',
-        extractionPrompt: (data.metadata?.extract as string) || data.metadata?.extractionPrompt,
-        ...data.metadata,
+        extractionPrompt: data.metadata?.extractionPrompt,
       };
       const extractedPath = path.join(this.rootDir, 'extracted', fileName);
       await fs.writeFile(

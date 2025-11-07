@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { MemoryResourceStorage } from '../../storage/resources/backends/memory.js';
-import { FileSystemResourceStorage } from '../../storage/resources/backends/filesystem.js';
+import { MemoryResourceStorage } from '../../storage/memory.js';
+import { FileSystemResourceStorage } from '../../storage/filesystem.js';
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
@@ -199,9 +199,9 @@ describe('Cache Eviction - LRU Policy', () => {
     });
 
     it('should provide accurate cache statistics', async () => {
-      const uri1 = await storage.write('https://example.com/1', 'test');
+      void await storage.write('https://example.com/1', 'test');
       await new Promise((resolve) => setTimeout(resolve, 10));
-      const uri2 = await storage.write('https://example.com/2', 'test2');
+      void await storage.write('https://example.com/2', 'test2');
 
       const stats = await storage.getStats();
 

@@ -34,10 +34,10 @@ export class MemoryResourceStorage implements ResourceStorage {
     const uri = this.generateUri(url, timestamp, resourceType);
 
     const fullMetadata: ResourceMetadata = {
+      resourceType: 'raw',
+      ...metadata,
       url,
       timestamp,
-      resourceType,
-      ...metadata,
     };
 
     const resourceData: ResourceData = {
@@ -81,7 +81,7 @@ export class MemoryResourceStorage implements ResourceStorage {
       uris.extracted = await this.write(data.url, data.extracted, {
         ...data.metadata,
         resourceType: 'extracted',
-        extractionPrompt: (data.metadata?.extract as string) || data.metadata?.extractionPrompt,
+        extractionPrompt: data.metadata?.extractionPrompt,
         timestamp,
       });
     }
