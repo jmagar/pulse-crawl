@@ -14,10 +14,25 @@ console.log('🔄 Synchronizing dependencies across all package.json files...\n'
 // Read all package.json files
 const readPackageJson = (path) => {
   const fullPath = join(projectRoot, path);
-  return {
-    path: fullPath,
-    data: JSON.parse(readFileSync(fullPath, 'utf-8')),
-  };
+  try {
+    const content = readFileSync(fullPath, 'utf-8');
+    return {
+      path: fullPath,
+      data: JSON.parse(content),
+    };
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      console.error(`❌ Error: File not found at ${path}`);
+      console.error('   Make sure you are running this script from the project root.');
+    } else if (error instanceof SyntaxError) {
+      console.error(`❌ Error: Invalid JSON in ${path}`);
+      console.error('   The package.json file contains malformed JSON.');
+      console.error(`   Details: ${error.message}`);
+    } else {
+      console.error(`❌ Error reading ${path}:`, error.message);
+    }
+    process.exit(1);
+  }
 };
 
 const packages = {
@@ -102,7 +117,13 @@ if (packages.local.data.dependencies?.['@types/jsdom']) {
 
 // Write updated package.json files
 Object.values(packages).forEach((pkg) => {
-  writeFileSync(pkg.path, JSON.stringify(pkg.data, null, 2) + '\n');
+  try {
+    writeFileSync(pkg.path, JSON.stringify(pkg.data, null, 2) + '\n');
+  } catch (error) {
+    console.error(`❌ Error writing to ${pkg.path}:`, error.message);
+    console.error('   Check file permissions and disk space.');
+    process.exit(1);
+  }
 });
 
 // Report changes

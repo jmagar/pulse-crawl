@@ -8,7 +8,7 @@ import type {
 } from '../../../clients/firecrawl/index.js';
 import type { SearchOptions } from './schema.js';
 
-vi.mock('../../../clients/firecrawl-search.client.js');
+vi.mock('../../../clients/firecrawl/index.js');
 
 describe('Search Pipeline', () => {
   let mockClient: { search: Mock<(options: ClientSearchOptions) => Promise<SearchResult>> };

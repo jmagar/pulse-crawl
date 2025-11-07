@@ -5,6 +5,7 @@ import { logError } from '../../../utils/logging.js';
 export interface ResponseContent {
   type: string;
   text?: string;
+  data?: string;
   uri?: string;
   name?: string;
   mimeType?: string;

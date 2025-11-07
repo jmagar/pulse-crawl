@@ -10,8 +10,8 @@ import type { IScrapingClients, INativeFetcher, IFirecrawlClient } from './share
 import { createTransport } from './transport.js';
 import { healthCheck, getCorsOptions } from './middleware/index.js';
 
-// Load environment variables
-config();
+// Load environment variables (quiet mode to suppress v17 logging)
+config({ quiet: true });
 
 // Mock client implementations for integration testing
 class MockNativeFetcher implements INativeFetcher {

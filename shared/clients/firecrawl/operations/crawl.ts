@@ -21,7 +21,7 @@ export async function startCrawl(
   baseUrl: string,
   options: CrawlOptions
 ): Promise<StartCrawlResult> {
-  const response = await fetch(`${baseUrl}/v2/crawl`, {
+  const response = await fetch(`${baseUrl}/crawl`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -35,7 +35,13 @@ export async function startCrawl(
     throw new Error(`Firecrawl API error (${response.status}): ${errorText}`);
   }
 
-  return response.json();
+  try {
+    return await response.json();
+  } catch (error) {
+    throw new Error(
+      `Failed to parse Firecrawl API response: ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
 }
 
 /**
@@ -51,7 +57,7 @@ export async function getCrawlStatus(
   baseUrl: string,
   jobId: string
 ): Promise<CrawlStatusResult> {
-  const response = await fetch(`${baseUrl}/v2/crawl/${jobId}`, {
+  const response = await fetch(`${baseUrl}/crawl/${jobId}`, {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${apiKey}`,
@@ -63,7 +69,13 @@ export async function getCrawlStatus(
     throw new Error(`Firecrawl API error (${response.status}): ${errorText}`);
   }
 
-  return response.json();
+  try {
+    return await response.json();
+  } catch (error) {
+    throw new Error(
+      `Failed to parse Firecrawl API response: ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
 }
 
 /**
@@ -79,7 +91,7 @@ export async function cancelCrawl(
   baseUrl: string,
   jobId: string
 ): Promise<CancelResult> {
-  const response = await fetch(`${baseUrl}/v2/crawl/${jobId}`, {
+  const response = await fetch(`${baseUrl}/crawl/${jobId}`, {
     method: 'DELETE',
     headers: {
       Authorization: `Bearer ${apiKey}`,
@@ -91,5 +103,11 @@ export async function cancelCrawl(
     throw new Error(`Firecrawl API error (${response.status}): ${errorText}`);
   }
 
-  return response.json();
+  try {
+    return await response.json();
+  } catch (error) {
+    throw new Error(
+      `Failed to parse Firecrawl API response: ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
 }

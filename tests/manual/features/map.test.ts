@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { FirecrawlMapClient } from '../../../shared/clients/firecrawl-map.client.js';
+import { FirecrawlMapClient } from '../../../shared/clients/firecrawl/index.js';
 
 describe('Firecrawl Map Client', () => {
   it('should discover URLs from website', async () => {

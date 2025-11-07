@@ -22,7 +22,7 @@ export async function map(
   baseUrl: string,
   options: MapOptions
 ): Promise<MapResult> {
-  const response = await fetch(`${baseUrl}/v2/map`, {
+  const response = await fetch(`${baseUrl}/map`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -42,5 +42,11 @@ export async function map(
     );
   }
 
-  return response.json();
+  try {
+    return await response.json();
+  } catch (error) {
+    throw new Error(
+      `Failed to parse Firecrawl API response: ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
 }

@@ -122,6 +122,14 @@ export async function scrapeContent(
   const formats = (options?.formats as string[] | undefined) || [];
   const includeScreenshot = formats.includes('screenshot');
 
+  // If screenshot is requested without Firecrawl API key, return error
+  if (includeScreenshot && !clients.firecrawl) {
+    return {
+      success: false,
+      error: 'Screenshot format requires FIRECRAWL_API_KEY environment variable',
+    };
+  }
+
   // If screenshot is requested, we need to use Firecrawl directly
   // because the strategy selector doesn't preserve screenshot data
   if (includeScreenshot && clients.firecrawl) {

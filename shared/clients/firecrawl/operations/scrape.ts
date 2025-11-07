@@ -81,6 +81,8 @@ export async function scrape(
         content: result.data?.content || '',
         markdown: result.data?.markdown || '',
         html: result.data?.html || '',
+        screenshot: result.data?.screenshot,
+        links: result.data?.links,
         metadata: result.data?.metadata || {},
       },
     };

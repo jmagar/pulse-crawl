@@ -53,6 +53,8 @@ export interface FirecrawlScrapingResult {
     content: string;
     markdown: string;
     html: string;
+    screenshot?: string;
+    links?: string[];
     metadata: Record<string, unknown>;
   };
   error?: string;
