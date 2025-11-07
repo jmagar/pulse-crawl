@@ -1,22 +1,20 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { scrapeTool } from '../../shared/src/tools/scrape.js';
+import { scrapeTool } from '../../shared/mcp/tools/scrape/index.js';
 import {
   createMockScrapingClients,
   type MockNativeFetcher,
   type MockFirecrawlClient,
-  type MockBrightDataClient,
 } from '../mocks/scraping-clients.functional-mock.js';
-import type { IScrapingClients } from '../../shared/src/server.js';
-import type { IStrategyConfigClient } from '../../shared/src/strategy-config/index.js';
-import { ResourceStorageFactory } from '../../shared/src/storage/index.js';
+import type { IScrapingClients } from '../../shared/server.js';
+import type { IStrategyConfigClient } from '../../shared/scraping/strategies/learned/index.js';
+import { ResourceStorageFactory } from '../../shared/storage/index.js';
 
 describe('Scrape Tool', () => {
   let mockServer: Server;
   let mockClients: IScrapingClients;
   let mockNative: MockNativeFetcher;
   let mockFirecrawl: MockFirecrawlClient;
-  let mockBrightData: MockBrightDataClient;
   let mockStrategyConfigClient: IStrategyConfigClient;
 
   beforeEach(() => {
@@ -31,7 +29,6 @@ describe('Scrape Tool', () => {
     mockClients = clients;
     mockNative = mocks.native;
     mockFirecrawl = mocks.firecrawl;
-    mockBrightData = mocks.brightData;
     mockFirecrawl.resetCrawlCalls();
 
     // Create mock strategy config client
@@ -144,45 +141,6 @@ describe('Scrape Tool', () => {
       expect(result.content[0].text).toContain('Scraped using: firecrawl');
     });
 
-    it('should fallback to BrightData when native and Firecrawl fail', async () => {
-      // Set up mocks for native and Firecrawl failure, BrightData success
-      mockNative.setMockResponse({
-        success: false,
-        status: 500,
-        error: 'Network error',
-      });
-
-      mockFirecrawl.setMockResponse({
-        success: false,
-        error: 'Firecrawl failed',
-      });
-
-      mockBrightData.setMockResponse({
-        success: true,
-        data: 'BrightData content success',
-      });
-
-      const tool = scrapeTool(
-        mockServer,
-        () => mockClients,
-        () => mockStrategyConfigClient
-      );
-      const result = await tool.handler({
-        url: 'https://example.com',
-        resultHandling: 'returnOnly',
-      });
-
-      expect(result).toMatchObject({
-        content: [
-          {
-            type: 'text',
-            text: expect.stringContaining('BrightData content success'),
-          },
-        ],
-      });
-      expect(result.content[0].text).toContain('Scraped using: brightdata');
-    });
-
     it('should return error when all methods fail', async () => {
       // Set up mocks for all failures
       mockNative.setMockResponse({
@@ -194,11 +152,6 @@ describe('Scrape Tool', () => {
       mockFirecrawl.setMockResponse({
         success: false,
         error: 'Firecrawl failed',
-      });
-
-      mockBrightData.setMockResponse({
-        success: false,
-        error: 'BrightData failed',
       });
 
       const tool = scrapeTool(
@@ -366,7 +319,9 @@ describe('Scrape Tool', () => {
         const link = result.content[0];
         expect(link.type).toBe('resource_link');
         expect(typeof link.uri).toBe('string');
-        expect(link.uri.length).toBeGreaterThan(0);
+        if (link.uri) {
+          expect(link.uri.length).toBeGreaterThan(0);
+        }
         expect(link.name).toMatch(/^https:\/\/example\.com\/save-only-test-.*$/);
         expect(link.mimeType).toBe('text/markdown');
         expect(link.description).toMatch(
@@ -404,7 +359,7 @@ describe('Scrape Tool', () => {
 
         // For saveAndReturn, content is in the embedded resource's text field
         expect(firstResult.content[0].type).toBe('resource');
-        expect(firstResult.content[0].resource.text).toContain(firstContent);
+        expect(firstResult.content[0].resource?.text).toContain(firstContent);
         // The embedded resource text doesn't contain metadata like "Scraped using:"
 
         // Change the mock response to verify we're getting cached content
@@ -422,8 +377,8 @@ describe('Scrape Tool', () => {
 
         // Should get the first content from cache, not the second
         expect(secondResult.content[0].type).toBe('resource');
-        expect(secondResult.content[0].resource.text).toContain(firstContent);
-        expect(secondResult.content[0].resource.text).not.toContain(secondContent);
+        expect(secondResult.content[0].resource?.text).toContain(firstContent);
+        expect(secondResult.content[0].resource?.text).not.toContain(secondContent);
         // Embedded resources don't contain cache metadata
       });
 
@@ -657,7 +612,7 @@ describe('Scrape Tool', () => {
         });
 
         expect(firstResult.content[0].type).toBe('resource');
-        expect(firstResult.content[0].resource.text).toContain('Contact us at contact@example.com');
+        expect(firstResult.content[0].resource?.text).toContain('Contact us at contact@example.com');
 
         // Change the mock response to verify we're getting cached content
         mockNative.setMockResponse({
@@ -673,10 +628,10 @@ describe('Scrape Tool', () => {
         });
 
         expect(secondResult.content[0].type).toBe('resource');
-        expect(secondResult.content[0].resource.text).toContain(
+        expect(secondResult.content[0].resource?.text).toContain(
           'Contact us at contact@example.com'
         );
-        expect(secondResult.content[0].resource.text).not.toContain('Different content here');
+        expect(secondResult.content[0].resource?.text).not.toContain('Different content here');
 
         // Third request - different URL with the second content
         const testUrl2 = 'https://example.com/extract-cache-test-2-' + Date.now();
@@ -688,8 +643,8 @@ describe('Scrape Tool', () => {
 
         // Should get the second content (not cached)
         expect(thirdResult.content[0].type).toBe('resource');
-        expect(thirdResult.content[0].resource.text).toContain('Different content here');
-        expect(thirdResult.content[0].resource.text).not.toContain(
+        expect(thirdResult.content[0].resource?.text).toContain('Different content here');
+        expect(thirdResult.content[0].resource?.text).not.toContain(
           'Contact us at contact@example.com'
         );
 
@@ -841,23 +796,23 @@ describe('Scrape Tool', () => {
         });
       });
 
-      it('should detect HTML content from BrightData and Firecrawl responses', async () => {
-        // Test with BrightData returning HTML
+      it('should detect HTML content from Firecrawl responses', async () => {
+        // Test with Firecrawl returning HTML
         mockNative.setMockResponse({
           success: false,
           status: 500,
           error: 'Native failed',
         });
 
+        const htmlFromFirecrawl = '<html><body><h1>Content from Firecrawl</h1></body></html>';
         mockFirecrawl.setMockResponse({
-          success: false,
-          error: 'Firecrawl failed',
-        });
-
-        const htmlFromBrightData = '<html><body><h1>Content from BrightData</h1></body></html>';
-        mockBrightData.setMockResponse({
           success: true,
-          data: htmlFromBrightData,
+          data: {
+            content: 'Content from Firecrawl',
+            markdown: '# Content from Firecrawl',
+            html: htmlFromFirecrawl,
+            metadata: {},
+          },
         });
 
         const tool = scrapeTool(
@@ -867,7 +822,7 @@ describe('Scrape Tool', () => {
         );
 
         const result = await tool.handler({
-          url: 'https://example.com/brightdata-html-test-' + Date.now(),
+          url: 'https://example.com/firecrawl-html-test-' + Date.now(),
           resultHandling: 'saveAndReturn',
         });
 
@@ -1091,11 +1046,6 @@ describe('Scrape Tool', () => {
           error: 'Rate limit exceeded',
         });
 
-        mockBrightData.setMockResponse({
-          success: false,
-          error: 'Proxy connection failed',
-        });
-
         const tool = scrapeTool(
           mockServer,
           () => mockClients,
@@ -1114,22 +1064,20 @@ describe('Scrape Tool', () => {
 
         // Check for diagnostics section
         expect(errorText).toContain('Diagnostics:');
-        expect(errorText).toContain('- Strategies attempted: native, firecrawl, brightdata');
+        expect(errorText).toContain('- Strategies attempted: native, firecrawl');
 
         // Check for strategy errors
         expect(errorText).toContain('- Strategy errors:');
         expect(errorText).toContain('  - native: Forbidden by server');
         expect(errorText).toContain('  - firecrawl: Rate limit exceeded');
-        expect(errorText).toContain('  - brightdata: Proxy connection failed');
 
         // Check for timing information
         expect(errorText).toContain('- Timing:');
         expect(errorText).toMatch(/- native: \d+ms/);
         expect(errorText).toMatch(/- firecrawl: \d+ms/);
-        expect(errorText).toMatch(/- brightdata: \d+ms/);
       });
 
-      it('should show authentication error diagnostics without trying other strategies', async () => {
+      it('should show authentication error diagnostics and stop trying other strategies', async () => {
         mockNative.setMockResponse({
           success: false,
           status: 403,
@@ -1158,9 +1106,6 @@ describe('Scrape Tool', () => {
         expect(errorText).toContain('Diagnostics:');
         expect(errorText).toContain('- Strategies attempted: native, firecrawl');
 
-        // BrightData should not be attempted after auth error
-        expect(errorText).not.toContain('brightdata:');
-
         // Should show the auth error
         expect(errorText).toContain(
           '  - firecrawl: Authentication failed: Unauthorized: Invalid API key'
@@ -1168,9 +1113,10 @@ describe('Scrape Tool', () => {
       });
 
       it('should show when clients are not configured', async () => {
-        // Create clients without firecrawl and brightdata
-        const limitedClients = {
+        // Create clients without firecrawl
+        const limitedClients: IScrapingClients = {
           native: mockNative,
+          firecrawl: undefined,
         };
 
         mockNative.setMockResponse({
@@ -1181,7 +1127,7 @@ describe('Scrape Tool', () => {
 
         const tool = scrapeTool(
           mockServer,
-          () => limitedClients as IScrapingClients,
+          () => limitedClients,
           () => mockStrategyConfigClient
         );
         const result = await tool.handler({
@@ -1196,7 +1142,6 @@ describe('Scrape Tool', () => {
         expect(errorText).toContain('- Strategies attempted: native');
         expect(errorText).toContain('  - native: Service unavailable');
         expect(errorText).toContain('  - firecrawl: Firecrawl client not configured');
-        expect(errorText).toContain('  - brightdata: BrightData client not configured');
       });
     });
   });

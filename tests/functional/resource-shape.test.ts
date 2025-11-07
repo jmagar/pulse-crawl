@@ -1,12 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { CallToolResultSchema } from '@modelcontextprotocol/sdk/types.js';
-import { scrapeTool } from '../../shared/src/tools/scrape.js';
+import { scrapeTool } from '../../shared/mcp/tools/scrape/index.js';
 import type { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import type { IScrapingClients, StrategyConfigFactory } from '../../shared/src/server.js';
-import { ResourceStorageFactory } from '../../shared/src/storage/index.js';
+import type { IScrapingClients, StrategyConfigFactory } from '../../shared/server.js';
+import { ResourceStorageFactory } from '../../shared/storage/index.js';
+import { createMockScrapingClients } from '../mocks/scraping-clients.functional-mock.js';
 
 // Mock dependencies
-vi.mock('../../shared/src/scraping-strategies.js', () => ({
+vi.mock('../../shared/scraping-strategies.js', () => ({
   scrapeWithStrategy: vi.fn().mockResolvedValue({
     success: true,
     content: '<h1>Test Content</h1><p>This is test content.</p>',
@@ -14,7 +15,7 @@ vi.mock('../../shared/src/scraping-strategies.js', () => ({
   }),
 }));
 
-vi.mock('../../shared/src/storage/index.js', () => ({
+vi.mock('../../shared/storage/index.js', () => ({
   ResourceStorageFactory: {
     create: vi.fn().mockResolvedValue({
       findByUrlAndExtract: vi.fn().mockResolvedValue([]),
@@ -28,14 +29,14 @@ vi.mock('../../shared/src/storage/index.js', () => ({
   },
 }));
 
-vi.mock('../../shared/src/extract/index.js', () => ({
+vi.mock('../../shared/extract/index.js', () => ({
   ExtractClientFactory: {
     isAvailable: vi.fn().mockReturnValue(false),
     createFromEnv: vi.fn().mockReturnValue(null),
   },
 }));
 
-vi.mock('../../shared/src/clean/index.js', () => ({
+vi.mock('../../shared/clean/index.js', () => ({
   createCleaner: vi.fn().mockReturnValue({
     clean: vi.fn().mockResolvedValue('# Test Content\n\nThis is test content.'),
   }),
@@ -51,10 +52,17 @@ describe('Resource Shape Validation', () => {
     ResourceStorageFactory.reset();
 
     mockServer = {} as Server;
-    mockClientsFactory = () => ({}) as IScrapingClients;
+
+    // Use proper mock client factory from helper
+    const { clients } = createMockScrapingClients();
+    mockClientsFactory = () => clients;
+
+    // Provide complete strategy config mock with all required methods
     mockStrategyConfigFactory = () => ({
-      getAllDomainConfigs: vi.fn().mockReturnValue([]),
-      getDomainConfig: vi.fn().mockReturnValue(null),
+      loadConfig: vi.fn().mockResolvedValue([]),
+      saveConfig: vi.fn().mockResolvedValue(undefined),
+      upsertEntry: vi.fn().mockResolvedValue(undefined),
+      getStrategyForUrl: vi.fn().mockResolvedValue(null),
     });
   });
 

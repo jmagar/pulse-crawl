@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { NativeScrapingClient } from '../../../shared/src/scraping-client/native-scrape-client.js';
+import { NativeScrapingClient } from '../../../shared/scraping/clients/native/native-scrape-client.js';
 
 describe('Native Scraping Client', () => {
   it('should scrape a simple page', async () => {

@@ -1,28 +1,33 @@
 {
-  "name": "@pulsemcp/pulse-fetch-remote",
+  "name": "@pulsemcp/pulse-crawl-remote",
   "version": "0.3.0",
-  "description": "HTTP streaming transport implementation of pulse-fetch MCP server",
-  "mcpName": "com.pulsemcp.servers/pulse-fetch-remote",
-  "main": "build/index.js",
+  "description": "HTTP streaming transport implementation of pulse-crawl MCP server",
+  "mcpName": "com.pulsemcp.servers/pulse-crawl-remote",
+  "main": "dist/index.js",
   "type": "module",
   "bin": {
-    "@pulsemcp/pulse-fetch-remote": "./build/index.js"
+    "@pulsemcp/pulse-crawl-remote": "./dist/index.js"
   },
   "files": [
-    "build/**/*.js",
-    "build/**/*.d.ts",
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
     "shared/**/*.js",
     "shared/**/*.d.ts",
-    "README.md"
+    "README.md",
+    "!dist/**/*.integration-with-mock.*"
   ],
   "scripts": {
-    "build": "tsc",
-    "start": "node build/index.js",
-    "dev": "tsx src/index.ts",
-    "predev": "cd ../shared && npm run build",
-    "prebuild": "cd ../shared && npm run build",
-    "lint": "eslint . --ext .ts,.tsx",
-    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "build": "tsc && npm run build:integration",
+    "build:integration": "tsc -p tsconfig.integration.json",
+    "start": "node dist/index.js",
+    "dev": "tsx index.ts",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "predev": "cd ../shared && npm run build && cd ../remote && node setup-dev.js",
+    "prebuild": "cd ../shared && npm run build && cd ../remote && node setup-dev.js",
+    "prepublishOnly": "node prepare-publish.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -31,18 +36,26 @@
     "@modelcontextprotocol/sdk": "^1.19.1",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
+    "cors": "^2.8.5",
     "dom-to-semantic-markdown": "^1.5.0",
     "dotenv": "^16.4.5",
+    "express": "^4.21.2",
     "jsdom": "^26.1.0",
     "openai": "^4.104.0",
     "pdf-parse": "^1.1.1",
-    "pulse-fetch-shared": "file:../shared",
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.1",
     "@types/node": "^24.0.0",
+    "@types/supertest": "^6.0.2",
+    "eslint": "^9.39.1",
+    "prettier": "^3.6.2",
+    "supertest": "^7.0.0",
     "tsx": "^4.19.4",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.46.3",
+    "vitest": "^3.2.3"
   },
   "keywords": [
     "mcp",

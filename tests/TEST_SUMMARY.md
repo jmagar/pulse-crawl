@@ -1,21 +1,23 @@
 # Test Suite Summary - HTTP Streaming Transport
 
-This document summarizes the comprehensive test coverage for the pulse-fetch HTTP streaming transport implementation.
+This document summarizes the comprehensive test coverage for the pulse-crawl HTTP streaming transport implementation.
 
 ## Test Statistics
 
-| Category | Files | Tests | Status |
-|----------|-------|-------|--------|
-| Unit Tests | 3 | 28 | ✅ Passing (with minor assertion fixes) |
-| Integration Tests | 1 | 10 | ⚠️ 6/10 passing (protocol version issue) |
-| End-to-End Tests | 2 | 60+ | 📝 Comprehensive coverage |
-| Manual Tests | 1 | 5 | ✅ Ready to run |
-| **Total** | **7** | **100+** | **90%+ passing** |
+| Category          | Files | Tests    | Status                                   |
+| ----------------- | ----- | -------- | ---------------------------------------- |
+| Unit Tests        | 3     | 28       | ✅ Passing (with minor assertion fixes)  |
+| Integration Tests | 1     | 10       | ⚠️ 6/10 passing (protocol version issue) |
+| End-to-End Tests  | 2     | 60+      | 📝 Comprehensive coverage                |
+| Manual Tests      | 1     | 5        | ✅ Ready to run                          |
+| **Total**         | **7** | **100+** | **90%+ passing**                         |
 
 ## Test Coverage by Component
 
 ### 1. Transport Factory (`tests/remote/transport.test.ts`)
+
 **11 tests** covering:
+
 - ✅ Transport instance creation
 - ✅ Unique session ID generation
 - ✅ Resumability configuration (enabled/disabled)
@@ -27,7 +29,9 @@ This document summarizes the comprehensive test coverage for the pulse-fetch HTT
 **Key Learning**: Changed from `toBeInstanceOf()` to checking `constructor.name` due to module loading differences in test environment.
 
 ### 2. Event Store (`tests/remote/eventStore.test.ts`)
+
 **7 tests** covering:
+
 - ✅ Event storage with unique IDs
 - ✅ Event ID uniqueness per stream
 - ✅ Multi-stream isolation
@@ -39,7 +43,9 @@ This document summarizes the comprehensive test coverage for the pulse-fetch HTT
 **All tests passing** - Event store works correctly for resumability.
 
 ### 3. Middleware (`tests/remote/middleware.test.ts`)
+
 **10 tests** covering:
+
 - ✅ Health check endpoint response format
 - ✅ Timestamp inclusion and format
 - ✅ CORS options configuration
@@ -52,7 +58,9 @@ This document summarizes the comprehensive test coverage for the pulse-fetch HTT
 **All tests passing** after fixing timestamp comparison and CORS origin handling.
 
 ### 4. HTTP Server Integration (`tests/remote/http-server.integration.test.ts`)
+
 **10 tests** covering:
+
 - ✅ Health endpoint (200 OK, JSON format, ISO timestamp)
 - ⚠️ MCP endpoint initialization (406 Not Acceptable - protocol version issue)
 - ✅ Invalid session rejection
@@ -65,9 +73,11 @@ This document summarizes the comprehensive test coverage for the pulse-fetch HTT
 **Status**: 6/10 passing. The 4 failures are related to protocol version negotiation (SDK returns 406). This is a known issue that requires SDK configuration adjustment, not a code defect.
 
 ### 5. End-to-End HTTP Transport (`tests/e2e/http-transport-e2e.test.ts`)
+
 **40+ tests** covering complete scenarios:
 
 #### Complete MCP Session Flow
+
 - Session initialization with handshake
 - Tool listing and validation
 - Tool execution (scrape example.com)
@@ -75,60 +85,73 @@ This document summarizes the comprehensive test coverage for the pulse-fetch HTT
 - Concurrent request handling
 
 #### Resource Management
+
 - Resource creation (saveAndReturn)
 - Resource reading via URI
 - Resource lifecycle
 
 #### Error Handling
+
 - Invalid tool names
 - Invalid URLs
 - Malformed JSON-RPC
 - Session validation
 
 #### Session Isolation
+
 - Multiple independent sessions
 - Session state independence
 - No cross-contamination
 
 #### Protocol Compliance
+
 - JSON-RPC structure validation
 - Notification support (no id field)
 - Server capabilities in initialize
 - Proper error codes
 
 #### Performance
+
 - Sequential request handling (10 requests < 5s)
 - Parallel request efficiency (10 requests < 3s)
 - Resource cleanup
 
 ### 6. SSE Streaming E2E (`tests/e2e/sse-streaming-e2e.test.ts`)
+
 **20+ tests** covering:
 
 #### Stream Establishment
+
 - Valid session ID acceptance
 - Invalid session rejection
 - Missing session rejection
 
 #### Message Delivery
+
 - Endpoint event reception
 - Event data parsing
 
 #### Reconnection & Resumability
+
 - Last-Event-ID header support
 - Event replay mechanism
 
 #### Connection Lifecycle
+
 - Graceful close handling
 - Multiple concurrent connections
 - Connection state management
 
 #### Protocol Compliance
+
 - Content-Type (text/event-stream)
 - Cache headers (no-cache)
 - Header validation
 
 ### 7. Manual Test Scripts (`tests/manual/remote/http-endpoints.manual.test.ts`)
+
 **5 comprehensive end-to-end scenarios**:
+
 1. ✅ Health endpoint validation
 2. ✅ MCP initialization flow
 3. ✅ Tools listing
@@ -136,6 +159,7 @@ This document summarizes the comprehensive test coverage for the pulse-fetch HTT
 5. ✅ Invalid session handling
 
 **Usage**:
+
 ```bash
 # Terminal 1: Start server
 cd remote && PORT=3001 SKIP_HEALTH_CHECKS=true npm start
@@ -147,31 +171,37 @@ npx tsx tests/manual/remote/http-endpoints.manual.test.ts
 ## Running Tests
 
 ### All Tests
+
 ```bash
 npm test
 ```
 
 ### Unit Tests Only
+
 ```bash
 npx vitest tests/remote --run
 ```
 
 ### Integration Tests Only
+
 ```bash
 npx vitest tests/remote/http-server.integration.test.ts --run
 ```
 
 ### E2E Tests
+
 ```bash
 npx vitest tests/e2e --run
 ```
 
 ### Specific Test File
+
 ```bash
 npx vitest tests/remote/eventStore.test.ts --run
 ```
 
 ### Watch Mode (Development)
+
 ```bash
 npx vitest tests/remote
 ```
@@ -179,6 +209,7 @@ npx vitest tests/remote
 ## Test Environment Setup
 
 Tests automatically configure:
+
 ```bash
 NODE_ENV=test
 SKIP_HEALTH_CHECKS=true
@@ -191,6 +222,7 @@ Servers start on random available ports to avoid conflicts.
 ## Known Issues
 
 ### 1. Protocol Version Negotiation (Status: Investigation)
+
 **Symptoms**: Integration tests receive 406 Not Acceptable
 **Affected Tests**: 4 tests in http-server.integration.test.ts
 **Root Cause**: StreamableHTTPServerTransport may require specific protocol version in initialize request
@@ -200,6 +232,7 @@ Servers start on random available ports to avoid conflicts.
 **Workaround**: Tests pass when using MCP Inspector or real clients
 
 ### 2. instanceof Checks in Tests
+
 **Symptoms**: `toBeInstanceOf(StreamableHTTPServerTransport)` fails
 **Root Cause**: Module loading differences between runtime and test environment
 **Resolution**: ✅ Fixed - Use `constructor.name` check instead
@@ -207,14 +240,14 @@ Servers start on random available ports to avoid conflicts.
 
 ## Test Quality Metrics
 
-| Metric | Value | Status |
-|--------|-------|--------|
-| Code Coverage | ~85% | ✅ Good |
-| Integration Tests | 10 | ⚠️ 60% passing |
-| E2E Tests | 60+ | ✅ Comprehensive |
-| Manual Tests | 5 | ✅ Complete |
-| Performance Tests | 2 | ✅ Benchmarked |
-| Error Scenarios | 15+ | ✅ Covered |
+| Metric            | Value | Status           |
+| ----------------- | ----- | ---------------- |
+| Code Coverage     | ~85%  | ✅ Good          |
+| Integration Tests | 10    | ⚠️ 60% passing   |
+| E2E Tests         | 60+   | ✅ Comprehensive |
+| Manual Tests      | 5     | ✅ Complete      |
+| Performance Tests | 2     | ✅ Benchmarked   |
+| Error Scenarios   | 15+   | ✅ Covered       |
 
 ## Test Maintenance
 
@@ -264,6 +297,7 @@ describe('Integration', () => {
 ## CI/CD Integration
 
 ### GitHub Actions
+
 ```yaml
 - name: Run HTTP Transport Tests
   run: |
@@ -275,6 +309,7 @@ describe('Integration', () => {
 ```
 
 ### Test Artifacts
+
 - Coverage reports: `coverage/`
 - Test results: `.vitest/results.json`
 - Server logs: stderr captured in test output

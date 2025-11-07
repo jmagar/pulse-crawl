@@ -18,11 +18,13 @@ The server uses a three-layer architecture:
 2. **`local/`**: Stdio transport implementation
    - Minimal wrapper around shared functionality
    - Uses StdioServerTransport for Claude Desktop integration
-   - References shared via: `"pulse-fetch-shared": "file:../shared"`
+   - References shared via: `"pulse-crawl-shared": "file:../shared"`
 
-3. **`remote/`**: HTTP transport implementation (planned)
-   - Will provide hosted/remote access
-   - Will share same features from shared module
+3. **`remote/`**: StreamableHTTP transport implementation
+   - Provides hosted/remote access via HTTP POST with JSON responses
+   - Optional SSE streaming for server-initiated messages
+   - Uses StreamableHTTPServerTransport from MCP SDK
+   - Shares same features from shared module
 
 ## Development Commands
 
@@ -55,10 +57,9 @@ npm run dev       # Development with auto-reload (builds shared first)
 
 The server now includes:
 
-- **Smart scraping tool** with three-tier fallback logic:
+- **Smart scraping tool** with two-tier fallback logic:
   1. Native fetch (fastest, basic)
-  2. Firecrawl API (enhanced content extraction)
-  3. BrightData Web Unlocker (anti-bot bypass)
+  2. Firecrawl API (enhanced content extraction and anti-bot bypass)
 - **Comprehensive test suite** with functional, integration, and mock tests
 - **Environment variable validation** with startup logging
 - **Content processing** with truncation and pagination support
@@ -186,3 +187,18 @@ Key insights gathered during implementation and CI troubleshooting:
 - **Diagnostics Object Pattern**: Include a diagnostics object in error responses with: strategiesAttempted (array), strategyErrors (map), and timing (map). This provides actionable debugging information without cluttering the main error message
 - **Test Coverage for Error Cases**: Error handling paths need explicit functional test coverage. Create dedicated test files for diagnostics features to ensure error messages remain helpful as code evolves
 - **Environment Variable Consistency**: When renaming environment variables, search the entire codebase including tests, CI workflows, and documentation. Inconsistent naming leads to silent failures where health checks pass incorrectly
+
+### Anthropic API Schema Validation
+
+- **No Union Types at Root**: Anthropic's API does not support `oneOf`, `allOf`, or `anyOf` at the top level of tool input schemas. When using Zod schemas with `.or()`, `.and()`, or union types, flatten them into a single object with optional fields and use `.refine()` for mutual exclusivity validation
+- **Schema Debugging**: Add server-side logging to detect problematic schemas at startup. Check for `oneOf`/`allOf`/`anyOf` properties in the generated JSON schema and warn developers before deployment
+- **Zod to JSON Schema**: When using `zod-to-json-schema` for tool schemas, always verify the output doesn't contain union types at the root level. Union schemas work fine for nested properties, just not at the top level
+- **Tool Registration Verification**: Add debug logging during tool registration to catch schema issues before they reach production. Log tool names, schema types, and any problematic properties when `DEBUG=true` or `NODE_ENV=development`
+
+### Environment Variable Naming Consistency
+
+- **Standardize Variable Names**: When adding new features that use existing services (like Firecrawl), always use the same environment variable names across all clients. Inconsistent naming causes authentication failures when some clients can't find their config
+- **Keep Names Concise**: Choose the shortest clear name for environment variables. `FIRECRAWL_BASE_URL` is better than `FIRECRAWL_API_BASE_URL` - there's only one Firecrawl URL and "API" is redundant
+- **Base URL Without Versions**: Store base URLs without API version paths (e.g., `https://api.firecrawl.dev` not `https://api.firecrawl.dev/v2`). Let each client append its own version path. This makes the configuration more flexible for services with multiple API versions
+- **Grep for Variable Names**: When discovering inconsistent variable naming, use `grep -r "VARIABLE_NAME" .` to find all usages and ensure consistency across client code, configuration files, and documentation
+- **Update .env.example**: When standardizing variable names, update `.env.example` to document only the canonical names. Remove or deprecate old variable names to prevent confusion

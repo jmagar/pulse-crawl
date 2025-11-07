@@ -2,12 +2,12 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import { FilesystemStrategyConfigClient } from '../../shared/src/strategy-config/filesystem-client.js';
-import type { StrategyConfigEntry } from '../../shared/src/strategy-config/types.js';
+import { FilesystemStrategyConfigClient } from '../../shared/scraping/strategies/learned/filesystem-client.js';
+import type { StrategyConfigEntry } from '../../shared/scraping/strategies/learned/types.js';
 
 describe('FilesystemStrategyConfigClient with Environment', () => {
   const originalEnv = process.env.STRATEGY_CONFIG_PATH;
-  const testDir = join(tmpdir(), 'pulse-fetch-test-' + Date.now());
+  const testDir = join(tmpdir(), 'pulse-crawl-test-' + Date.now());
   const customConfigPath = join(testDir, 'custom-strategies.md');
 
   beforeEach(async () => {
@@ -81,7 +81,7 @@ describe('FilesystemStrategyConfigClient with Environment', () => {
 
     // Clean up default temp directory before test
     try {
-      await fs.rm(join(tmpdir(), 'pulse-fetch'), { recursive: true, force: true });
+      await fs.rm(join(tmpdir(), 'pulse-crawl'), { recursive: true, force: true });
     } catch {
       // Ignore if doesn't exist
     }
@@ -91,7 +91,7 @@ describe('FilesystemStrategyConfigClient with Environment', () => {
     // Add an entry
     const testEntry: StrategyConfigEntry = {
       prefix: 'default.com',
-      default_strategy: 'brightdata',
+      default_strategy: 'firecrawl',
       notes: 'Default location',
     };
 
@@ -102,14 +102,14 @@ describe('FilesystemStrategyConfigClient with Environment', () => {
     const config = await newClient.loadConfig();
 
     // The config should contain our entry (among possibly others from initialization)
-    const addedEntry = config.find((e) => e.prefix === 'default.com');
+    const addedEntry = config.find((e: StrategyConfigEntry) => e.prefix === 'default.com');
     expect(addedEntry).toBeDefined();
-    expect(addedEntry?.default_strategy).toBe('brightdata');
+    expect(addedEntry?.default_strategy).toBe('firecrawl');
     expect(addedEntry?.notes).toBe('Default location');
 
     // Clean up after test
     try {
-      await fs.rm(join(tmpdir(), 'pulse-fetch'), { recursive: true, force: true });
+      await fs.rm(join(tmpdir(), 'pulse-crawl'), { recursive: true, force: true });
     } catch {
       // Ignore cleanup errors
     }

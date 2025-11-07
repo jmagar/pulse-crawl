@@ -4,7 +4,7 @@ HTTP streaming transport implementation of the Pulse Fetch MCP server using the 
 
 ## Overview
 
-This package provides an HTTP-based MCP server that exposes the same tools and resources as the stdio version (`@pulsemcp/pulse-fetch`), but over HTTP with Server-Sent Events (SSE) for streaming responses.
+This package provides an HTTP-based MCP server that exposes the same tools and resources as the stdio version (`@pulsemcp/pulse-crawl`), using HTTP POST requests with JSON responses and optional Server-Sent Events (SSE) for server-initiated messages.
 
 ### Key Features
 
@@ -33,7 +33,7 @@ cp .env.example .env
 npm run dev
 ```
 
-The server will start on `http://localhost:3000` by default.
+The server will start on `http://localhost:3060` by default.
 
 ### Production
 
@@ -66,7 +66,7 @@ All configuration is done via environment variables. See `.env.example` for all 
 
 ```bash
 # Server
-PORT=3000
+PORT=3060
 NODE_ENV=production
 
 # Security (required for production)
@@ -75,11 +75,11 @@ ALLOWED_HOSTS=your-server.com
 
 # Features
 ENABLE_RESUMABILITY=true
+ENABLE_OAUTH=false  # OAuth not yet implemented
 OPTIMIZE_FOR=speed  # or 'cost'
 
 # API Keys (same as stdio version)
 FIRECRAWL_API_KEY=your_key_here
-BRIGHTDATA_API_KEY=your_key_here
 ANTHROPIC_API_KEY=your_key_here
 OPENAI_API_KEY=your_key_here
 ```
@@ -107,13 +107,16 @@ remote/
 ## Endpoints
 
 ### `POST /mcp`
+
 Main MCP endpoint for JSON-RPC requests.
 
 **Headers:**
+
 - `Content-Type: application/json`
 - `Mcp-Session-Id: <session-id>` (for existing sessions)
 
 **Request:**
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -130,6 +133,7 @@ Main MCP endpoint for JSON-RPC requests.
 ```
 
 **Response:**
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -137,7 +141,7 @@ Main MCP endpoint for JSON-RPC requests.
   "result": {
     "protocolVersion": "2025-03-26",
     "serverInfo": {
-      "name": "pulse-fetch",
+      "name": "pulse-crawl",
       "version": "0.3.0"
     },
     "capabilities": { ... }
@@ -146,9 +150,11 @@ Main MCP endpoint for JSON-RPC requests.
 ```
 
 ### `GET /mcp`
+
 Establish SSE stream for receiving server-initiated messages (notifications, logging).
 
 **Headers:**
+
 - `Mcp-Session-Id: <session-id>`
 - `Last-Event-ID: <event-id>` (for resumption)
 
@@ -156,15 +162,19 @@ Establish SSE stream for receiving server-initiated messages (notifications, log
 Server-Sent Events stream with MCP notifications.
 
 ### `DELETE /mcp`
+
 Terminate a session.
 
 **Headers:**
+
 - `Mcp-Session-Id: <session-id>`
 
 ### `GET /health`
+
 Health check endpoint.
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -180,13 +190,13 @@ Health check endpoint.
 
 ```bash
 npx @modelcontextprotocol/inspector
-# Connect to: http://localhost:3000/mcp
+# Connect to: http://localhost:3060/mcp
 ```
 
 ### Claude Code
 
 ```bash
-claude mcp add --transport http pulse-fetch-remote http://localhost:3000/mcp
+claude mcp add --transport http pulse-crawl-remote http://localhost:3060/mcp
 ```
 
 ### Custom Client
@@ -197,12 +207,10 @@ import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/
 
 const client = new Client({
   name: 'my-client',
-  version: '1.0.0'
+  version: '1.0.0',
 });
 
-const transport = new StreamableHTTPClientTransport(
-  new URL('http://localhost:3000/mcp')
-);
+const transport = new StreamableHTTPClientTransport(new URL('http://localhost:3060/mcp'));
 
 await client.connect(transport);
 
@@ -219,6 +227,26 @@ When `ENABLE_RESUMABILITY=true`, the server stores events in memory and allows c
 
 ## Security
 
+### OAuth Authentication
+
+OAuth authentication is **not yet implemented** but can be enabled via the `ENABLE_OAUTH` environment variable:
+
+```bash
+# Default: OAuth disabled (recommended until implementation is complete)
+ENABLE_OAUTH=false
+
+# When enabled: /register and /authorize endpoints return 501 (Not Implemented)
+ENABLE_OAUTH=true
+```
+
+**Current behavior:**
+
+- `ENABLE_OAUTH=false` (default): OAuth endpoints (`/register`, `/authorize`) return 404 with a clear error message
+- `ENABLE_OAUTH=true`: OAuth endpoints return 501 (Not Implemented) to indicate the feature is planned
+
+**Client configuration:**
+If you're seeing "Cannot POST /register" errors, your MCP client is configured to use OAuth. Since OAuth is not yet implemented, configure your client to connect without OAuth.
+
 ### Production Checklist
 
 - [ ] Set `NODE_ENV=production`
@@ -234,20 +262,21 @@ When `ENABLE_RESUMABILITY=true`, the server stores events in memory and allows c
 ### DNS Rebinding Protection
 
 When `enableDnsRebindingProtection` is enabled (automatic in production), the server validates:
+
 - Host header matches allowed hosts
 - Origin header matches allowed origins
 
 ## Differences from Stdio Version
 
-| Feature | Stdio (`@pulsemcp/pulse-fetch`) | HTTP (`@pulsemcp/pulse-fetch-remote`) |
-|---------|--------------------------------|-------------------------------------|
-| Transport | stdin/stdout | HTTP + SSE |
-| Session Management | N/A | Session IDs required |
-| Resumability | N/A | Optional (configurable) |
-| Multiple Clients | No | Yes (multi-session) |
-| Network Access | Local only | Network accessible |
-| Deployment | Desktop/CLI | Server/Cloud |
-| Security | Process isolation | CORS, auth, DNS protection |
+| Feature            | Stdio (`@pulsemcp/pulse-crawl`) | HTTP (`@pulsemcp/pulse-crawl-remote`) |
+| ------------------ | ------------------------------- | ------------------------------------- |
+| Transport          | stdin/stdout                    | HTTP (JSON) + optional SSE            |
+| Session Management | N/A                             | Session IDs required                  |
+| Resumability       | N/A                             | Optional (configurable)               |
+| Multiple Clients   | No                              | Yes (multi-session)                   |
+| Network Access     | Local only                      | Network accessible                    |
+| Deployment         | Desktop/CLI                     | Server/Cloud                          |
+| Security           | Process isolation               | CORS, auth, DNS protection            |
 
 ## Troubleshooting
 
@@ -261,13 +290,15 @@ PORT=3001 npm start
 ### CORS Errors
 
 Ensure your client's origin is in `ALLOWED_ORIGINS`:
+
 ```bash
-ALLOWED_ORIGINS=http://localhost:3000,https://myapp.com
+ALLOWED_ORIGINS=http://localhost:3060,https://myapp.com
 ```
 
 ### Session Not Found
 
 Sessions are stored in memory. If the server restarts, all sessions are lost. Enable resumability to help clients reconnect:
+
 ```bash
 ENABLE_RESUMABILITY=true
 ```
@@ -275,8 +306,9 @@ ENABLE_RESUMABILITY=true
 ### Health Check Failing
 
 Check the health endpoint directly:
+
 ```bash
-curl http://localhost:3000/health
+curl http://localhost:3060/health
 ```
 
 If it returns a 200 status with JSON, the server is healthy.

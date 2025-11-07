@@ -1,10 +1,12 @@
 /**
  * Manual test for HTTP transport endpoints
- * 
+ *
  * To run:
  * 1. Start the server: cd remote && PORT=3001 SKIP_HEALTH_CHECKS=true npm start
  * 2. Run this test: npx tsx tests/manual/remote/http-endpoints.manual.test.ts
  */
+
+import type { Tool } from '../../../shared/types.js';
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3001';
 
@@ -106,7 +108,7 @@ async function testToolsList(sessionId: string) {
     console.log('✅ Tools list response:', {
       status: response.status,
       toolCount: data.result?.tools?.length || 0,
-      tools: data.result?.tools?.map((t: any) => t.name) || [],
+      tools: data.result?.tools?.map((t: Tool) => t.name) || [],
     });
     
     if (!data.result?.tools) {

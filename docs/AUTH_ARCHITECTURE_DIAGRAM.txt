@@ -1,0 +1,399 @@
+================================================================================
+PULSE FETCH AUTHENTICATION ARCHITECTURE DIAGRAM
+================================================================================
+
+CURRENT STATE (NO CLIENT AUTHENTICATION)
+========================================
+
+                              Internet
+                                 |
+                    HTTP/HTTPS (No Auth)
+                                 |
+                    ┌────────────▼────────────┐
+                    │  Reverse Proxy/LB      │
+                    │  (SSL/TLS Termination) │
+                    └────────────┬────────────┘
+                                 |
+                        Port 3060 (HTTP)
+                                 |
+                    ┌────────────▼────────────┐
+                    │   Express Server       │
+                    │  (pulse-crawl remote)  │
+                    └────────────┬────────────┘
+                                 |
+            ┌────────────────────┼────────────────────┐
+            |                    |                    |
+    ┌───────▼────┐    ┌─────────▼─────────┐   ┌─────▼─────┐
+    │  Middleware │    │   /mcp Endpoint   │   │  /health  │
+    │  (CORS)     │    │  (No Auth Check)  │   │ Endpoint  │
+    │             │    │                   │   │           │
+    │ ✓ CORS OK   │    │ Session Mgmt:     │   │ Status OK │
+    │ ✓ DNS Check │    │ • UUID v4 IDs     │   │           │
+    │ ✗ No Auth   │    │ • In-memory store │   │           │
+    └─────────────┘    │ ✗ No Auth Check   │   └───────────┘
+                       └─────────────┬─────┘
+                                     |
+                        ┌────────────▼────────────┐
+                        │   MCP Server/Transport  │
+                        │   (StreamableHTTP)      │
+                        │                         │
+                        │  • Session Creation     │
+                        │  • Request Handling     │
+                        │  • Event Replay         │
+                        └────────────┬────────────┘
+                                     |
+                          ┌──────────┼──────────┐
+                          |          |          |
+                ┌─────────▼────────┐ │  ┌───────▼──────┐
+                │  Firecrawl API   │ │  │  Anthropic   │
+                │  (Has Auth)      │ │  │  (Has Auth)  │
+                └──────────────────┘ │  └──────────────┘
+                                     |
+                              ┌──────▼──────┐
+                              │   OpenAI    │
+                              │ (Has Auth)  │
+                              └─────────────┘
+
+
+PROPOSED STATE (WITH OAuth 2.0)
+==============================
+
+                              Internet
+                                 |
+                    HTTPS (OAuth + TLS)
+                                 |
+        ┌──────────────────────────┴──────────────────────────┐
+        |                                                      |
+        |              Requires Authentication                |
+        |          (OAuth 2.0 or similar flow)                |
+        |                                                      |
+        ▼                                                      ▼
+  ┌──────────────┐                            ┌────────────────────┐
+  │ OAuth Provider│                            │  Reverse Proxy/LB  │
+  │ (Google, etc)│                            │  (SSL/TLS Term)    │
+  └──────┬───────┘                            └────────┬───────────┘
+         │                                             |
+         │         Authorization Code                 |
+         │         Bearer Token                       |
+         │◄────────────────────────────────           |
+         │                                  Port 3060 (HTTP)
+         │                                            |
+         │                              ┌─────────────▼──────────┐
+         │                              │  Express Server        │
+         │                              │  (pulse-crawl remote)  │
+         │                              └──────────┬─────────────┘
+         │                                         |
+         │            ┌────────────────────────────┼────────────────────────┐
+         │            |                            |                        |
+         │     ┌──────▼─────────┐      ┌──────────▼──────────┐   ┌─────────▼──┐
+         │     │  Middleware    │      │  /mcp Endpoint     │   │ /health    │
+         │     │  (CORS + Auth) │      │  (With Auth Check) │   │ Endpoint   │
+         │     │                │      │                    │   │            │
+         │     │ ✓ CORS OK      │      │ Session Mgmt:      │   │ Status OK  │
+         │     │ ✓ DNS Check    │      │ • OAuth Verified   │   │            │
+         │     │ ✓ Auth Check   │◄─────┤ • JWT/Token Valid  │   │            │
+         └─────┤ ✓ Token Valid  │      │ • Rate Limited     │   └────────────┘
+               └────────────────┘      │ ✓ Auth Check       │
+                                       └────────┬───────────┘
+                                                |
+                                  ┌─────────────▼─────────────┐
+                                  │ MCP Server/Transport      │
+                                  │ (StreamableHTTP)          │
+                                  │                           │
+                                  │ • Authenticated Sessions  │
+                                  │ • Audit Logging           │
+                                  │ • Rate Limiting           │
+                                  └─────────┬────────────────┘
+                                            |
+                                ┌───────────┼──────────┐
+                                |           |          |
+                      ┌─────────▼────┐   ┌─▼──────┐ ┌▼────────┐
+                      │  Firecrawl   │   │Anthropic│ │ OpenAI  │
+                      └──────────────┘   └─────────┘ └─────────┘
+
+
+REQUEST FLOW COMPARISON
+=======================
+
+CURRENT (NO AUTH):
+─────────────────
+
+  Client          Express Server
+    |                   |
+    |  POST /mcp        |
+    |──────────────────→|
+    |                   |
+    |            Check session ID
+    |            (no auth check)
+    |                   |
+    |  200 Response     |
+    |←──────────────────|
+
+
+PROPOSED (WITH OAuth):
+─────────────────────
+
+  Client          Express Server      OAuth Provider
+    |                   |                    |
+    |  GET /authorize   |                    |
+    |──────────────────→|────────────────→  |
+    |                   |                    |
+    |              Redirect to OAuth provider
+    |←────────────────────────────────────────|
+    |                   |
+    | [User logs in]    |
+    |                   |
+    |  Auth code        |
+    |──────────────────→|                    |
+    |                   |  Exchange code     |
+    |                   |───────────────────→|
+    |                   |                    |
+    |                   |←─── Access Token ──|
+    |                   |
+    |  POST /mcp        |
+    |  Authorization: Bearer <token>
+    |──────────────────→|
+    |                   |
+    |            Verify token
+    |            Check permissions
+    |            Validate expiry
+    |                   |
+    |  200 Response     |
+    |←──────────────────|
+
+
+MIDDLEWARE CHAIN (CURRENT)
+==========================
+
+Express Request
+       ↓
+   express.json()
+       ↓
+   cors(getCorsOptions())
+       ↓
+   app.get('/health', healthCheck)  ← Used
+   app.all('/mcp', ...)              ← Used
+       ↓
+   [authMiddleware - NOT REGISTERED]  ← UNUSED
+       ↓
+   Request Handler
+
+
+MIDDLEWARE CHAIN (PROPOSED)
+===========================
+
+Express Request
+       ↓
+   express.json()
+       ↓
+   cors(getCorsOptions())
+       ↓
+   authMiddleware()  ← Implemented
+       │
+       ├─→ No Authorization header
+       │   ↓
+       │   401 Unauthorized
+       │
+       ├─→ Invalid token/key
+       │   ↓
+       │   401 Unauthorized
+       │
+       └─→ Valid token/key
+           ↓
+   app.get('/health', healthCheck)
+   app.all('/mcp', ...)
+       ↓
+   Request Handler
+
+
+FILE STRUCTURE OVERVIEW
+=======================
+
+remote/
+├── src/
+│   ├── index.ts                           # Server startup
+│   │   ├─ Load .env
+│   │   ├─ Validate environment
+│   │   ├─ Run health checks (external APIs)
+│   │   └─ Start Express server
+│   │
+│   ├── server.ts                          # Express server
+│   │   ├─ app.use(cors(...))             # CORS enabled
+│   │   ├─ app.get('/health', ...)        # Health check
+│   │   ├─ app.all('/mcp', ...)           # MCP endpoint
+│   │   └─ [NO] app.use(authMiddleware)   # TODO: Add this
+│   │
+│   ├── transport.ts                       # MCP transport
+│   │   ├─ Session ID generation (UUID)
+│   │   ├─ DNS rebinding protection
+│   │   └─ Resumability support
+│   │
+│   ├── eventStore.ts                      # Event storage
+│   │   └─ In-memory event replay
+│   │
+│   └── middleware/
+│       ├── auth.ts                        # [PLACEHOLDER]
+│       │   └─ TODO: Implement
+│       │
+│       ├── cors.ts                        # CORS config
+│       │   └─ Loads ALLOWED_ORIGINS
+│       │
+│       └── health.ts                      # Health endpoint
+│           └─ Returns server status
+│
+├── package.json                           # Dependencies
+│   └─ [Missing: jsonwebtoken, passport]
+│
+└── build/                                 # Compiled JavaScript
+
+
+ENVIRONMENT VARIABLE FLOW
+=========================
+
+.env (Gitignored)
+    |
+    ├─→ dotenv.config() in index.ts
+    |       |
+    |       ├─ FIRECRAWL_API_KEY ──→ Firecrawl service auth
+    |       ├─ ANTHROPIC_API_KEY ──→ Anthropic service auth
+    |       ├─ OPENAI_API_KEY ──→ OpenAI service auth
+    |       ├─ PORT ──→ Server port
+    |       ├─ NODE_ENV ──→ Production mode (enables DNS check)
+    |       ├─ ALLOWED_ORIGINS ──→ CORS whitelist
+    |       ├─ ALLOWED_HOSTS ──→ DNS rebinding protection
+    |       ├─ ENABLE_RESUMABILITY ──→ Session resumability
+    |       └─ SKIP_HEALTH_CHECKS ──→ Skip startup checks
+    |
+    └─→ [MISSING: Auth config]
+            ├─ OAUTH_PROVIDER (not yet)
+            ├─ OAUTH_CLIENT_ID (not yet)
+            ├─ OAUTH_CLIENT_SECRET (not yet)
+            ├─ JWT_SECRET (not yet)
+            └─ MCP_API_KEY (not yet)
+
+
+SESSION LIFECYCLE (CURRENT)
+===========================
+
+1. Client sends initialization request (no auth)
+   POST /mcp
+   {jsonrpc: "2.0", method: "initialize", ...}
+        |
+        ▼
+2. Server creates transport
+   sessionIdGenerator() → UUID v4
+        |
+        ▼
+3. Session stored in memory
+   transports[sessionId] = transport
+        |
+        ▼
+4. Return session ID in header
+   Mcp-Session-Id: <UUID>
+        |
+        ▼
+5. Client uses session ID for future requests
+   Headers: {Mcp-Session-Id: <UUID>}
+        |
+        ▼
+6. Session lost on:
+   - Server restart
+   - Process termination
+   - Explicit close request
+
+
+SESSION LIFECYCLE (WITH AUTH)
+=============================
+
+1. Client requests authorization
+   GET /authorize?redirect_uri=...
+        |
+        ▼
+2. Server redirects to OAuth provider
+   Location: https://oauth-provider.com/...
+        |
+        ▼
+3. User authenticates with provider
+        |
+        ▼
+4. Provider returns auth code
+        |
+        ▼
+5. Client exchanges code for token
+   POST /token
+   code=...&client_id=...&client_secret=...
+        |
+        ▼
+6. Server validates and stores token
+        |
+        ▼
+7. Client sends initialization request WITH token
+   POST /mcp
+   Authorization: Bearer <token>
+        |
+        ▼
+8. Server verifies token in authMiddleware
+   ├─ Check Authorization header exists
+   ├─ Verify token signature
+   ├─ Check token expiry
+   └─ Verify user permissions
+        |
+        ▼
+9. Token valid: Create session
+   sessionIdGenerator() → UUID v4
+   Token attached to session context
+        |
+        ▼
+10. Return session ID (authenticated)
+    Mcp-Session-Id: <UUID>
+        |
+        ▼
+11. All future requests validated
+    [For each request]
+    ├─ Check Authorization header
+    ├─ Verify token still valid
+    ├─ Check rate limits
+    └─ Log audit trail
+
+
+DEPLOYMENT ARCHITECTURE
+=======================
+
+┌──────────────────────────────────────────────────┐
+│              Production Environment              │
+├──────────────────────────────────────────────────┤
+│                                                  │
+│  ┌────────────────────────────────────────────┐ │
+│  │    Reverse Proxy / Load Balancer           │ │
+│  │    (Nginx, HAProxy, AWS ALB, etc.)        │ │
+│  │    ✓ SSL/TLS Termination                  │ │
+│  │    ✓ Rate Limiting                        │ │
+│  │    ✓ DDoS Protection                      │ │
+│  └────────────────┬───────────────────────────┘ │
+│                   │                             │
+│    HTTPS          │                             │
+│  (Port 443)       │    HTTP (Port 3060)         │
+│                   ▼                             │
+│  ┌─────────────────────────────────────────┐   │
+│  │    Pulse Fetch Remote HTTP Server       │   │
+│  │    (Express + MCP SDK)                  │   │
+│  │                                         │   │
+│  │  ✓ CORS (origin whitelist)              │   │
+│  │  ✓ Auth Middleware (JWT/OAuth)          │   │
+│  │  ✓ DNS Rebinding Protection             │   │
+│  │  ✓ Session Management                  │   │
+│  │  ✓ Event Resumability                  │   │
+│  │  ✓ Health Checks                        │   │
+│  │  ✓ Request Logging                      │   │
+│  └──────────────┬──────────────────────────┘   │
+│                 │                              │
+│  ┌──────────────┴──────────────────────────┐   │
+│  │      External API Services              │   │
+│  │  ✓ Firecrawl (API Key Auth)              │   │
+│  │  ✓ Anthropic (API Key Auth)              │   │
+│  │  ✓ OpenAI (API Key Auth)                 │   │
+│  └─────────────────────────────────────────┘   │
+│                                                  │
+└──────────────────────────────────────────────────┘
+
+================================================================================

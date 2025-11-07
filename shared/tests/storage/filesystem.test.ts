@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { FileSystemResourceStorage } from '../../src/storage/filesystem.js';
+import { FileSystemResourceStorage } from '../../storage/resources/backends/filesystem.js';
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
@@ -10,7 +10,7 @@ describe('FileSystemResourceStorage', () => {
 
   beforeEach(async () => {
     // Create a unique test directory
-    testDir = path.join(os.tmpdir(), `pulse-fetch-test-${Date.now()}`);
+    testDir = path.join(os.tmpdir(), `pulse-crawl-test-${Date.now()}`);
     storage = new FileSystemResourceStorage(testDir);
     await storage.init();
   });

@@ -23,13 +23,13 @@ if (!existsSync(envPath)) {
   console.log('   Please create .env from .env.example and add your API keys:');
   console.log('   cp .env.example .env');
   console.log('   Then edit .env and add any required API keys');
-  console.log('   Note: Pulse-fetch works without API keys for most features');
-  // Don't exit - pulse-fetch can work without API keys
+  console.log('   Note: pulse-crawl works without API keys for most features');
+  // Don't exit - pulse-crawl can work without API keys
 }
 
-// Pulse-fetch doesn't require API keys for basic functionality
+// pulse-crawl doesn't require API keys for basic functionality
 console.log('✅ Environment check complete\n');
-console.log('   Note: Pulse-fetch works without API keys for basic web fetching\n');
+console.log('   Note: pulse-crawl works without API keys for basic web fetching\n');
 
 // Install all dependencies
 console.log('📦 Installing all dependencies...');

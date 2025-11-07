@@ -5,7 +5,7 @@
  * under different environment variable configurations.
  *
  * Usage:
- * cd productionized/pulse-fetch && node --import tsx tests/manual/pages/pages.manual.test.ts [--continue-on-failure]
+ * cd productionized/pulse-crawl && node --import tsx tests/manual/pages/pages.manual.test.ts [--continue-on-failure]
  */
 
 import 'dotenv/config';
@@ -17,21 +17,21 @@ import {
   type PageTestCase,
   type EnvVarConfig,
 } from './test-config.js';
-import { scrapeTool } from '../../../shared/src/tools/scrape.js';
+import { scrapeTool } from '../../../shared/mcp/tools/scrape/index.js';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import type {
   ClientFactory,
   StrategyConfigFactory,
   IScrapingClients,
-} from '../../../shared/src/server.js';
-import { NativeFetcher, FirecrawlClient, BrightDataClient } from '../../../shared/src/server.js';
+} from '../../../shared/server.js';
+import { NativeFetcher, FirecrawlClient } from '../../../shared/server.js';
 
 interface TestResult {
   page: PageTestCase;
   config: EnvVarConfig;
   expected: 'pass' | 'fail';
   actual: 'pass' | 'fail';
-  actualStrategy?: 'native' | 'firecrawl' | 'brightdata' | 'none';
+  actualStrategy?: 'native' | 'firecrawl' | 'none';
   strategiesAttempted?: string[];
   details?: string;
   duration: number;
@@ -47,7 +47,6 @@ async function testPageWithConfig(page: PageTestCase, config: EnvVarConfig): Pro
   // Save original env vars
   const originalEnv = {
     FIRECRAWL_API_KEY: process.env.FIRECRAWL_API_KEY,
-    BRIGHTDATA_API_KEY: process.env.BRIGHTDATA_API_KEY,
     OPTIMIZE_FOR: process.env.OPTIMIZE_FOR,
   };
 
@@ -60,14 +59,6 @@ async function testPageWithConfig(page: PageTestCase, config: EnvVarConfig): Pro
     } else {
       delete process.env.FIRECRAWL_API_KEY;
       // FIRECRAWL_API_KEY is not set for this config
-    }
-
-    if (config.BRIGHTDATA_API_KEY) {
-      process.env.BRIGHTDATA_API_KEY = config.BRIGHTDATA_API_KEY;
-      // BRIGHTDATA_API_KEY is set for this config
-    } else {
-      delete process.env.BRIGHTDATA_API_KEY;
-      // BRIGHTDATA_API_KEY is not set for this config
     }
 
     if (config.OPTIMIZE_FOR) {
@@ -85,7 +76,6 @@ async function testPageWithConfig(page: PageTestCase, config: EnvVarConfig): Pro
     // Create the client factory based on current env vars
     const clientFactory: ClientFactory = () => {
       const firecrawlApiKey = process.env.FIRECRAWL_API_KEY;
-      const brightDataToken = process.env.BRIGHTDATA_API_KEY;
 
       // Create clients based on available API keys
 
@@ -97,19 +87,15 @@ async function testPageWithConfig(page: PageTestCase, config: EnvVarConfig): Pro
         clients.firecrawl = new FirecrawlClient(firecrawlApiKey);
       }
 
-      if (brightDataToken) {
-        clients.brightData = new BrightDataClient(brightDataToken);
-      }
-
       return clients;
     };
 
     // Create strategy config factory that returns a mock client (no persistence)
     const strategyConfigFactory: StrategyConfigFactory = () => ({
-      getStrategyForUrl: async () => null, // Always return null (no stored strategy)
+      loadConfig: async () => [], // Empty config
+      saveConfig: async () => {}, // No-op
       upsertEntry: async () => {}, // No-op
-      getAllEntries: async () => [], // Empty array
-      deleteEntry: async () => false, // No-op
+      getStrategyForUrl: async () => null, // Always return null (no stored strategy)
     });
 
     // Get the scrape tool
@@ -129,7 +115,7 @@ async function testPageWithConfig(page: PageTestCase, config: EnvVarConfig): Pro
       const actual = 'isError' in result && result.isError ? 'fail' : 'pass';
 
       // Extract strategy information from the result text
-      let actualStrategy: 'native' | 'firecrawl' | 'brightdata' | 'none' = 'none';
+      let actualStrategy: 'native' | 'firecrawl' | 'none' = 'none';
       let strategiesAttempted: string[] = [];
 
       if (!('isError' in result) || !result.isError) {
@@ -137,14 +123,14 @@ async function testPageWithConfig(page: PageTestCase, config: EnvVarConfig): Pro
         const resultText = result.content?.[0]?.text || '';
         const strategyMatch = resultText.match(/Scraped using: (\w+)/);
         if (strategyMatch) {
-          actualStrategy = strategyMatch[1] as 'native' | 'firecrawl' | 'brightdata';
+          actualStrategy = strategyMatch[1] as 'native' | 'firecrawl';
         }
       } else {
         // Error case - extract diagnostics from error text
         const errorText = result.content?.[0]?.text || '';
         const strategiesMatch = errorText.match(/Strategies attempted: ([^\n]+)/);
         if (strategiesMatch) {
-          strategiesAttempted = strategiesMatch[1].split(', ').map((s) => s.trim());
+          strategiesAttempted = strategiesMatch[1].split(', ').map((s: string) => s.trim());
         }
       }
 
@@ -198,7 +184,6 @@ async function runPagesTestSuite() {
   // Store actual env values
   const actualEnvValues = {
     FIRECRAWL_API_KEY: process.env.FIRECRAWL_API_KEY,
-    BRIGHTDATA_API_KEY: process.env.BRIGHTDATA_API_KEY,
   };
 
   // Update configs with actual values
@@ -209,10 +194,6 @@ async function runPagesTestSuite() {
         config.FIRECRAWL_API_KEY === 'from_env'
           ? actualEnvValues.FIRECRAWL_API_KEY
           : config.FIRECRAWL_API_KEY,
-      BRIGHTDATA_API_KEY:
-        config.BRIGHTDATA_API_KEY === 'from_env'
-          ? actualEnvValues.BRIGHTDATA_API_KEY
-          : config.BRIGHTDATA_API_KEY,
     };
     // Config resolved with appropriate API keys
     return resolved;
@@ -390,7 +371,7 @@ async function runPagesTestSuite() {
 // CLI usage
 if (import.meta.url === `file://${process.argv[1]}`) {
   console.log(
-    'Usage: cd productionized/pulse-fetch && node --import tsx tests/manual/pages/pages.manual.test.ts [--continue-on-failure]'
+    'Usage: cd productionized/pulse-crawl && node --import tsx tests/manual/pages/pages.manual.test.ts [--continue-on-failure]'
   );
   runPagesTestSuite().catch((error) => {
     console.error('Fatal error:', error);

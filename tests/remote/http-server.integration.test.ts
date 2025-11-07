@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
-import { createExpressServer } from '../../remote/src/server.js';
+import { createExpressServer } from '../../remote/server.js';
 import type { Application } from 'express';
 import type { Server } from 'http';
 
@@ -13,6 +13,7 @@ describe('HTTP Server Integration', () => {
     process.env.NODE_ENV = 'test';
     process.env.SKIP_HEALTH_CHECKS = 'true';
     process.env.ENABLE_RESUMABILITY = 'false';
+    process.env.ALLOWED_ORIGINS = '*';
 
     // Create server
     app = await createExpressServer();
@@ -88,6 +89,7 @@ describe('HTTP Server Integration', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
         },
         body: JSON.stringify(initRequest),
       });
@@ -107,6 +109,7 @@ describe('HTTP Server Integration', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
         },
         body: JSON.stringify(request),
       });
@@ -136,6 +139,7 @@ describe('HTTP Server Integration', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
         },
         body: JSON.stringify(initRequest),
       });
@@ -166,6 +170,7 @@ describe('HTTP Server Integration', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
         },
         body: JSON.stringify(initRequest),
       });
@@ -183,12 +188,14 @@ describe('HTTP Server Integration', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
           'Mcp-Session-Id': sessionId!,
         },
         body: JSON.stringify(initializedRequest),
       });
 
-      expect(response.status).toBe(200);
+      // Notifications return 202 Accepted (no response expected)
+      expect(response.status).toBe(202);
     });
   });
 
@@ -197,7 +204,7 @@ describe('HTTP Server Integration', () => {
       const response = await fetch(`${baseUrl}/health`, {
         method: 'GET',
         headers: {
-          Origin: 'http://localhost:3000',
+          Origin: 'http://localhost:3060',
         },
       });
 
@@ -211,6 +218,7 @@ describe('HTTP Server Integration', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
         },
         body: 'invalid json{',
       });

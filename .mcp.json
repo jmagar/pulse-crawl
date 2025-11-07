@@ -1,9 +1,0 @@
-     {
-       "mcpServers": {
-         "pulse-fetch": {
-           "command": "node",
-           "args":
-     ["/home/jmagar/code/pulse-fetch/local/build/index.js"]
-         }
-       }
-     }

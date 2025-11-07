@@ -4,8 +4,8 @@ import {
   OpenAIExtractClient,
   OpenAICompatibleExtractClient,
   ExtractClientFactory,
-  type LLMConfig,
-} from '../../shared/src/extract/index.js';
+} from '../../shared/processing/extraction/index.js';
+import type { LLMConfig } from '../../shared/processing/extraction/types.js';
 
 // Mock the SDK modules
 vi.mock('@anthropic-ai/sdk', () => {
@@ -37,17 +37,20 @@ describe('Extract Clients', () => {
   describe('AnthropicExtractClient', () => {
     it('should extract content successfully', async () => {
       const mockAnthropicModule = await import('@anthropic-ai/sdk');
-      const AnthropicMock = mockAnthropicModule.default as ReturnType<typeof vi.fn>;
+      const AnthropicMock = vi.mocked(mockAnthropicModule.default);
 
       const mockCreate = vi.fn().mockResolvedValue({
         content: [{ type: 'text', text: 'Test Article' }],
       });
 
-      AnthropicMock.mockImplementation(() => ({
-        messages: {
-          create: mockCreate,
-        },
-      }));
+      AnthropicMock.mockImplementation(
+        () =>
+          ({
+            messages: {
+              create: mockCreate,
+            },
+          }) as unknown as ReturnType<typeof AnthropicMock>
+      );
 
       const config: LLMConfig = {
         provider: 'anthropic',
@@ -75,15 +78,18 @@ describe('Extract Clients', () => {
 
     it('should handle extraction errors', async () => {
       const mockAnthropicModule = await import('@anthropic-ai/sdk');
-      const AnthropicMock = mockAnthropicModule.default as ReturnType<typeof vi.fn>;
+      const AnthropicMock = vi.mocked(mockAnthropicModule.default);
 
       const mockCreate = vi.fn().mockRejectedValue(new Error('API Error'));
 
-      AnthropicMock.mockImplementation(() => ({
-        messages: {
-          create: mockCreate,
-        },
-      }));
+      AnthropicMock.mockImplementation(
+        () =>
+          ({
+            messages: {
+              create: mockCreate,
+            },
+          }) as unknown as ReturnType<typeof AnthropicMock>
+      );
 
       const config: LLMConfig = {
         provider: 'anthropic',
@@ -99,17 +105,20 @@ describe('Extract Clients', () => {
 
     it('should use custom model if provided', async () => {
       const mockAnthropicModule = await import('@anthropic-ai/sdk');
-      const AnthropicMock = mockAnthropicModule.default as ReturnType<typeof vi.fn>;
+      const AnthropicMock = vi.mocked(mockAnthropicModule.default);
 
       const mockCreate = vi.fn().mockResolvedValue({
         content: [{ type: 'text', text: 'Test Article' }],
       });
 
-      AnthropicMock.mockImplementation(() => ({
-        messages: {
-          create: mockCreate,
-        },
-      }));
+      AnthropicMock.mockImplementation(
+        () =>
+          ({
+            messages: {
+              create: mockCreate,
+            },
+          }) as unknown as ReturnType<typeof AnthropicMock>
+      );
 
       const config: LLMConfig = {
         provider: 'anthropic',
@@ -131,19 +140,22 @@ describe('Extract Clients', () => {
   describe('OpenAIExtractClient', () => {
     it('should extract content successfully', async () => {
       const mockOpenAIModule = await import('openai');
-      const OpenAIMock = mockOpenAIModule.default as ReturnType<typeof vi.fn>;
+      const OpenAIMock = vi.mocked(mockOpenAIModule.default);
 
       const mockCreate = vi.fn().mockResolvedValue({
         choices: [{ message: { content: 'Test Article' } }],
       });
 
-      OpenAIMock.mockImplementation(() => ({
-        chat: {
-          completions: {
-            create: mockCreate,
-          },
-        },
-      }));
+      OpenAIMock.mockImplementation(
+        () =>
+          ({
+            chat: {
+              completions: {
+                create: mockCreate,
+              },
+            },
+          }) as unknown as ReturnType<typeof OpenAIMock>
+      );
 
       const config: LLMConfig = {
         provider: 'openai',
@@ -174,19 +186,22 @@ describe('Extract Clients', () => {
 
     it('should handle empty response', async () => {
       const mockOpenAIModule = await import('openai');
-      const OpenAIMock = mockOpenAIModule.default as ReturnType<typeof vi.fn>;
+      const OpenAIMock = vi.mocked(mockOpenAIModule.default);
 
       const mockCreate = vi.fn().mockResolvedValue({
         choices: [{ message: { content: null } }],
       });
 
-      OpenAIMock.mockImplementation(() => ({
-        chat: {
-          completions: {
-            create: mockCreate,
-          },
-        },
-      }));
+      OpenAIMock.mockImplementation(
+        () =>
+          ({
+            chat: {
+              completions: {
+                create: mockCreate,
+              },
+            },
+          }) as unknown as ReturnType<typeof OpenAIMock>
+      );
 
       const config: LLMConfig = {
         provider: 'openai',
@@ -204,19 +219,22 @@ describe('Extract Clients', () => {
   describe('OpenAICompatibleExtractClient', () => {
     it('should extract content successfully with custom base URL', async () => {
       const mockOpenAIModule = await import('openai');
-      const OpenAIMock = mockOpenAIModule.default as ReturnType<typeof vi.fn>;
+      const OpenAIMock = vi.mocked(mockOpenAIModule.default);
 
       const mockCreate = vi.fn().mockResolvedValue({
         choices: [{ message: { content: 'Test Article' } }],
       });
 
-      OpenAIMock.mockImplementation(() => ({
-        chat: {
-          completions: {
-            create: mockCreate,
-          },
-        },
-      }));
+      OpenAIMock.mockImplementation(
+        () =>
+          ({
+            chat: {
+              completions: {
+                create: mockCreate,
+              },
+            },
+          }) as unknown as ReturnType<typeof OpenAIMock>
+      );
 
       const config: LLMConfig = {
         provider: 'openai-compatible',

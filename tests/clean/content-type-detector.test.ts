@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { detectContentType } from '../../shared/src/clean/content-type-detector.js';
+import { detectContentType } from '../../shared/processing/cleaning/content-type-detector.js';
 
 describe('detectContentType', () => {
   describe('URL-based detection', () => {

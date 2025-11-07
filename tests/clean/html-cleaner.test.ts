@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { HtmlCleaner } from '../../shared/src/clean/html-cleaner.js';
+import { HtmlCleaner } from '../../shared/processing/cleaning/html-cleaner.js';
 
 describe('HtmlCleaner', () => {
   const cleaner = new HtmlCleaner();

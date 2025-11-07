@@ -1,6 +1,6 @@
 # Pulse Fetch MCP Server
 
-> **Note**: This package is part of the [MCP Servers](https://github.com/pulsemcp/mcp-servers) monorepo. For the latest updates and full source code, visit the [Pulse Fetch MCP Server directory](https://github.com/pulsemcp/mcp-servers/tree/main/productionized/pulse-fetch).
+> **Note**: This package is part of the [MCP Servers](https://github.com/pulsemcp/mcp-servers) monorepo. For the latest updates and full source code, visit the [Pulse Fetch MCP Server directory](https://github.com/pulsemcp/mcp-servers/tree/main/productionized/pulse-crawl).
 
 Haven't heard about MCP yet? The easiest way to keep up-to-date is to read our [weekly newsletter at PulseMCP](https://www.pulsemcp.com/).
 
@@ -34,7 +34,7 @@ This project is built and maintained by [PulseMCP](https://www.pulsemcp.com/).
 
 **Intelligent caching**: Automatically caches scraped content as MCP Resources. Subsequent requests for the same URL return cached content instantly without network calls, dramatically improving performance.
 
-**Anti-bot bypass**: Integrates with Firecrawl and BrightData APIs to reliably work around anti-scraping technology.
+**Enhanced scraping**: Integrates with Firecrawl API for enhanced content extraction and anti-scraping bypass.
 
 **Smart strategy selection**: Automatically learns and applies the best scraping method for specific URL patterns, improving performance over time.
 
@@ -96,9 +96,9 @@ I've extracted the product information:
 User: "This page is blocking me with CAPTCHA. Can you get the content from https://protected.example.com/data"
 Assistant: I'll extract the content from that protected page for you.
 
-[Uses scrape tool with automatic anti-bot bypass]
+[Uses scrape tool with automatic fallback to Firecrawl]
 
-I successfully bypassed the protection and extracted the content from the page using BrightData's Web Unlocker capabilities.
+I successfully bypassed the protection and extracted the content from the page using Firecrawl's enhanced scraping capabilities.
 ```
 
 ## Intelligent Caching
@@ -143,7 +143,6 @@ Most other alternatives fall short on one or more vectors:
 - Node.js (recommended: use the version specified in package.json)
 - Claude Desktop application (for local setup)
 - Optional: Firecrawl API key for enhanced scraping capabilities
-- Optional: BrightData bearer token for web unlocking features
 
 ## Environment Variables
 
@@ -151,12 +150,11 @@ Most other alternatives fall short on one or more vectors:
 
 | Environment Variable           | Description                                                         | Required | Default Value                | Example                           |
 | ------------------------------ | ------------------------------------------------------------------- | -------- | ---------------------------- | --------------------------------- |
-| `FIRECRAWL_API_KEY`            | API key for Firecrawl service to bypass anti-bot measures           | No       | N/A                          | `fc-abc123...`                    |
-| `BRIGHTDATA_API_KEY`           | Bearer token for BrightData Web Unlocker service                    | No       | N/A                          | `Bearer bd_abc123...`             |
+| `FIRECRAWL_API_KEY`            | API key for Firecrawl service for enhanced scraping                 | No       | N/A                          | `fc-abc123...`                    |
 | `STRATEGY_CONFIG_PATH`         | Path to markdown file containing scraping strategy configuration    | No       | OS temp dir                  | `/path/to/scraping-strategies.md` |
 | `OPTIMIZE_FOR`                 | Optimization strategy for scraping: `cost` or `speed`               | No       | `cost`                       | `speed`                           |
 | `MCP_RESOURCE_STORAGE`         | Storage backend for saved resources: `memory` or `filesystem`       | No       | `memory`                     | `filesystem`                      |
-| `MCP_RESOURCE_FILESYSTEM_ROOT` | Directory for filesystem storage (only used with `filesystem` type) | No       | `/tmp/pulse-fetch/resources` | `/home/user/mcp-resources`        |
+| `MCP_RESOURCE_FILESYSTEM_ROOT` | Directory for filesystem storage (only used with `filesystem` type) | No       | `/tmp/pulse-crawl/resources` | `/home/user/mcp-resources`        |
 
 ### LLM Configuration for Extract Feature
 
@@ -192,9 +190,9 @@ Add this configuration to your Claude Desktop config file:
 ```json
 {
   "mcpServers": {
-    "pulse-fetch": {
+    "pulse-crawl": {
       "command": "npx",
-      "args": ["-y", "@pulsemcp/pulse-fetch"]
+      "args": ["-y", "@pulsemcp/pulse-crawl"]
     }
   }
 }
@@ -205,12 +203,11 @@ Add this configuration to your Claude Desktop config file:
 ```json
 {
   "mcpServers": {
-    "pulse-fetch": {
+    "pulse-crawl": {
       "command": "npx",
-      "args": ["-y", "@pulsemcp/pulse-fetch"],
+      "args": ["-y", "@pulsemcp/pulse-crawl"],
       "env": {
         "FIRECRAWL_API_KEY": "your-firecrawl-api-key",
-        "BRIGHTDATA_API_KEY": "your-brightdata-bearer-token",
         "STRATEGY_CONFIG_PATH": "/path/to/your/scraping-strategies.md",
         "OPTIMIZE_FOR": "cost",
         "MCP_RESOURCE_STORAGE": "filesystem",
@@ -224,7 +221,7 @@ Add this configuration to your Claude Desktop config file:
 To set up the local version:
 
 1. Clone or download the repository
-2. Navigate to the local directory: `cd pulse-fetch/local`
+2. Navigate to the local directory: `cd pulse-crawl/local`
 3. Install dependencies: `npm install`
 4. Build the project: `npm run build`
 5. Update your Claude Desktop config with the correct path
@@ -239,7 +236,7 @@ For a hosted solution, refer to [Pulse Fetch (Remote)](remote/README.md).
 ## Project Structure
 
 ```
-pulse-fetch/
+pulse-crawl/
 ├── local/                 # Local server implementation
 │   ├── src/
 │   │   └── index.ts      # Main entry point
@@ -368,21 +365,21 @@ MIT
 
 # Scraping Strategy Configuration
 
-The pulse-fetch MCP server includes an intelligent strategy system that automatically selects the best scraping method for different websites.
+The pulse-crawl MCP server includes an intelligent strategy system that automatically selects the best scraping method for different websites.
 
 ## Optimization Modes
 
 The `OPTIMIZE_FOR` environment variable controls the order and selection of scraping strategies:
 
-- **`COST` (default)**: Optimizes for the lowest cost by trying native fetch first, then Firecrawl, then BrightData
-  - Order: `native → firecrawl → brightdata`
+- **`COST` (default)**: Optimizes for the lowest cost by trying native fetch first, then Firecrawl
+  - Order: `native → firecrawl`
   - Best for: Most use cases where cost is a concern
   - Behavior: Always tries the free native method first before paid services
 
-- **`SPEED`**: Optimizes for faster results by skipping native fetch and starting with more powerful scrapers
-  - Order: `firecrawl → brightdata` (skips native entirely)
+- **`SPEED`**: Optimizes for faster results by using Firecrawl directly
+  - Order: `firecrawl` (skips native entirely)
   - Best for: Time-sensitive applications or sites known to block native fetch
-  - Behavior: Goes straight to advanced scrapers that are more likely to succeed on complex sites
+  - Behavior: Goes straight to Firecrawl which is more likely to succeed on complex sites
 
 Example configuration:
 
@@ -394,33 +391,32 @@ export OPTIMIZE_FOR=COST   # For cost-effective scraping (default)
 ## How It Works
 
 1. **Configured Strategy**: The server checks a local config file for URL-specific strategies
-2. **Universal Fallback**: If no configured strategy exists or it fails, falls back to the universal approach (native → firecrawl → brightdata)
+2. **Universal Fallback**: If no configured strategy exists or it fails, falls back to the universal approach (native → firecrawl)
 3. **Auto-Learning**: When a strategy succeeds, it's automatically saved to the config file with an intelligent URL pattern for future use
 
 ## Strategy Types
 
 - **`native`**: Fast native fetch using Node.js fetch API (best for simple pages)
-- **`firecrawl`**: Enhanced content extraction using Firecrawl API (good for complex layouts)
-- **`brightdata`**: Anti-bot bypass using BrightData Web Unlocker (for protected content)
+- **`firecrawl`**: Enhanced content extraction using Firecrawl API (good for complex layouts and anti-bot bypass)
 
 ## Configuration File
 
-The configuration is stored in a markdown table. By default, it's automatically created in your OS temp directory (e.g., `/tmp/pulse-fetch/scraping-strategies.md` on Unix systems). You can customize the location by setting the `STRATEGY_CONFIG_PATH` environment variable.
+The configuration is stored in a markdown table. By default, it's automatically created in your OS temp directory (e.g., `/tmp/pulse-crawl/scraping-strategies.md` on Unix systems). You can customize the location by setting the `STRATEGY_CONFIG_PATH` environment variable.
 
 The table has three columns:
 
 - **prefix**: Domain or URL prefix to match (e.g., `reddit.com` or `reddit.com/r/`)
-- **default_strategy**: The strategy to use (`native`, `firecrawl`, or `brightdata`)
+- **default_strategy**: The strategy to use (`native` or `firecrawl`)
 - **notes**: Optional description or reasoning
 
 ### Example Configuration
 
 ```markdown
-| prefix        | default_strategy | notes                                               |
-| ------------- | ---------------- | --------------------------------------------------- |
-| reddit.com/r/ | brightdata       | Reddit requires anti-bot bypass for subreddit pages |
-| reddit.com    | firecrawl        | General Reddit pages work well with Firecrawl       |
-| github.com    | native           | GitHub pages are simple and work with native fetch  |
+| prefix        | default_strategy | notes                                                 |
+| ------------- | ---------------- | ----------------------------------------------------- |
+| reddit.com/r/ | firecrawl        | Reddit requires enhanced scraping for subreddit pages |
+| reddit.com    | firecrawl        | General Reddit pages work well with Firecrawl         |
+| github.com    | native           | GitHub pages are simple and work with native fetch    |
 ```
 
 ### Prefix Matching Rules
@@ -433,7 +429,7 @@ The table has three columns:
 
 When scraping a new URL:
 
-1. The system tries the universal fallback sequence (native → firecrawl → brightdata)
+1. The system tries the universal fallback sequence (native → firecrawl)
 2. The first successful strategy is automatically saved to the config file with an intelligently extracted URL pattern
 3. Future requests matching that pattern will use the discovered strategy
 
@@ -454,7 +450,7 @@ The system uses an abstraction layer for config storage:
 
 - **FilesystemClient**: Stores config in a local markdown file (default)
   - Uses `STRATEGY_CONFIG_PATH` if set
-  - Otherwise uses OS temp directory (e.g., `/tmp/pulse-fetch/scraping-strategies.md`)
+  - Otherwise uses OS temp directory (e.g., `/tmp/pulse-crawl/scraping-strategies.md`)
   - Automatically creates initial config with common patterns
 - **Future clients**: Could support GCS, S3, database storage, etc.
 

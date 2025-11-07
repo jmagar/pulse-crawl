@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { PassThroughCleaner } from '../../shared/src/clean/pass-through-cleaner.js';
+import { PassThroughCleaner } from '../../shared/processing/cleaning/pass-through-cleaner.js';
 
 describe('PassThroughCleaner', () => {
   describe('JSON cleaner', () => {

@@ -21,7 +21,7 @@ Located in `functional/`, these tests verify individual tools and components in 
 
 Located in `integration/`, these tests verify the complete MCP protocol interaction using TestMCPClient with mocked external services.
 
-- `pulse-fetch.integration.test.ts` - Tests full MCP server functionality
+- `pulse-crawl.integration.test.ts` - Tests full MCP server functionality
 
 ### Manual Tests
 
@@ -35,7 +35,6 @@ To run manual tests:
 cp .env.example .env
 # Edit .env to add your real API keys:
 # FIRECRAWL_API_KEY=your-real-firecrawl-key
-# BRIGHTDATA_API_KEY=your-real-brightdata-api-key
 # LLM_PROVIDER=anthropic
 # LLM_API_KEY=your-llm-api-key
 
@@ -70,6 +69,5 @@ The mocks simulate:
 
 - **Native Fetcher**: Direct HTTP requests with configurable responses
 - **Firecrawl Client**: Firecrawl API responses with structured data
-- **BrightData Client**: BrightData Web Unlocker responses
 
 Mocks can be configured via environment variables in integration tests or directly in functional tests.

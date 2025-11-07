@@ -1,13 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { scrapeTool } from '../../../shared/src/tools/scrape.js';
+import { scrapeTool } from '../../../shared/mcp/tools/scrape/index.js';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import type {
   ClientFactory,
   StrategyConfigFactory,
   IScrapingClients,
-} from '../../../shared/src/server.js';
-import { NativeFetcher, FirecrawlClient, BrightDataClient } from '../../../shared/src/server.js';
-import { FilesystemStrategyConfigClient } from '../../../shared/src/strategy-config/index.js';
+} from '../../../shared/server.js';
+import { NativeFetcher, FirecrawlClient } from '../../../shared/server.js';
+import { FilesystemStrategyConfigClient } from '../../../shared/scraping/strategies/learned/index.js';
 
 describe('Scrape Tool', () => {
   const createMockServer = () =>
@@ -19,7 +19,6 @@ describe('Scrape Tool', () => {
   const createClientFactory = (): ClientFactory => {
     return () => {
       const firecrawlApiKey = process.env.FIRECRAWL_API_KEY;
-      const brightDataToken = process.env.BRIGHTDATA_API_KEY;
 
       const clients: IScrapingClients = {
         native: new NativeFetcher(),
@@ -27,10 +26,6 @@ describe('Scrape Tool', () => {
 
       if (firecrawlApiKey) {
         clients.firecrawl = new FirecrawlClient(firecrawlApiKey);
-      }
-
-      if (brightDataToken) {
-        clients.brightData = new BrightDataClient(brightDataToken);
       }
 
       return clients;

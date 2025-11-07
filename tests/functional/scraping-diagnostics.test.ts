@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { scrapeUniversal } from '../../shared/src/scraping-strategies.js';
-import type { IScrapingClients } from '../../shared/src/server.js';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { scrapeUniversal } from '../../shared/scraping/strategies/selector.js';
+import type { IScrapingClients } from '../../shared/server.js';
 
 describe('Scraping Error Diagnostics', () => {
   let mockClients: IScrapingClients;
@@ -11,9 +11,6 @@ describe('Scraping Error Diagnostics', () => {
         scrape: vi.fn(),
       },
       firecrawl: {
-        scrape: vi.fn(),
-      },
-      brightData: {
         scrape: vi.fn(),
       },
     };
@@ -30,10 +27,6 @@ describe('Scraping Error Diagnostics', () => {
         success: false,
         error: 'Rate limited',
       });
-      vi.mocked(mockClients.brightData!.scrape).mockResolvedValue({
-        success: false,
-        error: 'Proxy error',
-      });
 
       const result = await scrapeUniversal(mockClients, {
         url: 'https://example.com',
@@ -41,22 +34,13 @@ describe('Scraping Error Diagnostics', () => {
 
       expect(result.success).toBe(false);
       expect(result.diagnostics).toBeDefined();
-      expect(result.diagnostics?.strategiesAttempted).toEqual([
-        'native',
-        'firecrawl',
-        'brightdata',
-      ]);
+      expect(result.diagnostics?.strategiesAttempted).toEqual(['native', 'firecrawl']);
       expect(result.diagnostics?.strategyErrors).toEqual({
         native: 'Forbidden',
         firecrawl: 'Rate limited',
-        brightdata: 'Proxy error',
       });
       expect(result.diagnostics?.timing).toBeDefined();
-      expect(Object.keys(result.diagnostics?.timing || {})).toEqual([
-        'native',
-        'firecrawl',
-        'brightdata',
-      ]);
+      expect(Object.keys(result.diagnostics?.timing || {})).toEqual(['native', 'firecrawl']);
     });
 
     it('should include timing information for each attempted strategy', async () => {
@@ -69,10 +53,6 @@ describe('Scraping Error Diagnostics', () => {
         await new Promise((resolve) => setTimeout(resolve, 20));
         return { success: false };
       });
-      vi.mocked(mockClients.brightData!.scrape).mockImplementation(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 30));
-        return { success: false };
-      });
 
       const result = await scrapeUniversal(mockClients, {
         url: 'https://example.com',
@@ -80,7 +60,6 @@ describe('Scraping Error Diagnostics', () => {
 
       expect(result.diagnostics?.timing?.native).toBeGreaterThanOrEqual(8);
       expect(result.diagnostics?.timing?.firecrawl).toBeGreaterThanOrEqual(18);
-      expect(result.diagnostics?.timing?.brightdata).toBeGreaterThanOrEqual(28);
     });
   });
 
@@ -94,10 +73,6 @@ describe('Scraping Error Diagnostics', () => {
         success: false,
         error: 'Authentication failed',
       });
-      vi.mocked(mockClients.brightData!.scrape).mockResolvedValue({
-        success: false,
-        error: 'Connection timeout',
-      });
 
       const result = await scrapeUniversal(mockClients, {
         url: 'https://example.com',
@@ -108,28 +83,24 @@ describe('Scraping Error Diagnostics', () => {
         expect(result.error).toContain('authentication error');
       } else {
         expect(result.error).toContain('All strategies failed');
-        expect(result.error).toContain('Attempted: native, firecrawl, brightdata');
+        expect(result.error).toContain('Attempted: native, firecrawl');
         expect(result.error).toContain('native: HTTP 403');
         expect(result.error).toContain('firecrawl: Authentication failed');
-        expect(result.error).toContain('brightdata: Connection timeout');
       }
     });
 
     it('should handle missing error messages gracefully', async () => {
       vi.mocked(mockClients.native.scrape).mockResolvedValue({ success: false });
       vi.mocked(mockClients.firecrawl!.scrape).mockResolvedValue({ success: false });
-      vi.mocked(mockClients.brightData!.scrape).mockResolvedValue({ success: false });
 
       const result = await scrapeUniversal(mockClients, {
         url: 'https://example.com',
       });
 
       expect(result.diagnostics?.strategyErrors.native).toBe('HTTP unknown');
-      // Firecrawl and BrightData should have errors since they were attempted
+      // Firecrawl should have errors since it was attempted
       expect(result.diagnostics?.strategiesAttempted).toContain('firecrawl');
-      expect(result.diagnostics?.strategiesAttempted).toContain('brightdata');
       expect(result.diagnostics?.strategyErrors.firecrawl).toBeDefined();
-      expect(result.diagnostics?.strategyErrors.brightdata).toBeDefined();
     });
   });
 
@@ -137,7 +108,6 @@ describe('Scraping Error Diagnostics', () => {
     it('should capture exceptions as errors in diagnostics', async () => {
       vi.mocked(mockClients.native.scrape).mockRejectedValue(new Error('Network error'));
       vi.mocked(mockClients.firecrawl!.scrape).mockRejectedValue(new Error('API error'));
-      vi.mocked(mockClients.brightData!.scrape).mockRejectedValue(new Error('Proxy error'));
 
       const result = await scrapeUniversal(mockClients, {
         url: 'https://example.com',
@@ -145,13 +115,11 @@ describe('Scraping Error Diagnostics', () => {
 
       expect(result.diagnostics?.strategyErrors.native).toBe('Network error');
       expect(result.diagnostics?.strategyErrors.firecrawl).toBe('API error');
-      expect(result.diagnostics?.strategyErrors.brightdata).toBe('Proxy error');
     });
 
     it('should handle non-Error exceptions', async () => {
       vi.mocked(mockClients.native.scrape).mockRejectedValue('String error');
       vi.mocked(mockClients.firecrawl!.scrape).mockRejectedValue(null);
-      vi.mocked(mockClients.brightData!.scrape).mockRejectedValue(undefined);
 
       const result = await scrapeUniversal(mockClients, {
         url: 'https://example.com',
@@ -159,7 +127,6 @@ describe('Scraping Error Diagnostics', () => {
 
       expect(result.diagnostics?.strategyErrors.native).toBe('Unknown error');
       expect(result.diagnostics?.strategyErrors.firecrawl).toBe('Unknown error');
-      expect(result.diagnostics?.strategyErrors.brightdata).toBe('Unknown error');
     });
   });
 
@@ -170,7 +137,6 @@ describe('Scraping Error Diagnostics', () => {
         firecrawl: undefined,
       };
       vi.mocked(mockClients.native.scrape).mockResolvedValue({ success: false });
-      vi.mocked(mockClients.brightData!.scrape).mockResolvedValue({ success: false });
 
       const result = await scrapeUniversal(clientsWithoutFirecrawl, {
         url: 'https://example.com',
@@ -178,24 +144,6 @@ describe('Scraping Error Diagnostics', () => {
 
       expect(result.diagnostics?.strategyErrors.firecrawl).toBe('Firecrawl client not configured');
       expect(result.diagnostics?.strategiesAttempted).not.toContain('firecrawl');
-    });
-
-    it('should report missing brightdata client in diagnostics', async () => {
-      const clientsWithoutBrightData = {
-        ...mockClients,
-        brightData: undefined,
-      };
-      vi.mocked(mockClients.native.scrape).mockResolvedValue({ success: false });
-      vi.mocked(mockClients.firecrawl!.scrape).mockResolvedValue({ success: false });
-
-      const result = await scrapeUniversal(clientsWithoutBrightData, {
-        url: 'https://example.com',
-      });
-
-      expect(result.diagnostics?.strategyErrors.brightdata).toBe(
-        'BrightData client not configured'
-      );
-      expect(result.diagnostics?.strategiesAttempted).not.toContain('brightdata');
     });
   });
 
@@ -225,7 +173,12 @@ describe('Scraping Error Diagnostics', () => {
       });
       vi.mocked(mockClients.firecrawl!.scrape).mockResolvedValue({
         success: true,
-        data: { html: '<p>Content</p>' },
+        data: {
+          content: 'Content',
+          markdown: 'Content',
+          html: '<p>Content</p>',
+          metadata: {},
+        },
       });
 
       const result = await scrapeUniversal(mockClients, {
@@ -255,28 +208,8 @@ describe('Scraping Error Diagnostics', () => {
       expect(result.isAuthError).toBe(true);
       expect(result.error).toContain('Firecrawl authentication error');
       expect(result.diagnostics?.strategiesAttempted).toEqual(['native', 'firecrawl']);
-      // BrightData should not be attempted after auth error
-      expect(mockClients.brightData!.scrape).not.toHaveBeenCalled();
     });
 
-    it('should stop immediately on brightdata authentication error', async () => {
-      vi.mocked(mockClients.native.scrape).mockResolvedValue({ success: false });
-      vi.mocked(mockClients.firecrawl!.scrape).mockResolvedValue({ success: false });
-      vi.mocked(mockClients.brightData!.scrape).mockResolvedValue({
-        success: false,
-        error: 'Authentication failed: Invalid token',
-      });
-
-      const result = await scrapeUniversal(mockClients, {
-        url: 'https://example.com',
-      });
-
-      expect(result.isAuthError).toBe(true);
-      expect(result.error).toContain('BrightData authentication error');
-      expect(result.diagnostics?.strategyErrors.brightdata).toBe(
-        'Authentication failed: Authentication failed: Invalid token'
-      );
-    });
   });
 
   describe('speed optimization mode', () => {
@@ -292,13 +225,12 @@ describe('Scraping Error Diagnostics', () => {
 
     it('should skip native strategy and include in diagnostics', async () => {
       vi.mocked(mockClients.firecrawl!.scrape).mockResolvedValue({ success: false });
-      vi.mocked(mockClients.brightData!.scrape).mockResolvedValue({ success: false });
 
       const result = await scrapeUniversal(mockClients, {
         url: 'https://example.com',
       });
 
-      expect(result.diagnostics?.strategiesAttempted).toEqual(['firecrawl', 'brightdata']);
+      expect(result.diagnostics?.strategiesAttempted).toEqual(['firecrawl']);
       expect(mockClients.native.scrape).not.toHaveBeenCalled();
       // Native should not have an error since it wasn't attempted
       expect(result.diagnostics?.strategyErrors.native).toBeUndefined();
@@ -309,15 +241,13 @@ describe('Scraping Error Diagnostics', () => {
         ...mockClients,
         firecrawl: undefined,
       };
-      vi.mocked(mockClients.brightData!.scrape).mockResolvedValue({ success: false });
 
       const result = await scrapeUniversal(clientsWithoutFirecrawl, {
         url: 'https://example.com',
       });
 
       expect(result.diagnostics?.strategyErrors.firecrawl).toBe('Firecrawl client not configured');
-      expect(result.diagnostics?.strategyErrors.brightdata).toBeDefined();
-      expect(result.diagnostics?.strategiesAttempted).toEqual(['brightdata']);
+      expect(result.diagnostics?.strategiesAttempted).toEqual([]);
     });
   });
 });
