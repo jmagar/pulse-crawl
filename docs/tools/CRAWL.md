@@ -18,7 +18,7 @@ Provide `jobId` + `cancel: true` to cancel an in-progress job.
 
 ## Workflow
 
-```
+```text
 1. crawl({ url: "..." }) → returns jobId
 2. crawl({ jobId: "..." }) → check progress (poll until complete)
 3. Retrieve results from completed job
@@ -91,21 +91,22 @@ Provide `jobId` + `cancel: true` to cancel an in-progress job.
 
 ### Start Crawl Parameters
 
-| Parameter               | Type    | Required | Default   | Description                               |
-| ----------------------- | ------- | -------- | --------- | ----------------------------------------- |
-| `url`                   | string  | Yes      | -         | Starting URL for the crawl                |
-| `limit`                 | number  | No       | 100       | Maximum pages to crawl (1-100,000)        |
-| `maxDepth`              | number  | No       | -         | Maximum link traversal depth              |
-| `crawlEntireDomain`     | boolean | No       | false     | Crawl all pages in the domain             |
-| `allowSubdomains`       | boolean | No       | false     | Include subdomain URLs                    |
-| `allowExternalLinks`    | boolean | No       | false     | Follow external links                     |
-| `includePaths`          | array   | No       | -         | Include only URLs matching these patterns |
-| `excludePaths`          | array   | No       | -         | Exclude URLs matching these patterns      |
-| `ignoreQueryParameters` | boolean | No       | true      | Ignore URL query parameters               |
-| `sitemap`               | string  | No       | "include" | Sitemap handling: `include`, `skip`       |
-| `delay`                 | number  | No       | -         | Delay between requests (ms)               |
-| `maxConcurrency`        | number  | No       | -         | Maximum concurrent requests               |
-| `scrapeOptions`         | object  | No       | -         | Options for scraping each page            |
+| Parameter               | Type    | Required | Default   | Description                                               |
+| ----------------------- | ------- | -------- | --------- | --------------------------------------------------------- |
+| `url`                   | string  | Yes      | -         | Starting URL for the crawl                                |
+| `prompt`                | string  | No       | -         | Natural language description of what to crawl (see below) |
+| `limit`                 | number  | No       | 100       | Maximum pages to crawl (1-100,000)                        |
+| `maxDepth`              | number  | No       | -         | Maximum link traversal depth                              |
+| `crawlEntireDomain`     | boolean | No       | false     | Crawl all pages in the domain                             |
+| `allowSubdomains`       | boolean | No       | false     | Include subdomain URLs                                    |
+| `allowExternalLinks`    | boolean | No       | false     | Follow external links                                     |
+| `includePaths`          | array   | No       | -         | Include only URLs matching these patterns                 |
+| `excludePaths`          | array   | No       | -         | Exclude URLs matching these patterns                      |
+| `ignoreQueryParameters` | boolean | No       | true      | Ignore URL query parameters                               |
+| `sitemap`               | string  | No       | "include" | Sitemap handling: `include`, `skip`                       |
+| `delay`                 | number  | No       | -         | Delay between requests (ms)                               |
+| `maxConcurrency`        | number  | No       | -         | Maximum concurrent requests                               |
+| `scrapeOptions`         | object  | No       | -         | Options for scraping each page                            |
 
 ### Status/Cancel Parameters
 
@@ -122,6 +123,142 @@ Provide `jobId` + `cancel: true` to cancel an in-progress job.
 | `onlyMainContent` | boolean | true         | Extract only main content  |
 | `includeTags`     | array   | -            | HTML tags to include       |
 | `excludeTags`     | array   | -            | HTML tags to exclude       |
+
+## Natural Language Crawling
+
+The `prompt` parameter enables you to describe your crawl using natural language instead of manually configuring parameters. Firecrawl's AI will automatically generate optimal crawl parameters based on your description.
+
+### When to Use Prompt vs Manual Configuration
+
+**Use `prompt` when:**
+
+- You want a quick, intuitive way to describe your crawl needs
+- You're not sure which specific parameters to use
+- You want AI to optimize the crawl strategy for you
+- Your requirements can be expressed naturally (e.g., "all blog posts from last year")
+
+**Use manual parameters when:**
+
+- You need precise control over crawl behavior
+- You have specific technical requirements (e.g., exact regex patterns)
+- You're fine-tuning an existing crawl configuration
+- You need reproducible, deterministic behavior
+
+**Note:** When `prompt` is provided, it takes precedence over manual parameters. Firecrawl may override or ignore manually specified parameters based on the AI-generated configuration.
+
+### Examples
+
+#### Blog Post Discovery
+
+```json
+{
+  "url": "https://example.com",
+  "prompt": "Find all blog posts about AI from the past year"
+}
+```
+
+This automatically:
+
+- Identifies blog post URL patterns
+- Filters by date (past year)
+- Focuses on AI-related content
+- Sets appropriate limits and depth
+
+#### Documentation Crawling
+
+```json
+{
+  "url": "https://docs.example.com",
+  "prompt": "Crawl the documentation section and extract API endpoints"
+}
+```
+
+This automatically:
+
+- Identifies documentation paths
+- Extracts API endpoint information
+- Excludes non-documentation pages
+- Configures appropriate scrape options
+
+#### Product Page Collection
+
+```json
+{
+  "url": "https://shop.example.com",
+  "prompt": "Get all product pages with pricing information"
+}
+```
+
+This automatically:
+
+- Identifies product page patterns
+- Ensures pricing information is captured
+- Excludes category/navigation pages
+- Optimizes for structured data extraction
+
+#### Selective Site Mapping
+
+```json
+{
+  "url": "https://example.com",
+  "prompt": "Map the entire site but exclude admin and archived pages"
+}
+```
+
+This automatically:
+
+- Sets up full domain crawling
+- Identifies and excludes admin paths
+- Filters out archived content
+- Configures efficient crawl parameters
+
+### Combining Prompt with Manual Parameters
+
+You can provide both `prompt` and manual parameters. The prompt takes precedence, but manual parameters serve as hints or fallbacks:
+
+```json
+{
+  "url": "https://docs.example.com",
+  "prompt": "Crawl documentation excluding archived pages",
+  "limit": 500,
+  "delay": 1000
+}
+```
+
+In this case:
+
+- AI generates optimal path filtering from the prompt
+- `limit` and `delay` may be used as hints or overridden
+- The AI optimizes based on your natural language intent
+
+### Comparison: Manual vs Prompt-Based Configuration
+
+**Manual Configuration:**
+
+```json
+{
+  "url": "https://blog.example.com",
+  "includePaths": ["^/posts/.*", "^/articles/.*"],
+  "excludePaths": ["^/posts/\\d{4}/0[1-6]/.*"],
+  "limit": 200,
+  "maxDepth": 3,
+  "scrapeOptions": {
+    "formats": ["markdown"],
+    "onlyMainContent": true
+  }
+}
+```
+
+**Prompt-Based (Equivalent):**
+
+```json
+{
+  "url": "https://blog.example.com",
+  "prompt": "Crawl all blog posts and articles from July 2024 onwards, up to 200 pages"
+}
+```
+
+The prompt-based approach is simpler but the manual approach gives you precise control over patterns and behavior.
 
 ## Advanced Options
 
@@ -273,6 +410,7 @@ Add delays to be respectful of server resources:
 
 ## Tips
 
+- Try the `prompt` parameter first for quick, intuitive crawling
 - Start small and increase limits as needed
 - Use `map` tool first to estimate page count
 - Apply `includePaths` and `excludePaths` to focus on relevant content
@@ -281,6 +419,7 @@ Add delays to be respectful of server resources:
 - Use `maxDepth` to limit scope for large sites
 - Add delays for respectful crawling
 - Results are cached until expiration - retrieve them before they expire
+- For complex requirements, use manual parameters instead of prompt for reproducibility
 
 ## Comparison: Map vs Crawl vs Scrape
 
