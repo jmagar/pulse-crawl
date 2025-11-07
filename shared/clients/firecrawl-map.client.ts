@@ -8,6 +8,7 @@
  */
 
 import type { FirecrawlConfig } from '../types.js';
+import { categorizeFirecrawlError } from './firecrawl-error-types.js';
 
 /**
  * Options for Firecrawl map operation
@@ -85,7 +86,13 @@ export class FirecrawlMapClient {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Firecrawl API error (${response.status}): ${errorText}`);
+      const error = categorizeFirecrawlError(response.status, errorText);
+
+      throw new Error(
+        `Firecrawl Map API Error (${error.code}): ${error.userMessage}\n` +
+          `Details: ${error.message}\n` +
+          `Retryable: ${error.retryable}${error.retryAfterMs ? ` (retry after ${error.retryAfterMs}ms)` : ''}`
+      );
     }
 
     return response.json();
