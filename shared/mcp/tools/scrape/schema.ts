@@ -31,6 +31,12 @@ export const PARAM_DESCRIPTIONS = {
     'Force a fresh scrape even if cached content exists for this URL. Useful when you know the content has changed. Default: false',
   cleanScrape:
     "Whether to clean the scraped content by converting HTML to semantic Markdown of what's on the page, removing ads, navigation, and boilerplate. This typically reduces content size by 50-90% while preserving main content. Only disable this for debugging or when you need the exact raw HTML structure. Default: true",
+  maxAge:
+    'Cache age threshold in milliseconds. Accept cached content if newer than this age. Set to 0 to always fetch fresh. Default: 172800000 (2 days). Firecrawl claims up to 500% faster responses with caching enabled.',
+  proxy:
+    'Proxy type for anti-bot bypass. Options: "basic" (fast, standard proxy), "stealth" (slow, 5 credits, advanced anti-bot bypass), "auto" (smart retry - tries basic first, falls back to stealth on failure). Default: "auto"',
+  blockAds:
+    'Enable ad-blocking and cookie popup blocking. Removes advertisements and cookie consent popups from scraped content for cleaner extraction. Default: true',
   extract: `Natural language query for intelligent content extraction. Describe what information you want extracted from the scraped page.
 
 Examples:
@@ -126,6 +132,13 @@ export const buildScrapeArgsSchema = () => {
       .describe(PARAM_DESCRIPTIONS.resultHandling),
     forceRescrape: z.boolean().optional().default(false).describe(PARAM_DESCRIPTIONS.forceRescrape),
     cleanScrape: z.boolean().optional().default(true).describe(PARAM_DESCRIPTIONS.cleanScrape),
+    maxAge: z.number().optional().default(172800000).describe(PARAM_DESCRIPTIONS.maxAge),
+    proxy: z
+      .enum(['basic', 'stealth', 'auto'])
+      .optional()
+      .default('auto')
+      .describe(PARAM_DESCRIPTIONS.proxy),
+    blockAds: z.boolean().optional().default(true).describe(PARAM_DESCRIPTIONS.blockAds),
   };
 
   // Only include extract parameter if extraction is available
@@ -194,6 +207,22 @@ export const buildInputSchema = () => {
       type: 'boolean',
       default: true,
       description: PARAM_DESCRIPTIONS.cleanScrape,
+    },
+    maxAge: {
+      type: 'number',
+      default: 172800000,
+      description: PARAM_DESCRIPTIONS.maxAge,
+    },
+    proxy: {
+      type: 'string',
+      enum: ['basic', 'stealth', 'auto'],
+      default: 'auto',
+      description: PARAM_DESCRIPTIONS.proxy,
+    },
+    blockAds: {
+      type: 'boolean',
+      default: true,
+      description: PARAM_DESCRIPTIONS.blockAds,
     },
   };
 

@@ -34,6 +34,9 @@ export interface FirecrawlScrapingOptions {
     prompt?: string;
   };
   removeBase64Images?: boolean;
+  maxAge?: number;
+  proxy?: 'basic' | 'stealth' | 'auto';
+  blockAds?: boolean;
 }
 
 /**
