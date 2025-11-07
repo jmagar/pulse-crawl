@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { mapOptionsSchema } from './schema.js';
 
 describe('Map Options Schema', () => {
@@ -105,6 +105,86 @@ describe('Map Options Schema', () => {
       expect(result.includeSubdomains).toBe(true);
       expect(result.ignoreQueryParameters).toBe(true);
       expect(result.location?.country).toBe('US');
+    });
+  });
+
+  describe('Location Environment Variables', () => {
+    const originalEnv = process.env;
+
+    beforeEach(() => {
+      process.env = { ...originalEnv };
+    });
+
+    afterEach(() => {
+      process.env = originalEnv;
+    });
+
+    it('should use MAP_DEFAULT_COUNTRY from environment', async () => {
+      process.env.MAP_DEFAULT_COUNTRY = 'AU';
+
+      // Re-import to get fresh defaults
+      vi.resetModules();
+      const { mapOptionsSchema } = await import('./schema.js');
+
+      const result = mapOptionsSchema.parse({
+        url: 'https://example.com',
+      });
+
+      expect(result.location.country).toBe('AU');
+    });
+
+    it('should use MAP_DEFAULT_LANGUAGES from environment', async () => {
+      process.env.MAP_DEFAULT_LANGUAGES = 'es-ES,en-US';
+
+      vi.resetModules();
+      const { mapOptionsSchema } = await import('./schema.js');
+
+      const result = mapOptionsSchema.parse({
+        url: 'https://example.com',
+      });
+
+      expect(result.location.languages).toEqual(['es-ES', 'en-US']);
+    });
+
+    it('should fall back to US and en-US if env vars not set', async () => {
+      delete process.env.MAP_DEFAULT_COUNTRY;
+      delete process.env.MAP_DEFAULT_LANGUAGES;
+
+      vi.resetModules();
+      const { mapOptionsSchema } = await import('./schema.js');
+
+      const result = mapOptionsSchema.parse({
+        url: 'https://example.com',
+      });
+
+      expect(result.location.country).toBe('US');
+      expect(result.location.languages).toEqual(['en-US']);
+    });
+
+    it('should use MAP_MAX_RESULTS_PER_PAGE from environment', async () => {
+      process.env.MAP_MAX_RESULTS_PER_PAGE = '500';
+
+      vi.resetModules();
+      const { mapOptionsSchema } = await import('./schema.js');
+
+      const result = mapOptionsSchema.parse({
+        url: 'https://example.com',
+      });
+
+      expect(result.maxResults).toBe(500);
+    });
+
+    it('should fall back to 200 if MAP_MAX_RESULTS_PER_PAGE not set', async () => {
+      delete process.env.MAP_MAX_RESULTS_PER_PAGE;
+
+      vi.resetModules();
+      const { mapOptionsSchema } = await import('./schema.js');
+
+      const result = mapOptionsSchema.parse({
+        url: 'https://example.com',
+      });
+
+      expect(result.maxResults).toBe(200);
     });
   });
 });

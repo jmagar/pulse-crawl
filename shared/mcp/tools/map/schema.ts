@@ -1,5 +1,14 @@
 import { z } from 'zod';
 
+// Read defaults from environment variables
+const DEFAULT_COUNTRY = process.env.MAP_DEFAULT_COUNTRY || 'US';
+const DEFAULT_LANGUAGES = process.env.MAP_DEFAULT_LANGUAGES
+  ? process.env.MAP_DEFAULT_LANGUAGES.split(',').map((lang) => lang.trim())
+  : ['en-US'];
+const DEFAULT_MAX_RESULTS = process.env.MAP_MAX_RESULTS_PER_PAGE
+  ? parseInt(process.env.MAP_MAX_RESULTS_PER_PAGE, 10)
+  : 200;
+
 export const mapOptionsSchema = z.object({
   url: z.string().url('Valid URL is required'),
   search: z.string().optional(),
@@ -10,11 +19,11 @@ export const mapOptionsSchema = z.object({
   timeout: z.number().int().positive().optional(),
   location: z
     .object({
-      country: z.string().optional().default('US'),
-      languages: z.array(z.string()).optional(),
+      country: z.string().optional().default(DEFAULT_COUNTRY),
+      languages: z.array(z.string()).optional().default(DEFAULT_LANGUAGES),
     })
     .optional()
-    .default({ country: 'US' }),
+    .default({ country: DEFAULT_COUNTRY, languages: DEFAULT_LANGUAGES }),
 
   // Pagination parameters
   startIndex: z.number().int().min(0, 'startIndex must be non-negative').optional().default(0),
@@ -24,7 +33,7 @@ export const mapOptionsSchema = z.object({
     .min(1, 'maxResults must be at least 1')
     .max(5000, 'maxResults cannot exceed 5000')
     .optional()
-    .default(200),
+    .default(DEFAULT_MAX_RESULTS),
 
   // Result handling mode
   resultHandling: z
