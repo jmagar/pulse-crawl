@@ -72,4 +72,31 @@ describe('Crawl Tool', () => {
     expect(result.isError).toBe(false);
     expect(result.content[0].text).toContain('cancelled');
   });
+
+  it('should pass prompt parameter to API when provided', async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        id: 'crawl-job-456',
+        url: 'https://api.firecrawl.dev/v2/crawl/crawl-job-456',
+      }),
+    });
+    global.fetch = mockFetch;
+
+    const tool = createCrawlTool(config);
+    const handler = tool.handler as (args: unknown) => Promise<ToolResponse>;
+    await handler({
+      url: 'https://example.com',
+      prompt: 'Find all blog posts about AI',
+    });
+
+    // Verify that the fetch was called
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+
+    // Verify that the request body contains the prompt parameter
+    const callArgs = mockFetch.mock.calls[0];
+    const requestBody = JSON.parse(callArgs[1].body);
+    expect(requestBody.prompt).toBe('Find all blog posts about AI');
+  });
 });

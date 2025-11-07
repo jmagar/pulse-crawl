@@ -16,6 +16,7 @@ export async function crawlPipeline(
     // Start crawl operation
     const clientOptions: ClientCrawlOptions = {
       url: options.url,
+      prompt: options.prompt,
       limit: options.limit,
       maxDepth: options.maxDepth,
       crawlEntireDomain: options.crawlEntireDomain,
