@@ -12,7 +12,9 @@ export function createMapTool(config: FirecrawlConfig): Tool {
   return {
     name: 'map',
     description:
-      'Discover URLs from a website using Firecrawl. Fast URL discovery (8x faster than crawl) with optional search filtering, sitemap integration, and subdomain handling.',
+      'Discover URLs from a website using Firecrawl. Fast URL discovery (8x faster than crawl) with optional search filtering, sitemap integration, and subdomain handling. ' +
+      'Supports pagination for large result sets. Use startIndex and maxResults to retrieve results in chunks. ' +
+      'Default returns 200 URLs per request (≈13k tokens, under 15k token budget). Set resultHandling to "saveOnly" for token-efficient responses.',
     inputSchema: zodToJsonSchema(mapOptionsSchema) as any,
 
     handler: async (args: unknown) => {
