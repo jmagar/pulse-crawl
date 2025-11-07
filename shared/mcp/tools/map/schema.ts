@@ -13,7 +13,24 @@ export const mapOptionsSchema = z.object({
       country: z.string().optional().default('US'),
       languages: z.array(z.string()).optional(),
     })
-    .optional(),
+    .optional()
+    .default({ country: 'US' }),
+
+  // Pagination parameters
+  startIndex: z.number().int().min(0, 'startIndex must be non-negative').optional().default(0),
+  maxResults: z
+    .number()
+    .int()
+    .min(1, 'maxResults must be at least 1')
+    .max(5000, 'maxResults cannot exceed 5000')
+    .optional()
+    .default(200),
+
+  // Result handling mode
+  resultHandling: z
+    .enum(['saveOnly', 'saveAndReturn', 'returnOnly'])
+    .optional()
+    .default('saveAndReturn'),
 });
 
 export type MapOptions = z.infer<typeof mapOptionsSchema>;
