@@ -19,7 +19,13 @@ export function createMapTool(config: FirecrawlConfig): Tool {
       try {
         const validatedArgs = mapOptionsSchema.parse(args);
         const result = await mapPipeline(client, validatedArgs);
-        return formatMapResponse(result, validatedArgs.url);
+        return formatMapResponse(
+          result,
+          validatedArgs.url,
+          validatedArgs.startIndex,
+          validatedArgs.maxResults,
+          validatedArgs.resultHandling
+        );
       } catch (error) {
         return {
           content: [

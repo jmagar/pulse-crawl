@@ -15,6 +15,6 @@
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true
   },
-  "include": ["*.ts", "middleware/**/*", "tests/**/*"],
+  "include": ["*.ts", "middleware/**/*", "startup/**/*", "tests/**/*"],
   "exclude": ["node_modules", "dist"]
 }
