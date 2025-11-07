@@ -32,9 +32,6 @@ const sharedDependencies = [
   'zod',
 ];
 
-// Dependencies that should match between specific packages
-const dotenvPackages = { local, remote };
-
 // Dev dependencies that should be synchronized
 const sharedDevDependencies = [
   'typescript',

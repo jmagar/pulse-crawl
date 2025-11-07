@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { MemoryResourceStorage } from '../../storage/resources/backends/memory.js';
 import { FileSystemResourceStorage } from '../../storage/resources/backends/filesystem.js';
 import { promises as fs } from 'fs';
@@ -185,11 +185,11 @@ describe('Cache Eviction - LRU Policy', () => {
     it('should evict items when size limit exceeded', async () => {
       // Write items that will exceed 1KB total
       const largeContent = 'x'.repeat(400); // 400 bytes each
-      const uri1 = await storage.write('https://example.com/1', largeContent);
+      await storage.write('https://example.com/1', largeContent);
       await new Promise((resolve) => setTimeout(resolve, 10));
-      const uri2 = await storage.write('https://example.com/2', largeContent);
+      await storage.write('https://example.com/2', largeContent);
       await new Promise((resolve) => setTimeout(resolve, 10));
-      const uri3 = await storage.write('https://example.com/3', largeContent);
+      await storage.write('https://example.com/3', largeContent);
 
       // Total is 1200 bytes, exceeds limit
       // Oldest items should be evicted to make room
