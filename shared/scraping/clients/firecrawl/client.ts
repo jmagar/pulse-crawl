@@ -7,6 +7,8 @@
  * @module shared/scraping/clients/firecrawl/client
  */
 
+import type { BrowserAction } from '../../../mcp/tools/scrape/action-types.js';
+
 /**
  * Interface for Firecrawl scraping client
  *
@@ -37,6 +39,7 @@ export interface FirecrawlScrapingOptions {
   maxAge?: number;
   proxy?: 'basic' | 'stealth' | 'auto';
   blockAds?: boolean;
+  actions?: BrowserAction[];
 }
 
 /**

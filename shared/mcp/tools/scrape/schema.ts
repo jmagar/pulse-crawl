@@ -10,6 +10,7 @@
 
 import { z } from 'zod';
 import { ExtractClientFactory } from '../../../processing/extraction/index.js';
+import { browserActionsArraySchema } from './action-types.js';
 
 /**
  * Parameter descriptions for scraping tool options
@@ -37,6 +38,46 @@ export const PARAM_DESCRIPTIONS = {
     'Proxy type for anti-bot bypass. Options: "basic" (fast, standard proxy), "stealth" (slow, 5 credits, advanced anti-bot bypass), "auto" (smart retry - tries basic first, falls back to stealth on failure). Default: "auto"',
   blockAds:
     'Enable ad-blocking and cookie popup blocking. Removes advertisements and cookie consent popups from scraped content for cleaner extraction. Default: true',
+  actions: `Browser automation actions to perform before scraping. Enables interaction with dynamic pages that require user input.
+
+Action types and examples:
+
+1. wait - Pause for content to load
+   { type: "wait", milliseconds: 2000 }
+
+2. click - Click buttons, links, or elements
+   { type: "click", selector: "#load-more" }
+   { type: "click", selector: ".cookie-accept" }
+
+3. write - Type into input fields
+   { type: "write", selector: "#search-input", text: "search query" }
+
+4. press - Press keyboard keys
+   { type: "press", key: "Enter" }
+   { type: "press", key: "Escape" }
+
+5. scroll - Scroll page to trigger lazy loading
+   { type: "scroll", direction: "down" }
+   { type: "scroll", direction: "up", amount: 500 }
+
+6. screenshot - Capture page at specific point
+   { type: "screenshot", name: "after-login" }
+
+7. scrape - Scrape specific element
+   { type: "scrape", selector: "#main-content" }
+
+8. executeJavascript - Run custom JavaScript
+   { type: "executeJavascript", script: "document.querySelector('.modal').remove()" }
+
+Real-world example sequence:
+[
+  { type: "wait", milliseconds: 1000 },
+  { type: "click", selector: "#cookie-accept" },
+  { type: "write", selector: "#email", text: "user@example.com" },
+  { type: "press", key: "Enter" },
+  { type: "wait", milliseconds: 2000 },
+  { type: "scrape", selector: "#dashboard" }
+]`,
   extract: `Natural language query for intelligent content extraction. Describe what information you want extracted from the scraped page.
 
 Examples:
@@ -139,6 +180,7 @@ export const buildScrapeArgsSchema = () => {
       .default('auto')
       .describe(PARAM_DESCRIPTIONS.proxy),
     blockAds: z.boolean().optional().default(true).describe(PARAM_DESCRIPTIONS.blockAds),
+    actions: browserActionsArraySchema.optional().describe(PARAM_DESCRIPTIONS.actions),
   };
 
   // Only include extract parameter if extraction is available
@@ -223,6 +265,81 @@ export const buildInputSchema = () => {
       type: 'boolean',
       default: true,
       description: PARAM_DESCRIPTIONS.blockAds,
+    },
+    actions: {
+      type: 'array',
+      items: {
+        type: 'object',
+        oneOf: [
+          {
+            type: 'object',
+            required: ['type', 'milliseconds'],
+            properties: {
+              type: { type: 'string', enum: ['wait'] },
+              milliseconds: { type: 'number', description: 'Time to wait in milliseconds' },
+            },
+          },
+          {
+            type: 'object',
+            required: ['type', 'selector'],
+            properties: {
+              type: { type: 'string', enum: ['click'] },
+              selector: { type: 'string', description: 'CSS selector of element to click' },
+            },
+          },
+          {
+            type: 'object',
+            required: ['type', 'selector', 'text'],
+            properties: {
+              type: { type: 'string', enum: ['write'] },
+              selector: { type: 'string', description: 'CSS selector of input field' },
+              text: { type: 'string', description: 'Text to type' },
+            },
+          },
+          {
+            type: 'object',
+            required: ['type', 'key'],
+            properties: {
+              type: { type: 'string', enum: ['press'] },
+              key: { type: 'string', description: 'Key to press (e.g., "Enter")' },
+            },
+          },
+          {
+            type: 'object',
+            required: ['type', 'direction'],
+            properties: {
+              type: { type: 'string', enum: ['scroll'] },
+              direction: { type: 'string', enum: ['up', 'down'] },
+              amount: { type: 'number', description: 'Pixels to scroll (optional)' },
+            },
+          },
+          {
+            type: 'object',
+            required: ['type'],
+            properties: {
+              type: { type: 'string', enum: ['screenshot'] },
+              name: { type: 'string', description: 'Screenshot name (optional)' },
+            },
+          },
+          {
+            type: 'object',
+            required: ['type'],
+            properties: {
+              type: { type: 'string', enum: ['scrape'] },
+              selector: { type: 'string', description: 'CSS selector (optional)' },
+            },
+          },
+          {
+            type: 'object',
+            required: ['type', 'script'],
+            properties: {
+              type: { type: 'string', enum: ['executeJavascript'] },
+              script: { type: 'string', description: 'JavaScript code to execute' },
+            },
+          },
+        ],
+      },
+      description: PARAM_DESCRIPTIONS.actions,
     },
   };
 
