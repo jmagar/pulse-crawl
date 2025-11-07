@@ -7,7 +7,7 @@
 
 ## Overview
 
-Pulse-fetch currently exposes ~40% of Firecrawl's CRAWL endpoint capabilities. This document summarizes key findings and provides prioritized recommendations for enhancement.
+pulse-crawl currently exposes ~40% of Firecrawl's CRAWL endpoint capabilities. This document summarizes key findings and provides prioritized recommendations for enhancement.
 
 ---
 
@@ -309,6 +309,7 @@ zeroDataRetention: z.boolean().optional(),
 2. Webhook event delivery
 3. Mobile viewport rendering
 4. Format variations (summary, images, json)
+   pulse-crawl
 
 ---
 
@@ -333,17 +334,17 @@ zeroDataRetention: z.boolean().optional(),
 
 ## Quick Comparison to Competitors
 
-| Feature                  | Firecrawl | Competitors | Pulse-Fetch  |
-| ------------------------ | --------- | ----------- | ------------ |
-| Natural language prompts | ✅ v2     | Limited     | ❌           |
-| Page actions             | ✅        | Basic       | ❌           |
-| Pagination               | ✅        | Limited     | ❌           |
-| Multiple formats         | ✅        | ✅          | ✅ (partial) |
-| Custom headers           | ✅        | ✅          | ❌           |
-| Webhooks                 | ✅        | Limited     | ❌           |
-| Anti-bot proxy           | ✅        | Limited     | ❌           |
+| Feature                  | Firecrawl      | Competitors | Pulse-Fetch  |
+| ------------------------ | -------------- | ----------- | ------------ |
+| Natural language prompts | ✅ v2          | Limited     | ❌           |
+| Page actions             | ✅ pulse-crawl | ❌          |
+| Pagination               | ✅             | Limited     | ❌           |
+| Multiple formats         | ✅             | ✅          | ✅ (partial) |
+| Custom headers           | ✅             | ✅          | ❌           |
+| Webhooks                 | ✅             | Limited     | ❌           |
+| Anti-bot proxy           | ✅             | Limited     | ❌           |
 
----
+## pulse-crawl
 
 ## Recommendation
 

@@ -198,7 +198,7 @@ export type StrategyConfigFactory = () => IStrategyConfigClient;
 export function createMCPServer() {
   const server = new Server(
     {
-      name: '@pulsemcp/pulse-fetch',
+      name: '@pulsemcp/pulse-crawl',
       version: '0.0.1',
     },
     {

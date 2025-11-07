@@ -5,9 +5,19 @@ const DEFAULT_COUNTRY = process.env.MAP_DEFAULT_COUNTRY || 'US';
 const DEFAULT_LANGUAGES = process.env.MAP_DEFAULT_LANGUAGES
   ? process.env.MAP_DEFAULT_LANGUAGES.split(',').map((lang) => lang.trim())
   : ['en-US'];
-const DEFAULT_MAX_RESULTS = process.env.MAP_MAX_RESULTS_PER_PAGE
-  ? parseInt(process.env.MAP_MAX_RESULTS_PER_PAGE, 10)
-  : 200;
+const DEFAULT_MAX_RESULTS = (() => {
+  const envValue = process.env.MAP_MAX_RESULTS_PER_PAGE;
+  if (!envValue) return 200;
+
+  const parsed = parseInt(envValue, 10);
+  if (isNaN(parsed) || parsed < 1 || parsed > 5000) {
+    console.warn(
+      `Invalid MAP_MAX_RESULTS_PER_PAGE="${envValue}". Must be 1-5000. Using default: 200`
+    );
+    return 200;
+  }
+  return parsed;
+})();
 
 export const mapOptionsSchema = z.object({
   url: z.string().url('Valid URL is required'),

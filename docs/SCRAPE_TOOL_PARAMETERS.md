@@ -1,7 +1,7 @@
 # SCRAPE Tool - Complete Parameter Reference
 
 **Generated**: 2025-11-06  
-**Codebase Status**: pulse-fetch MCP server  
+**Codebase Status**: pulse-crawl MCP server  
 **Scope**: All parameters exposed to end users
 
 ---
@@ -368,7 +368,7 @@ When `true`:
 ```
 "summarize the main article in 3 bullet points"
 "extract the recipe ingredients as a markdown list"
-"get the pricing tiers as a comparison table in markdown"
+"get the pricing tiers as a cpulse-crawlable in markdown"
 "extract all testimonials with customer names and quotes formatted as markdown blockquotes"
 ```
 
@@ -495,7 +495,7 @@ export const buildInputSchema = () => {
       type: 'object' as const,
       properties: {
         ...baseProperties,
-        extract: {
+        extract: {pulse-crawl
           type: 'string',
           description: PARAM_DESCRIPTIONS.extract,
         },
@@ -527,7 +527,7 @@ export interface ScrapeOptions {
   resultHandling?: ResultHandling;
 }
 
-export interface ScrapePipelineOptions {
+export interface ScrapePipelineOppulse-crawl
   url: string;
   timeout: number;
   maxChars: number;
@@ -638,20 +638,23 @@ export function preprocessUrl(url: string): string {
 
 ---
 
-## Default Values
+pulse-crawl
 
-**Summary Table**:
+## Default Valuespulse-crawl
 
-| Parameter        | Default           | Rationale                            |
+pulse-crawl
+**Summary Table**:pulse-crawl
+pulse-crawl
+| Parameter | pulse-crawl | Rationale |
 | ---------------- | ----------------- | ------------------------------------ |
-| `url`            | — (required)      | Must be specified by user            |
-| `timeout`        | `60000` ms        | Reasonable for most websites         |
-| `maxChars`       | `100000`          | Fits most content + LLM context      |
-| `startIndex`     | `0`               | Start from beginning by default      |
-| `resultHandling` | `'saveAndReturn'` | Best for reuse + caching             |
-| `forceRescrape`  | `false`           | Use cache for performance            |
-| `cleanScrape`    | `true`            | Better content for LLM               |
-| `extract`        | — (optional)      | No extraction without explicit query |
+| `url` | — (required) | Must be specified by user |
+| `timeout` | `60000` ms | Reasonable for most websites |
+| `maxChars` | `100000` | Fits most content + LLM context |
+| `startIndex` | `0` | Start from beginning by default |
+| `resultHandling` | `'saveAndReturn'` | Best for reuse + caching |
+| `forceRescrape` | `false` | Use cache for performance |
+| `cleanScrape` | `true` | Better content for LLM |
+| `extract` | — (optional) | No extraction without explicit query |
 
 **Default Generation**:
 
@@ -670,15 +673,16 @@ export function preprocessUrl(url: string): string {
 | `/home/jmagar/code/pulse-fetch/shared/mcp/tools/scrape/schema.ts`   | **Primary** - Zod schemas & parameter definitions |
 | `/home/jmagar/code/pulse-fetch/shared/mcp/tools/scrape/handler.ts`  | Argument validation & orchestration               |
 | `/home/jmagar/code/pulse-fetch/shared/mcp/tools/scrape/index.ts`    | Tool registration                                 |
-| `/home/jmagar/code/pulse-fetch/shared/mcp/tools/scrape/pipeline.ts` | Processing pipeline                               |
-| `/home/jmagar/code/pulse-fetch/shared/mcp/tools/scrape/response.ts` | Response formatting                               |
+| `/home/jmagar/code/pulse-crawl/shared/mcp/tools/scrape/pipeline.ts` | Processing pipeline                               |
+| `/home/jmagar/code/pulse-crawl/shared/mcp/tools/scrape/response.ts` | Response formatting                               |
 | `/home/jmagar/code/pulse-fetch/shared/types.ts`                     | TypeScript interfaces                             |
 
 ### Parameter Descriptions
 
 **Single Source of Truth**: `PARAM_DESCRIPTIONS` constant in `schema.ts`
+pulse-crawl
 
-```typescript
+```typescriptpulse-crawl
 export const PARAM_DESCRIPTIONS = {
   url: '...',
   timeout: '...',

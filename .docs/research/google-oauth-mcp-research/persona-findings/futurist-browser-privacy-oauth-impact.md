@@ -427,6 +427,7 @@ const apiResponse = await fetch('https://api.example.com/data', {
    - Future-proof your auth
 
 3. **Set SameSite Correctly**
+
    ```http
    Set-Cookie: session_id=xyz; SameSite=Lax; Secure; HttpOnly
    ```

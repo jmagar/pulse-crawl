@@ -18,7 +18,7 @@ CURRENT STATE (NO CLIENT AUTHENTICATION)
                                  |
                     ┌────────────▼────────────┐
                     │   Express Server       │
-                    │  (pulse-fetch remote)  │
+                    │  (pulse-crawl remote)  │
                     └────────────┬────────────┘
                                  |
             ┌────────────────────┼────────────────────┐
@@ -80,7 +80,7 @@ PROPOSED STATE (WITH OAuth 2.0)
          │                                            |
          │                              ┌─────────────▼──────────┐
          │                              │  Express Server        │
-         │                              │  (pulse-fetch remote)  │
+         │                              │  (pulse-crawl remote)  │
          │                              └──────────┬─────────────┘
          │                                         |
          │            ┌────────────────────────────┼────────────────────────┐

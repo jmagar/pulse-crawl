@@ -1,7 +1,7 @@
 {
-  "name": "@pulsemcp/pulse-fetch-shared",
+  "name": "@pulsemcp/pulse-crawl-shared",
   "version": "0.3.0",
-  "description": "Shared code for pulse-fetch MCP server implementations",
+  "description": "Shared code for pulse-crawl MCP server implementations",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {

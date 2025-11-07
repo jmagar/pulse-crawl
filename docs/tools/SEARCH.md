@@ -55,18 +55,18 @@ The `search` tool enables web searching with optional content scraping using Fir
 
 ## Parameters
 
-| Parameter           | Type    | Required | Default | Description                                   |
-| ------------------- | ------- | -------- | ------- | --------------------------------------------- |
-| `query`             | string  | Yes      | -       | Search term or query                          |
-| `limit`             | number  | No       | 5       | Number of results (1-100)                     |
-| `sources`           | array   | No       | -       | Result types: `web`, `images`, `news`         |
-| `categories`        | array   | No       | -       | Category filters: `github`, `research`, `pdf` |
-| `country`           | string  | No       | -       | Country code for geographic targeting         |
-| `lang`              | string  | No       | "en"    | Language preference                           |
-| `location`          | string  | No       | -       | Location for localized results                |
-| `timeout`           | number  | No       | -       | Request timeout in milliseconds               |
-| `ignoreInvalidURLs` | boolean | No       | false   | Skip invalid URLs in results                  |
-| `scrapeOptions`     | object  | No       | -       | Options for scraping search results           |
+| Parameter           | Type    | Required | Default | Description                                            |
+| ------------------- | ------- | -------- | ------- | ------------------------------------------------------ |
+| `query`             | string  | Yes      | -       | Search term or query                                   |
+| `limit`             | number  | No       | 5       | Number of results (1-100)                              |
+| `sources`           | array   | No       | -       | Result types: `web`, `images`, `news`                  |
+| `categories`        | array   | No       | -       | Category filters: `github` (GitHub), `research`, `pdf` |
+| `country`           | string  | No       | -       | Country code for geographic targeting                  |
+| `lang`              | string  | No       | "en"    | Language preference                                    |
+| `location`          | string  | No       | -       | Location for localized results                         |
+| `timeout`           | number  | No       | -       | Request timeout in milliseconds                        |
+| `ignoreInvalidURLs` | boolean | No       | false   | Skip invalid URLs in results                           |
+| `scrapeOptions`     | object  | No       | -       | Options for scraping search results                    |
 
 ### Scrape Options
 

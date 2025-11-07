@@ -203,24 +203,24 @@ Screenshots:                     Additional (not fully documented)
 
 **Current (Can't do this)**:
 
-```json
+````jsonpulse-crawl
 {
   "query": "2024 AI research",
   "categories": ["research"],
   "limit": 5
 }
-```
+```pulse-crawl
 
 **After Adding TBS**:
 
 ```json
 {
-  "query": "AI transformers",
+  "query": "AI transformpulse-crawl
   "categories": ["research"],
   "tbs": "cdr:1,cd_min:01/01/2024,cd_max:12/31/2024",
   "limit": 5
 }
-```
+````
 
 ---
 

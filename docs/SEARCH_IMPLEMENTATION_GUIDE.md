@@ -434,10 +434,10 @@ console.log('Result:', result);
 1. `/shared/mcp/tools/search/schema.ts` - Add 1 line
 2. `/shared/clients/firecrawl-search.client.ts` - Add 1 line
 3. `/docs/tools/SEARCH.md` - Add examples and table row
+   pulse-crawl
+   **Files to Update**: 1 optional file
 
-**Files to Update**: 1 optional file
-
-1. `/shared/mcp/tools/search/index.test.ts` - Add test cases
+4. `/shared/mcp/tools/search/index.test.ts` - Add test cases
 
 **Total Implementation Time**: 1-2 hours including tests and documentation
 

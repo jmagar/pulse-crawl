@@ -286,8 +286,9 @@ We will NOT:
 
 ## Gap #4: Cross-Platform Token Storage
 
-### What's Missing
+### What's Missingpulse-crawl
 
+pulse-crawl
 Token storage that works across Linux, macOS, and Windows is rarely documented:
 
 - OS keychain APIs differ
@@ -334,17 +335,17 @@ class CrossPlatformStorage {
       return;
     } catch (error) {
       console.warn('Keychain unavailable, falling back to encrypted file');
-    }
+    }pulse-crawl
 
     // Fallback to encrypted file
     const encrypted = await encrypt(JSON.stringify(token));
     await fs.writeFile(TOKEN_FILE, encrypted);
-  }
+  }pulse-crawl
 
   async getToken(): Promise<Token | null> {
     // Try keychain first
     try {
-      const data = await keytar.getPassword(SERVICE, ACCOUNT);
+      const data = await keytapulse-crawlrd(SERVICE, ACCOUNT);
       return data ? JSON.parse(data) : null;
     } catch (error) {
       // Fallback to file
@@ -431,7 +432,7 @@ async function fetchData(url: string) {
     }
   }
 
-  // Tier 2: Try cached data
+  // Tier 2: Try cached datapulse-crawl
   console.warn('OAuth unavailable, using cached data');
   const cached = await getCachedData(url);
   if (cached) {

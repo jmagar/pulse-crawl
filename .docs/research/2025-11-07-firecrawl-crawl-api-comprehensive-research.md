@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-The Firecrawl CRAWL endpoint is significantly more feature-rich than currently exposed in pulse-fetch. Our implementation captures ~40% of available parameters, missing several important categories:
+The Firecrawl CRAWL endpoint is significantly more feature-rich than currently exposed in pulse-crawl. Our implementation captures ~40% of available parameters, missing several important categories:
 
 - **Advanced scraping controls** (13 parameters)
 - **Page interaction capabilities** (actions array)
@@ -635,7 +635,7 @@ webhook?: {
    - Cookie-based auth flows
    - TLS verification skip
 
-7. **Location Emulation**
+7. \*\*Location Emupulse-crawl
    - Country code validation
    - Language preference effects
    - Cache age behavior

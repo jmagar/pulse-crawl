@@ -1,6 +1,6 @@
 # End-to-End Tests
 
-This directory contains comprehensive end-to-end tests for the pulse-fetch MCP server, covering both stdio and HTTP transports.
+This directory contains comprehensive end-to-end tests for the pulse-crawl MCP server, covering both stdio and HTTP transports.
 
 ## Test Files
 
@@ -57,6 +57,7 @@ npx vitest tests/e2e --coverage
 ## Test Environment
 
 E2E tests automatically:
+
 - Start a test HTTP server on a random port
 - Set `NODE_ENV=test`
 - Skip health checks (`SKIP_HEALTH_CHECKS=true`)
@@ -66,6 +67,7 @@ E2E tests automatically:
 ## Test Scenarios
 
 ### Complete MCP Session Flow
+
 1. Initialize connection with protocol handshake
 2. List available tools, resources, and prompts
 3. Execute tools with various parameters
@@ -74,6 +76,7 @@ E2E tests automatically:
 6. Validate protocol compliance
 
 ### SSE Streaming
+
 1. Establish SSE connection with valid session
 2. Receive server-initiated messages
 3. Test reconnection with Last-Event-ID
@@ -81,6 +84,7 @@ E2E tests automatically:
 5. Verify protocol headers and compliance
 
 ### Error Handling
+
 1. Invalid session IDs
 2. Malformed requests
 3. Invalid tool names
@@ -88,6 +92,7 @@ E2E tests automatically:
 5. Network errors
 
 ### Performance
+
 1. Sequential request handling
 2. Parallel request processing
 3. Connection pooling
@@ -96,12 +101,14 @@ E2E tests automatically:
 ## Expected Behavior
 
 ### Successful Tests
+
 - All tests should pass without errors
 - Server should start and stop cleanly
 - No memory leaks or resource leaks
 - Response times should be reasonable
 
 ### Test Timing
+
 - Most tests complete in < 1 second
 - Tool execution tests allow up to 30 seconds (network requests)
 - SSE tests allow up to 5 seconds for connection establishment
@@ -127,7 +134,7 @@ Modify the test to add a delay before cleanup:
 
 ```typescript
 afterAll(async () => {
-  await new Promise(resolve => setTimeout(resolve, 60000)); // Wait 1 minute
+  await new Promise((resolve) => setTimeout(resolve, 60000)); // Wait 1 minute
   // ... cleanup
 });
 ```
@@ -148,18 +155,24 @@ These tests are designed to run in CI environments:
 ## Common Issues
 
 ### Port Already in Use
+
 E2E tests use random ports, but if you see port conflicts:
-- Stop any running pulse-fetch servers
+
+- Stop any running pulse-crawl servers
 - Check for orphaned processes: `ps aux | grep node`
 
 ### Test Timeouts
+
 If tests timeout:
+
 - Check network connectivity
 - Increase timeout values in vitest.config.ts
 - Verify server starts correctly
 
 ### Session ID Issues
+
 If session management fails:
+
 - Check that ENABLE_RESUMABILITY is set correctly
 - Verify session IDs are being generated
 - Check server logs for errors

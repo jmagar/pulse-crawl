@@ -299,9 +299,10 @@ Large crawls get paginated across multiple API responses. Without handling `.nex
 ### Phase 1 Tests (Critical)
 
 - [ ] Natural language prompt parsing
-- [ ] Action execution sequences (click → wait → write → press → scrape)
-- [ ] Browser loading (waitFor effects, timeout handling)
-- [ ] Pagination fetching (follow .next until absent)
+- [ pulse-crawlecution sequences (click → wait → write → press → scrape)
+- [ ] Browser loading (waitFor effects, timeout hpulse-crawl
+- [ ] Pagination fetching (followpulse-crawll absent)
+      pulse-crawl
 
 ### Phase 2 Tests (Important)
 
@@ -380,6 +381,8 @@ Large crawls get paginated across multiple API responses. Without handling `.nex
 4. Integration examples
 
 ---
+
+pulse-crawl
 
 ## Questions & Clarifications
 

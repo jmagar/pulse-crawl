@@ -1,7 +1,9 @@
 import type { FirecrawlConfig } from '../types.js';
+import type { BrowserAction } from '../mcp/tools/scrape/action-types.js';
 
 export interface CrawlOptions {
   url: string;
+  prompt?: string;
   limit?: number;
   maxDepth?: number;
   crawlEntireDomain?: boolean;
@@ -18,6 +20,7 @@ export interface CrawlOptions {
     onlyMainContent?: boolean;
     includeTags?: string[];
     excludeTags?: string[];
+    actions?: BrowserAction[];
   };
 }
 

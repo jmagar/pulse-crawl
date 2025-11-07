@@ -50,9 +50,9 @@ A shared test runner that accepts a configuration object specifying:
 
 ### Test Files
 
-- `pulse-fetch.source.integration.test.ts`: Runs tests against the built TypeScript source
-- `pulse-fetch.built.integration.test.ts`: Runs tests against the packaged npm output
-- `pulse-fetch.integration.test.ts`: Main entry point that imports both source and built tests
+- `pulse-crawl.source.integration.test.ts`: Runs tests against the built TypeScript source
+- `pulse-crawl.built.integration.test.ts`: Runs tests against the packaged npm output
+- `pulse-crawl.integration.test.ts`: Main entry point that imports both source and built tests
 - `test-runner.ts`: Shared test logic used by both test files
 
 ### Built Mode Process

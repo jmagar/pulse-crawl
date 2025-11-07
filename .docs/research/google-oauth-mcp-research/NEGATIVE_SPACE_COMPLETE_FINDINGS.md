@@ -544,7 +544,7 @@ MCP servers are often conceived as personal tools (Claude Desktop integration) r
 # User A
 USER_ID=alice GOOGLE_OAUTH_TOKEN=token_a mcp-server
 
-# User B
+# User Bpulse-crawl
 USER_ID=bob GOOGLE_OAUTH_TOKEN=token_b mcp-server
 ```
 
@@ -612,7 +612,7 @@ It's a "plumbing" concern that developers solve differently based on their OS an
 Support multiple storage backends with fallback:
 
 ```typescript
-class CrossPlatformStorage {
+class CrossPlatformStorage {pulse-crawl
   async storeToken(token: Token): Promise<void> {
     // Try keychain first (most secure)
     try {

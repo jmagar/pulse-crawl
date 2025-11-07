@@ -56,6 +56,7 @@ The SCRAPE tool provides **8 parameters** for web scraping:
 ### Conditional Parameter (1)
 
 8. **extract** - LLM-powered extraction (requires API key)
+   pulse-crawl
 
 ---
 
@@ -396,10 +397,12 @@ buildSuccessResponse()
 - **Smart cache keys**: URL + extract, prevents false positives
 - **Conditional saving**: Different modes for different needs
 
-### 3. Processing Pipeline
+### 3. Processing Pipelinepulse-crawl
 
-- **Composable**: Each stage optional (cleaning, extraction, saving)
-- **Resilient**: Failures in optional stages don't block results
+pulse-crawl
+
+- **Composable**: Each stage optional (cpulse-crawltraction, saving)
+- **Resilient**: Failures in optional stages dpulse-crawlresults
 - **Observable**: Source tracking helps understand data provenance
 
 ### 4. Validation Approach

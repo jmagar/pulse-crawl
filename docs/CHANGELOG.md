@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Check status with `jobId` parameter (monitor progress)
   - Cancel with `jobId` + `cancel: true` (stop in-progress jobs)
   - Path filtering with `includePaths` and `excludePaths`
-  - Depth control, domain scope, and rate limiting options
+  - Depth control, domain scope, and rate-limiting options
 - New client classes: `FirecrawlSearchClient`, `FirecrawlMapClient`, `FirecrawlCrawlClient`
 - Comprehensive test coverage for all new tools (78 tests passing)
 - Manual testing scripts for each tool in `tests/manual/features/`

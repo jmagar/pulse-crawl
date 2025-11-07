@@ -1,6 +1,6 @@
 # Firecrawl CRAWL Endpoint - Complete Parameter Reference
 
-**Quick Reference**: All parameters available in Firecrawl v2 `/crawl` endpoint vs. what pulse-fetch exposes.
+**Quick Reference**: All parameters available in Firecrawl v2 `/crawl` endpoint vs. what pulse-crawl exposes.
 
 ---
 
@@ -21,168 +21,168 @@
 
 ### CORE PARAMETERS
 
-| #   | Parameter | Type   | Default    | Firecrawl Docs | Pulse-Fetch | Priority | Notes                              |
-| --- | --------- | ------ | ---------- | -------------- | ----------- | -------- | ---------------------------------- |
-| 1   | `url`     | string | ✓ Required | ✅             | ✅          | Core     | Base URL to crawl from             |
-| 2   | `prompt`  | string | Optional   | ✅ v2 NEW      | ❌          | P1       | Natural language crawl description |
+| #   | Parameter | Type   | Default    | Firecrawl pulse-crawle-Fetch | Priority | Notes |
+| --- | --------- | ------ | ---------- | ---------------------------- | -------- | ----- | ---------------------------------- |
+| 1   | `url`     | string | ✓ Required | ✅                           | ✅       | Core  | Base URL to crawl from             |
+| 2   | `prompt`  | string | Optional   | ✅ v2 NEW                    | ❌       | P1    | Natural language crawl description |
 
 ---
 
 ### SCOPE & DEPTH PARAMETERS
 
-| #   | Parameter            | Type    | Default | Firecrawl | Pulse-Fetch           | Priority | Notes                                     |
-| --- | -------------------- | ------- | ------- | --------- | --------------------- | -------- | ----------------------------------------- |
-| 3   | `limit`              | integer | 10,000  | ✅        | ✅ (default: 100)     | Core     | Max pages to crawl                        |
-| 4   | `maxDiscoveryDepth`  | integer | -       | ✅        | ⚠️ (named `maxDepth`) | Core     | Max depth for link discovery              |
-| 5   | `crawlEntireDomain`  | boolean | false   | ✅        | ✅                    | Core     | Allow siblings/parents, not just children |
-| 6   | `allowSubdomains`    | boolean | false   | ✅        | ✅                    | Core     | Follow subdomain links                    |
-| 7   | `allowExternalLinks` | boolean | false   | ✅        | ✅                    | Core     | Follow external website links             |
+| #   | Parameter            | Type    | Defaulpulse-crawlwl | Pulse-Fetch | Priority              | Notes |
+| --- | -------------------- | ------- | ------------------- | ----------- | --------------------- | ----- | ----------------------------------------- |
+| 3   | `limit`              | integer | 10,000              | ✅          | ✅ (default: 100)     | Core  | Max pages to crawl                        |
+| 4   | `maxDiscoveryDepth`  | integer | -                   | ✅          | ⚠️ (named `maxDepth`) | Core  | Max depth for link discovery              |
+| 5   | `crawlEntireDomain`  | boolean | false               | ✅          | ✅                    | Core  | Allow siblings/parents, not just children |
+| 6   | `allowSubdomains`    | boolean | false               | ✅          | ✅                    | Core  | Follow subdomain links                    |
+| 7   | `allowExternalLinks` | boolean | false               | ✅          | ✅                    | Core  | Follow external website links             |
 
 ---
 
 ### URL FILTERING PARAMETERS
 
-| #   | Parameter               | Type     | Default | Firecrawl | Pulse-Fetch | Priority | Notes                                  |
-| --- | ----------------------- | -------- | ------- | --------- | ----------- | -------- | -------------------------------------- |
-| 8   | `includePaths`          | string[] | -       | ✅        | ✅          | Core     | Regex patterns for URLs to INCLUDE     |
-| 9   | `excludePaths`          | string[] | -       | ✅        | ✅          | Core     | Regex patterns for URLs to EXCLUDE     |
-| 10  | `ignoreQueryParameters` | boolean  | true    | ✅        | ✅          | Core     | Don't re-scrape query param variations |
+| #   | Parameter               | Type     | Depulse-crawlecrawl | Pulse-Fetch | Priority | Notes |
+| --- | ----------------------- | -------- | ------------------- | ----------- | -------- | ----- | -------------------------------------- |
+| 8   | `includePaths`          | string[] | -                   | ✅          | ✅       | Core  | Regex patterns for URLs to INCLUDE     |
+| 9   | `excludePaths`          | string[] | -                   | ✅          | ✅       | Core  | Regex patterns for URLs to EXCLUDE     |
+| 10  | `ignoreQueryParameters` | boolean  | true                | ✅          | ✅       | Core  | Don't re-scrape query param variations |
 
 ---
 
 ### SITEMAP PARAMETERS
 
-| #   | Parameter | Type | Default   | Firecrawl | Pulse-Fetch | Priority | Notes                        |
-| --- | --------- | ---- | --------- | --------- | ----------- | -------- | ---------------------------- |
-| 11  | `sitemap` | enum | "include" | ✅        | ✅          | Core     | Options: "include" or "skip" |
+| #   | Parameter | Type | Default   | Firecrawpulse-crawletch | Priority | Notes |
+| --- | --------- | ---- | --------- | ----------------------- | -------- | ----- | ---------------------------- |
+| 11  | `sitemap` | enum | "include" | ✅                      | ✅       | Core  | Options: "include" or "skip" |
 
 ---
 
 ### PERFORMANCE PARAMETERS
 
-| #   | Parameter        | Type    | Default | Firecrawl | Pulse-Fetch | Priority | Notes                           |
-| --- | ---------------- | ------- | ------- | --------- | ----------- | -------- | ------------------------------- |
-| 12  | `delay`          | number  | -       | ✅        | ✅          | Core     | Delay (seconds) between scrapes |
-| 13  | `maxConcurrency` | integer | -       | ✅        | ✅          | Core     | Max concurrent requests         |
+| #   | Parameter        | Type    | Default | pulse-crawl Pulse-Fetch | Priority | Notes |
+| --- | ---------------- | ------- | ------- | ----------------------- | -------- | ----- | ------------------------------- |
+| 12  | `delay`          | number  | -       | ✅                      | ✅       | Core  | Delay (seconds) between scrapes |
+| 13  | `maxConcurrency` | integer | -       | ✅                      | ✅       | Core  | Max concurrent requests         |
 
 ---
 
 ### SCRAPE OPTIONS: FORMAT PARAMETERS
 
-| #   | Parameter             | Type     | Default      | Firecrawl      | Pulse-Fetch    | Priority | Notes                         |
-| --- | --------------------- | -------- | ------------ | -------------- | -------------- | -------- | ----------------------------- |
-| 14  | `formats`             | string[] | ["markdown"] | ✅ (9 options) | ⚠️ (4 options) | Core     | Output formats                |
-| 14a | └─ `"markdown"`       | format   | -            | ✅             | ✅             | Core     | Cleaned markdown (default)    |
-| 14b | └─ `"html"`           | format   | -            | ✅             | ✅             | Core     | Full page HTML                |
-| 14c | └─ `"rawHtml"`        | format   | -            | ✅             | ✅             | Core     | Complete page source          |
-| 14d | └─ `"links"`          | format   | -            | ✅             | ✅             | Core     | All URLs found on page        |
-| 14e | └─ `"screenshot"`     | format   | -            | ✅             | ✅             | Core     | Browser screenshot PNG        |
-| 14f | └─ `"summary"`        | format   | -            | ✅             | ❌             | P3       | AI page summary               |
-| 14g | └─ `"images"`         | format   | -            | ✅             | ❌             | P3       | Image URLs & metadata         |
-| 14h | └─ `"json"`           | format   | -            | ✅             | ❌             | P3       | Structured data (with schema) |
-| 14i | └─ `"changeTracking"` | format   | -            | ✅             | ❌             | P3       | Monitor changes over time     |
+| #   | Parameter             | Type     | Defapulse-crawlFirecrawl | Pulse-Fetch    | Priority       | Notes |
+| --- | --------------------- | -------- | ------------------------ | -------------- | -------------- | ----- | ----------------------------- |
+| 14  | `formats`             | string[] | ["markdown"]             | ✅ (9 options) | ⚠️ (4 options) | Core  | Output formats                |
+| 14a | └─ `"markdown"`       | format   | -                        | ✅             | ✅             | Core  | Cleaned markdown (default)    |
+| 14b | └─ `"html"`           | format   | -                        | ✅             | ✅             | Core  | Full page HTML                |
+| 14c | └─ `"rawHtml"`        | format   | -                        | ✅             | ✅             | Core  | Complete page source          |
+| 14d | └─ `"links"`          | format   | -                        | ✅             | ✅             | Core  | All URLs found on page        |
+| 14e | └─ `"screenshot"`     | format   | -                        | ✅             | ✅             | Core  | Browser screenshot PNG        |
+| 14f | └─ `"summary"`        | format   | -                        | ✅             | ❌             | P3    | AI page summary               |
+| 14g | └─ `"images"`         | format   | -                        | ✅             | ❌             | P3    | Image URLs & metadata         |
+| 14h | └─ `"json"`           | format   | -                        | ✅             | ❌             | P3    | Structured data (with schema) |
+| 14i | └─ `"changeTracking"` | format   | -                        | ✅             | ❌             | P3    | Monitor changes over time     |
 
 ---
 
 ### SCRAPE OPTIONS: CONTENT FILTERING
 
-| #   | Parameter         | Type     | Default | Firecrawl | Pulse-Fetch | Priority | Notes                            |
-| --- | ----------------- | -------- | ------- | --------- | ----------- | -------- | -------------------------------- |
-| 15  | `onlyMainContent` | boolean  | true    | ✅        | ✅          | Core     | Remove headers, navs, footers    |
-| 16  | `includeTags`     | string[] | -       | ✅        | ✅          | Core     | HTML tags/classes/IDs to INCLUDE |
-| 17  | `excludeTags`     | string[] | -       | ✅        | ✅          | Core     | HTML tags/classes/IDs to EXCLUDE |
+| #   | Parameter         | Type     | Default pulse-crawl | Pulse-Fetch | Priority | Notes |
+| --- | ----------------- | -------- | ------------------- | ----------- | -------- | ----- | -------------------------------- |
+| 15  | `onlyMainContent` | boolean  | true                | ✅          | ✅       | Core  | Remove headers, navs, footers    |
+| 16  | `includeTags`     | string[] | -                   | ✅          | ✅       | Core  | HTML tags/classes/IDs to INCLUDE |
+| 17  | `excludeTags`     | string[] | -                   | ✅          | ✅       | Core  | HTML tags/classes/IDs to EXCLUDE |
 
 ---
 
 ### SCRAPE OPTIONS: BROWSER LOADING
 
-| #   | Parameter | Type         | Default | Firecrawl | Pulse-Fetch | Priority | Notes                              |
-| --- | --------- | ------------ | ------- | --------- | ----------- | -------- | ---------------------------------- |
-| 18  | `waitFor` | integer (ms) | 0       | ✅        | ❌          | P1 ⭐    | Delay before scraping (JS loading) |
-| 19  | `timeout` | integer (ms) | -       | ✅        | ❌          | P1 ⭐    | Request timeout milliseconds       |
-| 20  | `mobile`  | boolean      | false   | ✅        | ❌          | P3       | Emulate mobile device              |
+| #   | Parameter | Type         | Default | Fipulse-crawlulse-Fetch | Priority | Notes |
+| --- | --------- | ------------ | ------- | ----------------------- | -------- | ----- | ---------------------------------- |
+| 18  | `waitFor` | integer (ms) | 0       | ✅                      | ❌       | P1 ⭐ | Delay before scraping (JS loading) |
+| 19  | `timeout` | integer (ms) | -       | ✅                      | ❌       | P1 ⭐ | Request timeout milliseconds       |
+| 20  | `mobile`  | boolean      | false   | ✅                      | ❌       | P3    | Emulate mobile device              |
 
 ---
 
 ### SCRAPE OPTIONS: REQUEST & SECURITY
 
-| #   | Parameter             | Type    | Default | Firecrawl | Pulse-Fetch | Priority | Notes                                  |
-| --- | --------------------- | ------- | ------- | --------- | ----------- | -------- | -------------------------------------- |
-| 21  | `headers`             | object  | -       | ✅        | ❌          | P2       | Custom HTTP headers (auth, UA, etc.)   |
-| 22  | `skipTlsVerification` | boolean | true    | ✅        | ❌          | P3       | Skip TLS certificate verification      |
-| 23  | `proxy`               | enum    | "auto"  | ✅        | ❌          | P2       | Proxy type: "auto", "basic", "stealth" |
+| #   | Parameter             | Type    | Defaupulse-crawlawl | Pulse-Fetch | Priority | Notes |
+| --- | --------------------- | ------- | ------------------- | ----------- | -------- | ----- | -------------------------------------- |
+| 21  | `headers`             | object  | -                   | ✅          | ❌       | P2    | Custom HTTP headers (auth, UA, etc.)   |
+| 22  | `skipTlsVerification` | boolean | true                | ✅          | ❌       | P3    | Skip TLS certificate verification      |
+| 23  | `proxy`               | enum    | "auto"              | ✅          | ❌       | P2    | Proxy type: "auto", "basic", "stealth" |
 
 ---
 
 ### SCRAPE OPTIONS: CONTENT PROCESSING
 
-| #   | Parameter            | Type     | Default | Firecrawl | Pulse-Fetch | Priority | Notes                                    |
-| --- | -------------------- | -------- | ------- | --------- | ----------- | -------- | ---------------------------------------- |
-| 24  | `blockAds`           | boolean  | true    | ✅        | ❌          | P2       | Block ads and cookie popups              |
-| 25  | `removeBase64Images` | boolean  | true    | ✅        | ❌          | P2       | Remove inline base64 images              |
-| 26  | `storeInCache`       | boolean  | true    | ✅        | ❌          | P3       | Store in Firecrawl cache                 |
-| 27  | `parsers`            | string[] | ["pdf"] | ✅        | ❌          | P2       | File parsers: "pdf" extracts to markdown |
+| #   | Parameter            | Type     | Defaupulse-crawlawl | Pulse-Fetch | Priority | Notes |
+| --- | -------------------- | -------- | ------------------- | ----------- | -------- | ----- | ---------------------------------------- |
+| 24  | `blockAds`           | boolean  | true                | ✅          | ❌       | P2    | Block ads and cookie popups              |
+| 25  | `removeBase64Images` | boolean  | true                | ✅          | ❌       | P2    | Remove inline base64 images              |
+| 26  | `storeInCache`       | boolean  | true                | ✅          | ❌       | P3    | Store in Firecrawl cache                 |
+| 27  | `parsers`            | string[] | ["pdf"]             | ✅          | ❌       | P2    | File parsers: "pdf" extracts to markdown |
 
 ---
 
 ### SCRAPE OPTIONS: CACHE & AGE
 
-| #   | Parameter | Type         | Default     | Firecrawl | Pulse-Fetch | Priority | Notes                                |
-| --- | --------- | ------------ | ----------- | --------- | ----------- | -------- | ------------------------------------ |
-| 28  | `maxAge`  | integer (ms) | 172,800,000 | ✅        | ❌          | P3       | Max cache age before re-scrape (48h) |
+| #   | Parameter | Type         | Default pulse-crawl | Pulse-Fetch | Priority | Notes |
+| --- | --------- | ------------ | ------------------- | ----------- | -------- | ----- | ------------------------------------ |
+| 28  | `maxAge`  | integer (ms) | 172,800,000         | ✅          | ❌       | P3    | Max cache age before re-scrape (48h) |
 
 ---
 
 ### SCRAPE OPTIONS: LOCATION & LOCALIZATION
 
-| #   | Parameter            | Type     | Default | Firecrawl | Pulse-Fetch | Priority | Notes                                      |
-| --- | -------------------- | -------- | ------- | --------- | ----------- | -------- | ------------------------------------------ |
-| 29  | `location.country`   | string   | "US"    | ✅        | ❌          | P3       | ISO 3166-1 country code (e.g., "GB", "DE") |
-| 30  | `location.languages` | string[] | -       | ✅        | ❌          | P3       | Languages (e.g., ["en-US", "fr-FR"])       |
+| #   | Parameter            | Type     | Defaupulse-crawlawl | Pulse-Fetch | Priority | Notes |
+| --- | -------------------- | -------- | ------------------- | ----------- | -------- | ----- | ------------------------------------------ |
+| 29  | `location.country`   | string   | "US"                | ✅          | ❌       | P3    | ISO 3166-1 country code (e.g., "GB", "DE") |
+| 30  | `location.languages` | string[] | -                   | ✅          | ❌       | P3    | Languages (e.g., ["en-US", "fr-FR"])       |
 
 ---
 
 ### SCRAPE OPTIONS: PAGE ACTIONS
 
-| #   | Parameter              | Type   | Default | Firecrawl | Pulse-Fetch | Priority | Notes                         |
-| --- | ---------------------- | ------ | ------- | --------- | ----------- | -------- | ----------------------------- |
-| 31  | `actions`              | array  | -       | ✅        | ❌          | P1 ⭐    | Pre-scrape page interactions  |
-| 31a | └─ `wait`              | action | -       | ✅        | ❌          | P1       | Wait N milliseconds           |
-| 31b | └─ `click`             | action | -       | ✅        | ❌          | P1       | Click element by CSS selector |
-| 31c | └─ `scroll`            | action | -       | ✅        | ❌          | P1       | Scroll (direction, amount)    |
-| 31d | └─ `write`             | action | -       | ✅        | ❌          | P1       | Type text into focused input  |
-| 31e | └─ `press`             | action | -       | ✅        | ❌          | P1       | Press keyboard key            |
-| 31f | └─ `screenshot`        | action | -       | ✅        | ❌          | P1       | Take page screenshot          |
-| 31g | └─ `executeJavascript` | action | -       | ✅        | ❌          | P1       | Execute arbitrary JS code     |
-| 31h | └─ `pdf`               | action | -       | ✅        | ❌          | P1       | Generate PDF of page          |
+| #   | Parameter              | Type   | Defaupulse-crawlawl | Pulse-Fetch | Priority | Notes |
+| --- | ---------------------- | ------ | ------------------- | ----------- | -------- | ----- | ----------------------------- |
+| 31  | `actions`              | array  | -                   | ✅          | ❌       | P1 ⭐ | Pre-scrape page interactions  |
+| 31a | └─ `wait`              | action | -                   | ✅          | ❌       | P1    | Wait N milliseconds           |
+| 31b | └─ `click`             | action | -                   | ✅          | ❌       | P1    | Click element by CSS selector |
+| 31c | └─ `scroll`            | action | -                   | ✅          | ❌       | P1    | Scroll (direction, amount)    |
+| 31d | └─ `write`             | action | -                   | ✅          | ❌       | P1    | Type text into focused input  |
+| 31e | └─ `press`             | action | -                   | ✅          | ❌       | P1    | Press keyboard key            |
+| 31f | └─ `screenshot`        | action | -                   | ✅          | ❌       | P1    | Take page screenshot          |
+| 31g | └─ `executeJavascript` | action | -                   | ✅          | ❌       | P1    | Execute arbitrary JS code     |
+| 31h | └─ `pdf`               | action | -                   | ✅          | ❌       | P1    | Generate PDF of page          |
 
 ---
 
 ### WEBHOOK PARAMETERS
 
-| #   | Parameter          | Type     | Default | Firecrawl | Pulse-Fetch | Priority | Notes                                                  |
-| --- | ------------------ | -------- | ------- | --------- | ----------- | -------- | ------------------------------------------------------ |
-| 32  | `webhook.url`      | string   | -       | ✅        | ❌          | P3       | Webhook endpoint URL                                   |
-| 33  | `webhook.headers`  | object   | -       | ✅        | ❌          | P3       | Custom webhook request headers                         |
-| 34  | `webhook.metadata` | object   | -       | ✅        | ❌          | P3       | Custom metadata in payloads                            |
-| 35  | `webhook.events`   | string[] | (all)   | ✅        | ❌          | P3       | Event filter: "started", "page", "completed", "failed" |
+| #   | Parameter          | Type     | Defaultpulse-crawll | Pulse-Fetch | Priority | Notes |
+| --- | ------------------ | -------- | ------------------- | ----------- | -------- | ----- | ------------------------------------------------------ |
+| 32  | `webhook.url`      | string   | -                   | ✅          | ❌       | P3    | Webhook endpoint URL                                   |
+| 33  | `webhook.headers`  | object   | -                   | ✅          | ❌       | P3    | Custom webhook request headers                         |
+| 34  | `webhook.metadata` | object   | -                   | ✅          | ❌       | P3    | Custom metadata in payloads                            |
+| 35  | `webhook.events`   | string[] | (all)               | ✅          | ❌       | P3    | Event filter: "started", "page", "completed", "failed" |
 
 ---
 
 ### RESPONSE & DATA RETENTION
 
-| #   | Parameter           | Type    | Default | Firecrawl | Pulse-Fetch | Priority | Notes                                         |
-| --- | ------------------- | ------- | ------- | --------- | ----------- | -------- | --------------------------------------------- |
-| 36  | `zeroDataRetention` | boolean | false   | ✅        | ❌          | P3       | Don't store on Firecrawl servers (enterprise) |
+| #   | Parameter           | Type    | Defaultpulse-crawll | Pulse-Fetch | Priority | Notes |
+| --- | ------------------- | ------- | ------------------- | ----------- | -------- | ----- | --------------------------------------------- |
+| 36  | `zeroDataRetention` | boolean | false               | ✅          | ❌       | P3    | Don't store on Firecrawl servers (enterprise) |
 
 ---
 
 ### RESPONSE PAGINATION
 
-| #   | Field  | Type   | Firecrawl | Pulse-Fetch  | Priority | Notes                                   |
-| --- | ------ | ------ | --------- | ------------ | -------- | --------------------------------------- |
-| 37  | `next` | string | ✅        | ❌           | P1 ⭐    | URL for next page of results            |
-| 38  | `data` | array  | ✅        | ✅ (partial) | Core     | Page results (paginated, ~500 per page) |
+| #   | Field  | Type   | Firecrapulse-crawlFetch | Priority     | Notes |
+| --- | ------ | ------ | ----------------------- | ------------ | ----- | --------------------------------------- |
+| 37  | `next` | string | ✅                      | ❌           | P1 ⭐ | URL for next page of results            |
+| 38  | `data` | array  | ✅                      | ✅ (partial) | Core  | Page results (paginated, ~500 per page) |
 
 ---
 
@@ -301,9 +301,9 @@
 **Medium-term (3-4 weeks)**:
 
 - P2 parameters: headers, proxy, blockAds, removeBase64Images, parsers
-- Improve content quality and auth scenarios
-
-**Long-term (5+ weeks)**:
+- Improve content quality and auth scenapulse-crawl
+  pulse-crawl
+  **Long-term (5+ weeks)**:
 
 - P3 parameters: advanced formats, location, webhooks, enterprise features
 - Specialized use cases and compliance

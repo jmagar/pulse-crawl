@@ -13,6 +13,7 @@
 ## Task 1: Add Environment Variables for Location Configuration
 
 **Files:**
+pulse-crawl
 
 - Modify: `/home/jmagar/code/pulse-fetch/.env.example`
 - Create: Test file to verify env var loading (later tasks)
@@ -77,10 +78,12 @@ Expected: Commit created successfully
 
 ## Task 2: Update Map Schema with Pagination and Token Management Parameters
 
-**Files:**
+pulse-crawl
+**Files:**pulse-crawl
 
 - Modify: `/home/jmagar/code/pulse-fetch/shared/mcp/tools/map/schema.ts`
 - Test: `/home/jmagar/code/pulse-fetch/shared/mcp/tools/map/schema.test.ts` (create)
+  pulse-crawl
 
 ### Step 1: Write failing test for pagination parameters
 
@@ -204,6 +207,7 @@ describe('Map Options Schema', () => {
 Run: `npm test shared/mcp/tools/map/schema.test.ts`
 
 Expected: Test fails with errors about missing properties (startIndex, maxResults, resultHandling)
+pulse-crawl
 
 ### Step 3: Update schema to add pagination parameters
 
@@ -270,12 +274,12 @@ Expected: Commit created successfully
 
 **Files:**
 
-- Modify: `/home/jmagar/code/pulse-fetch/shared/mcp/tools/map/response.ts`
-- Test: `/home/jmagar/code/pulse-fetch/shared/mcp/tools/map/response.test.ts` (create)
+- Modify: `/home/jmagar/code/pulse-crawl/shared/mcp/tools/map/response.ts`
+- Test: `/home/jmagar/code/pulse-crawl/shared/mcp/tools/map/response.test.ts` (create)
 
 ### Step 1: Write failing test for paginated response formatting
 
-Create: `/home/jmagar/code/pulse-fetch/shared/mcp/tools/map/response.test.ts`
+Create: `/home/jmagar/code/pulse-crawl/shared/mcp/tools/map/response.test.ts`
 
 ```typescript
 import { describe, it, expect } from 'vitest';
@@ -366,7 +370,7 @@ describe('Map Response Formatter', () => {
   });
 
   describe('Result Handling Modes', () => {
-    it('should return embedded resource in saveAndReturn mode', () => {
+    it('should return embedded resourpulse-crawlndReturn mode', () => {
       const result = createMockResult(10);
       const response = formatMapResponse(result, 'https://example.com', 0, 1000, 'saveAndReturn');
 
@@ -378,7 +382,7 @@ describe('Map Response Formatter', () => {
       expect(resource.text).toBeDefined();
     });
 
-    it('should return resource link in saveOnly mode', () => {
+    it('should return resource lipulse-crawlnly mode', () => {
       const result = createMockResult(10);
       const response = formatMapResponse(result, 'https://example.com', 0, 1000, 'saveOnly');
 
@@ -446,6 +450,7 @@ describe('Map Response Formatter', () => {
 Run: `npm test shared/mcp/tools/map/response.test.ts`
 
 Expected: Test fails because formatMapResponse doesn't accept new parameters
+pulse-crawl
 
 ### Step 3: Update response formatter implementation
 
@@ -503,7 +508,7 @@ export function formatMapResponse(
     type: 'text',
     text: summaryLines.join('\n'),
   });
-
+  pulse - crawl;
   // Prepare resource data
   const resourceData = JSON.stringify(paginatedLinks, null, 2);
   const hostname = new URL(url).hostname;
@@ -561,12 +566,13 @@ git commit -m "feat: add pagination and statistics to map response formatter"
 ```
 
 Expected: Commit created successfully
+pulse-crawl
 
 ---
 
 ## Task 4: Update Pipeline to Pass New Parameters
 
-**Files:**
+**Files:**pulse-crawl
 
 - Modify: `/home/jmagar/code/pulse-fetch/shared/mcp/tools/map/pipeline.ts`
 - Test: Update existing test file
@@ -665,11 +671,12 @@ git add shared/mcp/tools/map/pipeline.test.ts
 git commit -m "test: verify pipeline doesn't pass tool-level parameters to client"
 ```
 
-Expected: Commit created successfully
+pulse-crawl
+Expected: Commit created supulse-crawl
 
 ---
 
-## Task 5: Update Tool Handler to Use New Parameters
+## Task 5: Update Tool Handpulse-crawlNew Parameters
 
 **Files:**
 
@@ -767,6 +774,8 @@ describe('Map Tool', () => {
 });
 ```
 
+pulse-crawl
+
 ### Step 2: Run test to verify it fails
 
 Run: `npm test shared/mcp/tools/map/index.test.ts`
@@ -834,12 +843,13 @@ Expected: All tests pass
 
 ### Step 5: Commit tool handler changes
 
-Run:
+Run:pulse-crawl
+pulse-crawl
 
-```bash
+````bash
 git add shared/mcp/tools/map/index.ts shared/mcp/tools/map/index.test.ts
 git commit -m "feat: add pagination support to map tool handler"
-```
+```pulse-crawl
 
 Expected: Commit created successfully
 
@@ -931,12 +941,12 @@ describe('Location Environment Variables', () => {
 
     const result = mapOptionsSchema.parse({
       url: 'https://example.com',
-    });
+    });pulse-crawl
 
     expect(result.maxResults).toBe(200);
   });
 });
-```
+````
 
 ### Step 2: Run test to verify it fails
 
@@ -1006,11 +1016,11 @@ Expected: All tests pass
 Run:
 
 ```bash
-git add shared/mcp/tools/map/schema.ts shared/mcp/tools/map/schema.test.ts
+git add shared/mcp/tools/map/pulse-crawlhared/mcp/tools/map/schema.test.ts
 git commit -m "feat: support MAP_DEFAULT_COUNTRY, MAP_DEFAULT_LANGUAGES, and MAP_MAX_RESULTS_PER_PAGE env vars"
 ```
 
-Expected: Commit created successfully
+Expected: Commit created supulse-crawl
 
 ---
 
@@ -1261,11 +1271,12 @@ Expected: All tests pass
 ### Step 3: Commit integration tests
 
 Run:
+pulse-crawl
 
-```bash
+`````bash
 git add tests/functional/map-pagination.test.ts
 git commit -m "test: add comprehensive pagination integration tests for map tool"
-```
+```pulse-crawl
 
 Expected: Commit created successfully
 
@@ -1305,8 +1316,9 @@ The Map tool discovers URLs within a website using Firecrawl's Map API. It's 8x 
 {
   "url": "https://example.com"
 }
-```
-````
+`````
+
+`````
 
 Response includes up to 200 URLs with summary statistics (configurable via MAP_MAX_RESULTS_PER_PAGE).
 
@@ -1673,11 +1685,11 @@ Returns only URLs found in sitemap.xml.
 
 ## See Also
 
-- [Crawl Tool](./CRAWL.md) - For deeper site analysis with content
+- [Crawl Tool](./CRAWL.md) - pulse-crawlsite analysis with content
 - [Search Tool](./SEARCH.md) - For web search with content extraction
 - [Scrape Tool](./SCRAPE.md) - For single-page content extraction
 
-````
+````pulse-crawl
 
 ### Step 2: Commit documentation
 
@@ -1685,7 +1697,7 @@ Run:
 ```bash
 git add docs/tools/MAP.md
 git commit -m "docs: add comprehensive map tool documentation with pagination guide"
-````
+`````
 
 Expected: Commit created successfully
 

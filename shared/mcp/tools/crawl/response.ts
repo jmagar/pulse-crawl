@@ -34,7 +34,7 @@ export function formatCrawlResponse(
       content.push({
         type: 'resource',
         resource: {
-          uri: `pulse-fetch://crawl/results/${Date.now()}`,
+          uri: `pulse-crawl://crawl/results/${Date.now()}`,
           name: `Crawl Results (${statusResult.completed} pages)`,
           mimeType: 'application/json',
           text: JSON.stringify(statusResult.data, null, 2),

@@ -5,7 +5,7 @@
  * under different environment variable configurations.
  *
  * Usage:
- * cd productionized/pulse-fetch && node --import tsx tests/manual/pages/pages.manual.test.ts [--continue-on-failure]
+ * cd productionized/pulse-crawl && node --import tsx tests/manual/pages/pages.manual.test.ts [--continue-on-failure]
  */
 
 import 'dotenv/config';
@@ -371,7 +371,7 @@ async function runPagesTestSuite() {
 // CLI usage
 if (import.meta.url === `file://${process.argv[1]}`) {
   console.log(
-    'Usage: cd productionized/pulse-fetch && node --import tsx tests/manual/pages/pages.manual.test.ts [--continue-on-failure]'
+    'Usage: cd productionized/pulse-crawl && node --import tsx tests/manual/pages/pages.manual.test.ts [--continue-on-failure]'
   );
   runPagesTestSuite().catch((error) => {
     console.error('Fatal error:', error);

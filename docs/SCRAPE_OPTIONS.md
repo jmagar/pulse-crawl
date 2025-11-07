@@ -510,8 +510,8 @@ const EXCLUSION_PATTERNS = {
 
 ## Research References
 
-- [Firecrawl Core Scrape Options Research](/home/jmagar/code/pulse-fetch/firecrawl-scrape-options-research.md)
-- [Firecrawl URL Filtering Research](/home/jmagar/code/pulse-fetch/firecrawl-url-filtering-research.md)
+- [Firecrawl Core Scrape Options Research](/home/jmagar/code/pulse-crawl/firecrawl-scrape-options-research.md)
+- [Firecrawl URL Filtering Research](/home/jmagar/code/pulse-crawl/firecrawl-url-filtering-research.md)
 - [Official Firecrawl API Documentation](https://docs.firecrawl.dev)
 - [Firecrawl v2 Scrape Endpoint](https://docs.firecrawl.dev/api-reference/endpoint/scrape)
 - [Firecrawl Advanced Scraping Guide](https://docs.firecrawl.dev/advanced-scraping-guide)

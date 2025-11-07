@@ -1,12 +1,12 @@
 {
-  "name": "@pulsemcp/pulse-fetch",
+  "name": "@pulsemcp/pulse-crawl",
   "version": "0.3.0",
-  "description": "Local implementation of pulse-fetch MCP server",
-  "mcpName": "com.pulsemcp.servers/pulse-fetch",
+  "description": "Local implementation of pulse-crawl MCP server",
+  "mcpName": "com.pulsemcp.servers/pulse-crawl",
   "main": "dist/index.js",
   "type": "module",
   "bin": {
-    "@pulsemcp/pulse-fetch": "./dist/index.js"
+    "@pulsemcp/pulse-crawl": "./dist/index.js"
   },
   "files": [
     "dist/**/*.js",

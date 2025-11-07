@@ -209,7 +209,7 @@ Most other alternatives fall short on one or more vectors:
 | `STRATEGY_CONFIG_PATH`         | Path to markdown file containing scraping strategy configuration    | No       | OS temp dir                  | `/path/to/scraping-strategies.md` |
 | `OPTIMIZE_FOR`                 | Optimization strategy for scraping: `cost` or `speed`               | No       | `cost`                       | `speed`                           |
 | `MCP_RESOURCE_STORAGE`         | Storage backend for saved resources: `memory` or `filesystem`       | No       | `memory`                     | `filesystem`                      |
-| `MCP_RESOURCE_FILESYSTEM_ROOT` | Directory for filesystem storage (only used with `filesystem` type) | No       | `/tmp/pulse-fetch/resources` | `/home/user/mcp-resources`        |
+| `MCP_RESOURCE_FILESYSTEM_ROOT` | Directory for filesystem storage (only used with `filesystem` type) | No       | `/tmp/pulse-crawl/resources` | `/home/user/mcp-resources`        |
 | `SKIP_HEALTH_CHECKS`           | Skip API authentication health checks at startup                    | No       | `false`                      | `true`                            |
 
 ### LLM Configuration for Extract Feature
@@ -246,9 +246,9 @@ Add this configuration to your Claude Desktop config file:
 ```json
 {
   "mcpServers": {
-    "pulse-fetch": {
+    "pulse-crawl": {
       "command": "npx",
-      "args": ["-y", "@pulsemcp/pulse-fetch"]
+      "args": ["-y", "@pulsemcp/pulse-crawl"]
     }
   }
 }
@@ -259,9 +259,9 @@ Add this configuration to your Claude Desktop config file:
 ```json
 {
   "mcpServers": {
-    "pulse-fetch": {
+    "pulse-crawl": {
       "command": "npx",
-      "args": ["-y", "@pulsemcp/pulse-fetch"],
+      "args": ["-y", "@pulsemcp/pulse-crawl"],
       "env": {
         "FIRECRAWL_API_KEY": "your-firecrawl-api-key",
         "STRATEGY_CONFIG_PATH": "/path/to/your/scraping-strategies.md",
@@ -277,7 +277,7 @@ Add this configuration to your Claude Desktop config file:
 To set up the local version:
 
 1. Clone or download the repository
-2. Navigate to the local directory: `cd pulse-fetch/local`
+2. Navigate to the local directory: `cd pulse-crawl/local`
 3. Install dependencies: `npm install`
 4. Build the project: `npm run build`
 5. Update your Claude Desktop config with the correct path
@@ -323,7 +323,7 @@ docker-compose up -d
 **Connecting Clients:**
 
 - **MCP Inspector**: `npx @modelcontextprotocol/inspector` → Connect to `http://localhost:3060/mcp`
-- **Claude Code**: `claude mcp add --transport http pulse-fetch-remote http://localhost:3060/mcp`
+- **Claude Code**: `claude mcp add --transport http pulse-crawl-remote http://localhost:3060/mcp`
 
 For detailed documentation, configuration options, security considerations, and production deployment guides, refer to [Pulse Fetch HTTP Server Documentation](remote/README.md).
 
@@ -332,7 +332,7 @@ For detailed documentation, configuration options, security considerations, and 
 ## Project Structure
 
 ```
-pulse-fetch/
+pulse-crawl/
 ├── local/                    # Local stdio server implementation
 │   ├── src/
 │   │   └── index.ts         # Main entry point (stdio transport)
@@ -364,8 +364,8 @@ Pulse Fetch provides two transport mechanisms:
 
 | Transport          | Package                        | Use Case                             | Protocol               |
 | ------------------ | ------------------------------ | ------------------------------------ | ---------------------- |
-| **stdio**          | `@pulsemcp/pulse-fetch`        | Claude Desktop, local CLI tools      | stdin/stdout           |
-| **HTTP Streaming** | `@pulsemcp/pulse-fetch-remote` | Remote servers, Docker, multi-client | HTTP (JSON) + opt. SSE |
+| **stdio**          | `@pulsemcp/pulse-crawl`        | Claude Desktop, local CLI tools      | stdin/stdout           |
+| **HTTP Streaming** | `@pulsemcp/pulse-crawl-remote` | Remote servers, Docker, multi-client | HTTP (JSON) + opt. SSE |
 
 Both implementations share the same core functionality (`shared/`) ensuring feature parity.
 
@@ -501,7 +501,7 @@ When connecting to the Pulse Fetch HTTP server, you may encounter connection err
 
 **Symptoms:**
 
-```
+```text
 HTTP 403: Invalid Host header: 100.122.19.93:3060
 Streamable HTTP connection failed
 ```
@@ -534,7 +534,7 @@ NODE_ENV=development
 
 **Symptoms:**
 
-```
+```text
 ZodError: Invalid literal value, expected "object"
 Path: tools[1].inputSchema.type
 ```
@@ -565,7 +565,7 @@ const inputSchema = { type: 'object' as const, ...baseSchema };
 
 **Symptoms:**
 
-```
+```text
 [INFO] MCP: POST request (no session)
 Session not found
 ```
@@ -574,7 +574,7 @@ Session not found
 
 The log message `POST request (no session)` is **normal for the first request** from any client. This is the initialization request that creates the session. You should see these logs in sequence:
 
-```
+```text
 1. POST request (no session)        ← First request (normal)
 2. Session initialized {sessionId}  ← Session created
 3. POST request for session         ← Subsequent requests reuse session
@@ -590,7 +590,7 @@ The log message `POST request (no session)` is **normal for the first request** 
 
 **Symptoms:**
 
-```
+```text
 Access to fetch at 'http://localhost:3060/mcp' has been blocked by CORS policy
 No 'Access-Control-Allow-Origin' header present
 ```
@@ -634,6 +634,7 @@ ALLOWED_ORIGINS=*
    ```
 
 5. **Check MCP initialization:**
+
    ```bash
    curl -X POST http://localhost:3060/mcp \
      -H "Content-Type: application/json" \
@@ -673,7 +674,7 @@ To skip health checks, set SKIP_HEALTH_CHECKS=true
 
 # Scraping Strategy Configuration
 
-The pulse-fetch MCP server includes an intelligent strategy system that automatically selects the best scraping method for different websites.
+The pulse-crawl MCP server includes an intelligent strategy system that automatically selects the best scraping method for different websites.
 
 ## Optimization Modes
 
@@ -687,7 +688,7 @@ The `OPTIMIZE_FOR` environment variable controls the order and selection of scra
 - **`SPEED`**: Optimizes for faster results by using Firecrawl directly
   - Order: `firecrawl` (skips native entirely)
   - Best for: Time-sensitive applications or sites known to block native fetch
-  - Behavior: Goes straight to Firecrawl which is more likely to succeed on complex sites
+  - Behavior: Goes straight to Firecrawl, which is more likely to succeed on complex sites
 
 Example configuration:
 
@@ -719,7 +720,7 @@ export OPTIMIZE_FOR=COST   # For cost-effective scraping (default)
 
 ## Configuration File
 
-The configuration is stored in a markdown table. By default, it's automatically created in your OS temp directory (e.g., `/tmp/pulse-fetch/scraping-strategies.md` on Unix systems). You can customize the location by setting the `STRATEGY_CONFIG_PATH` environment variable.
+The configuration is stored in a markdown table. By default, it's automatically created in your OS temp directory (e.g., `/tmp/pulse-crawl/scraping-strategies.md` on Unix systems). You can customize the location by setting the `STRATEGY_CONFIG_PATH` environment variable.
 
 The table has three columns:
 
@@ -768,7 +769,7 @@ The system uses an abstraction layer for config storage:
 
 - **FilesystemClient**: Stores config in a local markdown file (default)
   - Uses `STRATEGY_CONFIG_PATH` if set
-  - Otherwise uses OS temp directory (e.g., `/tmp/pulse-fetch/scraping-strategies.md`)
+  - Otherwise uses OS temp directory (e.g., `/tmp/pulse-crawl/scraping-strategies.md`)
   - Automatically creates initial config with common patterns
 - **Future clients**: Could support GCS, S3, database storage, etc.
 
@@ -791,7 +792,7 @@ Resources are saved in three separate stages:
 When using filesystem storage (`MCP_RESOURCE_STORAGE=filesystem`), files are organized into subdirectories:
 
 ```
-/tmp/pulse-fetch/resources/
+/tmp/pulse-crawl/resources/
 ├── raw/
 │   └── example.com_article_20250701_123456.md
 ├── cleaned/

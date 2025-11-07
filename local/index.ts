@@ -63,14 +63,21 @@ async function main() {
 
     const HEALTH_CHECK_TIMEOUT = 30000; // 30 seconds
     const healthCheckPromise = runHealthChecks();
-    const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('Health check timeout')), HEALTH_CHECK_TIMEOUT)
-    );
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timeoutId = setTimeout(() => reject(new Error('Health check timeout')), HEALTH_CHECK_TIMEOUT);
+    });
 
     let healthResults: HealthCheckResult[];
     try {
       healthResults = await Promise.race([healthCheckPromise, timeoutPromise]);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
     } catch (error) {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
       logError('healthCheck', error as Error, {
         message: 'Health check failed or timed out',
       });

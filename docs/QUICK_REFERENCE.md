@@ -201,7 +201,7 @@ From `remote/README.md`:
 ## File Locations Summary
 
 ```
-/home/jmagar/code/pulse-fetch/
+/home/jmagar/code/pulse-crawl/
 ├── remote/
 │   ├── src/
 │   │   ├── middleware/

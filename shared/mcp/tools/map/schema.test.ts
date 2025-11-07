@@ -186,5 +186,73 @@ describe('Map Options Schema', () => {
 
       expect(result.maxResults).toBe(200);
     });
+
+    it('should fall back to 200 for invalid numeric string (NaN)', async () => {
+      process.env.MAP_MAX_RESULTS_PER_PAGE = 'abc';
+
+      vi.resetModules();
+      const { mapOptionsSchema } = await import('./schema.js');
+
+      const result = mapOptionsSchema.parse({
+        url: 'https://example.com',
+      });
+
+      expect(result.maxResults).toBe(200);
+    });
+
+    it('should fall back to 200 for value below range (0)', async () => {
+      process.env.MAP_MAX_RESULTS_PER_PAGE = '0';
+
+      vi.resetModules();
+      const { mapOptionsSchema } = await import('./schema.js');
+
+      const result = mapOptionsSchema.parse({
+        url: 'https://example.com',
+      });
+
+      expect(result.maxResults).toBe(200);
+    });
+
+    it('should fall back to 200 for negative value', async () => {
+      process.env.MAP_MAX_RESULTS_PER_PAGE = '-1';
+
+      vi.resetModules();
+      const { mapOptionsSchema } = await import('./schema.js');
+
+      const result = mapOptionsSchema.parse({
+        url: 'https://example.com',
+      });
+
+      expect(result.maxResults).toBe(200);
+    });
+
+    it('should fall back to 200 for value above range (10000)', async () => {
+      process.env.MAP_MAX_RESULTS_PER_PAGE = '10000';
+
+      vi.resetModules();
+      const { mapOptionsSchema } = await import('./schema.js');
+
+      const result = mapOptionsSchema.parse({
+        url: 'https://example.com',
+      });
+
+      expect(result.maxResults).toBe(200);
+    });
+
+    it('should log warning for invalid MAP_MAX_RESULTS_PER_PAGE values', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      process.env.MAP_MAX_RESULTS_PER_PAGE = 'invalid';
+
+      vi.resetModules();
+      await import('./schema.js');
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Invalid MAP_MAX_RESULTS_PER_PAGE="invalid"')
+      );
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Must be 1-5000'));
+
+      warnSpy.mockRestore();
+    });
   });
 });

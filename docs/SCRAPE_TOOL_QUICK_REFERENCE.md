@@ -108,13 +108,13 @@ Requires: ANTHROPIC_API_KEY, OPENAI_API_KEY, or LLM_API_BASE_URL
 
 ### Debug Raw HTML
 
-```json
+````json
 {
-  "url": "https://example.com",
-  "cleanScrape": false,
-  "resultHandling": "returnOnly"
-}
-```
+  "url": "https://example.com",pulse-crawl
+  "cleanScrape": false,pulse-crawl
+  "resultHandling": "returnOnly"pulse-crawl
+}pulse-crawl
+```pulse-crawl
 
 ## File Locations
 
@@ -145,3 +145,4 @@ Required for `extract` parameter:
 Optional:
 
 - `LLM_MODEL` - Override default model version
+````

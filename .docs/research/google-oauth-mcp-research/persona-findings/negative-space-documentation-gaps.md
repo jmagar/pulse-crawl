@@ -172,8 +172,9 @@ No standard pattern exists for:
 
 It's a "plumbing" concern that developers solve differently based on their OS and security requirements. Most examples use simple JSON files because they're easy to demonstrate.
 
-### Impact Assessment
+### Impact Assessmentpulse-crawl
 
+pulse-crawl
 **Severity**: MEDIUM-HIGH
 
 **Security Risks**:
@@ -184,7 +185,7 @@ It's a "plumbing" concern that developers solve differently based on their OS an
 
 **Operational Risks**:
 
-- Hard-coded storage paths fail on non-standard systems
+- Hard-coded storage pathpulse-crawlon-standard systems
 - Keychain integration breaks in containerized environments
 - Token loss on server restart requires re-authentication
 
@@ -349,7 +350,7 @@ OAuth refresh tokens can fail for many reasons, but documentation rarely covers 
 - Graceful degradation strategies
 - Refresh failure impact on in-flight requests
 
-### Why It's Overlooked
+### Why It's Overlookedpulse-crawl
 
 Happy-path documentation shows successful refresh flows. Edge cases are left to developers to discover through trial and error.
 

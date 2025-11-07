@@ -24,7 +24,7 @@ export function formatSearchResponse(result: SearchResult, query: string): CallT
       content.push({
         type: 'resource',
         resource: {
-          uri: `pulse-fetch://search/web/${Date.now()}`,
+          uri: `pulse-crawl://search/web/${Date.now()}`,
           name: `Web Results: ${query}`,
           mimeType: 'application/json',
           text: JSON.stringify(data.web, null, 2),
@@ -36,7 +36,7 @@ export function formatSearchResponse(result: SearchResult, query: string): CallT
       content.push({
         type: 'resource',
         resource: {
-          uri: `pulse-fetch://search/images/${Date.now()}`,
+          uri: `pulse-crawl://search/images/${Date.now()}`,
           name: `Image Results: ${query}`,
           mimeType: 'application/json',
           text: JSON.stringify(data.images, null, 2),
@@ -48,7 +48,7 @@ export function formatSearchResponse(result: SearchResult, query: string): CallT
       content.push({
         type: 'resource',
         resource: {
-          uri: `pulse-fetch://search/news/${Date.now()}`,
+          uri: `pulse-crawl://search/news/${Date.now()}`,
           name: `News Results: ${query}`,
           mimeType: 'application/json',
           text: JSON.stringify(data.news, null, 2),
@@ -65,7 +65,7 @@ export function formatSearchResponse(result: SearchResult, query: string): CallT
     content.push({
       type: 'resource',
       resource: {
-        uri: `pulse-fetch://search/results/${Date.now()}`,
+        uri: `pulse-crawl://search/results/${Date.now()}`,
         name: `Search Results: ${query}`,
         mimeType: 'application/json',
         text: JSON.stringify(results, null, 2),
