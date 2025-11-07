@@ -54,7 +54,7 @@ export function formatMapResponse(
   const resourceData = JSON.stringify(paginatedLinks, null, 2);
   const hostname = new URL(url).hostname;
   const pageNumber = Math.floor(startIndex / maxResults);
-  const baseUri = `pulse-fetch://map/${hostname}/${Date.now()}/page-${pageNumber}`;
+  const baseUri = `pulse-crawl://map/${hostname}/${Date.now()}/page-${pageNumber}`;
   const resourceName = `URL Map: ${url} (${paginatedLinks.length} URLs)`;
 
   // Handle different result modes
