@@ -21,6 +21,8 @@ export interface MockFirecrawlClient extends IFirecrawlClient {
       content: string;
       markdown: string;
       html: string;
+      screenshot?: string;
+      links?: string[];
       metadata: Record<string, unknown>;
     };
     error?: string;
@@ -70,6 +72,8 @@ export function createMockFirecrawlClient(): MockFirecrawlClient {
       content: string;
       markdown: string;
       html: string;
+      screenshot?: string;
+      links?: string[];
       metadata: Record<string, unknown>;
     };
     error?: string;
@@ -96,6 +100,8 @@ export function createMockFirecrawlClient(): MockFirecrawlClient {
         content: string;
         markdown: string;
         html: string;
+        screenshot?: string;
+        links?: string[];
         metadata: Record<string, unknown>;
       };
       error?: string;

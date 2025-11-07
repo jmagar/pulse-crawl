@@ -1,13 +1,24 @@
-export { FirecrawlSearchClient } from './firecrawl-search.client.js';
-export type { SearchOptions, SearchResult } from './firecrawl-search.client.js';
+// Re-export unified Firecrawl client
+export {
+  FirecrawlClient,
+  FirecrawlSearchClient,
+  FirecrawlMapClient,
+  FirecrawlCrawlClient,
+  FirecrawlScrapingClient,
+  categorizeFirecrawlError,
+} from './firecrawl/index.js';
 
-export { FirecrawlMapClient } from './firecrawl-map.client.js';
-export type { MapOptions, MapResult } from './firecrawl-map.client.js';
-
-export { FirecrawlCrawlClient } from './firecrawl-crawl.client.js';
 export type {
+  FirecrawlConfig,
+  FirecrawlScrapingOptions,
+  FirecrawlScrapingResult,
+  SearchOptions,
+  SearchResult,
+  MapOptions,
+  MapResult,
   CrawlOptions,
   StartCrawlResult,
   CrawlStatusResult,
   CancelResult,
-} from './firecrawl-crawl.client.js';
+  FirecrawlError,
+} from './firecrawl/index.js';

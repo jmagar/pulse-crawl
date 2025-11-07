@@ -1,4 +1,4 @@
-import type { MapResult } from '../../../clients/firecrawl-map.client.js';
+import type { MapResult } from '../../../clients/firecrawl/index.js';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 
 export function formatMapResponse(

@@ -64,6 +64,10 @@ This server is built and tested on macOS with Claude Desktop. It should work wit
   - `saveAndReturn` (default): Saves content as MCP Resource AND returns it - best for reuse
   - `returnOnly`: Returns content without saving - use when you only need content once
   - `saveOnly`: Saves content as MCP Resource, returns only resource link - efficient for large content
+- **Screenshot capture**: Include `screenshot` in the `formats` array to capture page screenshots (requires Firecrawl API)
+  - Screenshots are returned as MCP image content blocks with proper MIME type detection
+  - Supports both base64-encoded images and screenshot URLs
+  - Screenshots bypass caching to ensure fresh captures on each request
 - **Automatic caching**: Previously scraped URLs are cached by default. The tool returns cached content instantly on repeat requests
 - Use `forceRescrape: true` to bypass the cache and get fresh content when you know the page has changed
 - Use `maxChars` and `startIndex` parameters to handle large content that exceeds token limits
@@ -147,6 +151,17 @@ Assistant: I'll retrieve that content for you.
 [Uses scrape tool - automatically returns cached content]
 
 I've retrieved the content from cache (originally scraped 2 hours ago). The article contains...
+```
+
+## Page Screenshots
+
+```
+User: "Capture a screenshot of this page: https://dashboard.example.com"
+Assistant: I'll capture a screenshot of that page for you.
+
+[Uses scrape tool with formats: ['markdown', 'screenshot']]
+
+I've captured a screenshot of the page and extracted the content. The screenshot shows the dashboard interface with...
 
 User: "Actually, I think that article was updated. Can you get the latest version?"
 Assistant: I'll fetch a fresh copy of the article for you.

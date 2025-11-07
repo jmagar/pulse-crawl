@@ -107,14 +107,55 @@ export async function scrapeContent(
   url: string,
   timeout: number,
   clients: IScrapingClients,
-  configClient: ReturnType<StrategyConfigFactory>
+  configClient: ReturnType<StrategyConfigFactory>,
+  options?: Record<string, unknown>
 ): Promise<{
   success: boolean;
   content?: string;
   source?: string;
+  screenshot?: string;
+  screenshotFormat?: string;
   error?: string;
   diagnostics?: ScrapeDiagnostics;
 }> {
+  // Check if screenshot format is requested
+  const formats = (options?.formats as string[] | undefined) || [];
+  const includeScreenshot = formats.includes('screenshot');
+
+  // If screenshot is requested, we need to use Firecrawl directly
+  // because the strategy selector doesn't preserve screenshot data
+  if (includeScreenshot && clients.firecrawl) {
+    const firecrawlResult = await clients.firecrawl.scrape(url, options);
+
+    if (!firecrawlResult.success) {
+      return {
+        success: false,
+        error: firecrawlResult.error,
+      };
+    }
+
+    // Extract screenshot metadata if available
+    let screenshotFormat = 'png'; // Default format
+    if (firecrawlResult.data?.metadata?.screenshotMetadata) {
+      const metadata = firecrawlResult.data.metadata.screenshotMetadata as {
+        format?: string;
+      };
+      screenshotFormat = metadata.format || 'png';
+    }
+
+    // Kick off async crawl of base URL
+    startBaseUrlCrawl(url, clients);
+
+    return {
+      success: true,
+      content: firecrawlResult.data?.html || firecrawlResult.data?.markdown || '',
+      source: 'firecrawl',
+      screenshot: firecrawlResult.data?.screenshot,
+      screenshotFormat,
+    };
+  }
+
+  // Standard scraping without screenshot
   const result = await scrapeWithStrategy(clients, configClient, {
     url,
     timeout,

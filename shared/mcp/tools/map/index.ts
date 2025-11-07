@@ -1,4 +1,4 @@
-import { FirecrawlMapClient } from '../../../clients/firecrawl-map.client.js';
+import { FirecrawlMapClient } from '../../../clients/firecrawl/index.js';
 import type { FirecrawlConfig } from '../../../types.js';
 import { mapOptionsSchema } from './schema.js';
 import { mapPipeline } from './pipeline.js';

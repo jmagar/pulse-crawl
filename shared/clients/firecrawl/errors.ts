@@ -4,7 +4,7 @@
  * Provides structured error handling with user-friendly messages
  * and actionable recommendations for common Firecrawl API errors.
  *
- * @module shared/clients/firecrawl-error-types
+ * @module shared/clients/firecrawl/errors
  */
 
 /**

@@ -30,25 +30,37 @@ export async function handleScrapeRequest(
       extract = (validatedArgs as { extract?: string }).extract;
     }
 
-    // Check for cached resources
-    const cachedResult = await checkCache(url, extract, resultHandling, forceRescrape);
-    if (cachedResult.found) {
-      return buildCachedResponse(
-        cachedResult.content,
-        cachedResult.uri,
-        cachedResult.name,
-        cachedResult.mimeType,
-        cachedResult.description,
-        cachedResult.source,
-        cachedResult.timestamp,
-        resultHandling,
-        startIndex,
-        maxChars
-      );
+    // Check if screenshot is requested
+    const formats = ((validatedArgs as Record<string, unknown>).formats as string[] | undefined) || [];
+    const includeScreenshot = formats.includes('screenshot');
+
+    // Check for cached resources (skip cache if screenshot requested)
+    if (!includeScreenshot) {
+      const cachedResult = await checkCache(url, extract, resultHandling, forceRescrape);
+      if (cachedResult.found) {
+        return buildCachedResponse(
+          cachedResult.content,
+          cachedResult.uri,
+          cachedResult.name,
+          cachedResult.mimeType,
+          cachedResult.description,
+          cachedResult.source,
+          cachedResult.timestamp,
+          resultHandling,
+          startIndex,
+          maxChars
+        );
+      }
     }
 
     // Scrape fresh content
-    const scrapeResult = await scrapeContent(url, timeout, clients, configClient);
+    const scrapeResult = await scrapeContent(
+      url,
+      timeout,
+      clients,
+      configClient,
+      validatedArgs as Record<string, unknown>
+    );
 
     if (!scrapeResult.success) {
       return buildErrorResponse(url, scrapeResult.error, scrapeResult.diagnostics);
@@ -56,6 +68,8 @@ export async function handleScrapeRequest(
 
     const rawContent = scrapeResult.content!;
     const source = scrapeResult.source!;
+    const screenshot = scrapeResult.screenshot;
+    const screenshotFormat = scrapeResult.screenshotFormat;
 
     // Process content through cleaning and extraction pipeline
     const { cleaned, extracted, displayContent } = await processContent(
@@ -96,7 +110,9 @@ export async function handleScrapeRequest(
       resultHandling,
       startIndex,
       maxChars,
-      savedUris
+      savedUris,
+      screenshot,
+      screenshotFormat
     );
   } catch (error) {
     if (error instanceof z.ZodError) {

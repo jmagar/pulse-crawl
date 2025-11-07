@@ -145,6 +145,59 @@ export function buildErrorResponse(
 }
 
 /**
+ * Detect image MIME type from base64 or URL
+ */
+function detectImageMimeType(
+  screenshot: string,
+  screenshotFormat?: string
+): string {
+  // If format is explicitly provided from metadata
+  if (screenshotFormat) {
+    return `image/${screenshotFormat}`;
+  }
+
+  // Check if it's a URL
+  if (screenshot.startsWith('http://') || screenshot.startsWith('https://')) {
+    // Try to detect from URL extension
+    if (screenshot.endsWith('.jpg') || screenshot.endsWith('.jpeg')) {
+      return 'image/jpeg';
+    }
+    if (screenshot.endsWith('.png')) {
+      return 'image/png';
+    }
+    if (screenshot.endsWith('.webp')) {
+      return 'image/webp';
+    }
+    if (screenshot.endsWith('.gif')) {
+      return 'image/gif';
+    }
+    // Default for URLs
+    return 'image/png';
+  }
+
+  // For base64, try to detect from data
+  // PNG signature: starts with 'iVBOR'
+  if (screenshot.startsWith('iVBOR')) {
+    return 'image/png';
+  }
+  // JPEG signature: starts with '/9j/'
+  if (screenshot.startsWith('/9j/')) {
+    return 'image/jpeg';
+  }
+  // WebP signature: starts with 'UklGR'
+  if (screenshot.startsWith('UklGR')) {
+    return 'image/webp';
+  }
+  // GIF signature: starts with 'R0lGOD'
+  if (screenshot.startsWith('R0lGOD')) {
+    return 'image/gif';
+  }
+
+  // Default to PNG
+  return 'image/png';
+}
+
+/**
  * Build response for successfully scraped content
  */
 export function buildSuccessResponse(
@@ -158,7 +211,9 @@ export function buildSuccessResponse(
   resultHandling: string,
   startIndex: number,
   maxChars: number,
-  savedUris: { raw?: string; cleaned?: string; extracted?: string } | null
+  savedUris: { raw?: string; cleaned?: string; extracted?: string } | null,
+  screenshot?: string,
+  screenshotFormat?: string
 ): ToolResponse {
   const response: ToolResponse = {
     content: [],
@@ -189,6 +244,17 @@ export function buildSuccessResponse(
     response.content.push({
       type: 'text',
       text: resultText,
+    });
+  }
+
+  // Add screenshot as image content if available
+  if (screenshot) {
+    const mimeType = detectImageMimeType(screenshot, screenshotFormat);
+
+    response.content.push({
+      type: 'image',
+      data: screenshot,
+      mimeType,
     });
   }
 

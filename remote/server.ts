@@ -5,6 +5,7 @@ import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import { createMCPServer } from './shared/index.js';
 import { createTransport } from './transport.js';
 import { healthCheck, getCorsOptions, hostValidationLogger } from './middleware/index.js';
+import { getMetricsConsole, getMetricsJSON, resetMetrics } from './middleware/metrics.js';
 import { logInfo, logError } from './shared/utils/logging.js';
 
 /**
@@ -25,6 +26,11 @@ export async function createExpressServer(): Promise<Application> {
 
   // Health check endpoint
   app.get('/health', healthCheck);
+
+  // Metrics endpoints
+  app.get('/metrics', getMetricsConsole);
+  app.get('/metrics/json', getMetricsJSON);
+  app.post('/metrics/reset', resetMetrics);
 
   // OAuth endpoints - check ENABLE_OAUTH environment variable
   const oauthEnabled = process.env.ENABLE_OAUTH === 'true';
