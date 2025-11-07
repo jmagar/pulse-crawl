@@ -26,7 +26,9 @@ export interface IFirecrawlScrapingClient {
  * output formats, content filtering, wait times, and extraction parameters.
  */
 export interface FirecrawlScrapingOptions {
-  formats?: Array<'markdown' | 'html'>;
+  formats?: Array<
+    'markdown' | 'html' | 'rawHtml' | 'links' | 'images' | 'screenshot' | 'summary' | 'branding'
+  >;
   onlyMainContent?: boolean;
   waitFor?: number;
   timeout?: number;
@@ -39,6 +41,9 @@ export interface FirecrawlScrapingOptions {
   maxAge?: number;
   proxy?: 'basic' | 'stealth' | 'auto';
   blockAds?: boolean;
+  headers?: Record<string, string>;
+  includeTags?: string[];
+  excludeTags?: string[];
   actions?: BrowserAction[];
 }
 

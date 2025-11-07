@@ -37,7 +37,7 @@ export async function scrapeWithFirecrawl(
       },
       body: JSON.stringify({
         url,
-        formats: ['markdown', 'html'],
+        formats: options?.formats || ['markdown', 'html'], // Use provided formats or default
         ...options,
       }),
     });

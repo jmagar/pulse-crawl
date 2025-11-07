@@ -38,6 +38,18 @@ export const PARAM_DESCRIPTIONS = {
     'Proxy type for anti-bot bypass. Options: "basic" (fast, standard proxy), "stealth" (slow, 5 credits, advanced anti-bot bypass), "auto" (smart retry - tries basic first, falls back to stealth on failure). Default: "auto"',
   blockAds:
     'Enable ad-blocking and cookie popup blocking. Removes advertisements and cookie consent popups from scraped content for cleaner extraction. Default: true',
+  headers:
+    'Custom HTTP headers to send with the request. Useful for authentication, custom user agents, or cookies. Example: { "Cookie": "session=abc123", "User-Agent": "MyBot/1.0" }',
+  waitFor:
+    'Milliseconds to wait before scraping. Allows page JavaScript to fully load and execute. Useful for single-page applications (SPAs) that render content dynamically. Example: 3000 (wait 3 seconds)',
+  includeTags:
+    'HTML tags, classes, or IDs to include in scraped content. Whitelist filter for surgical content extraction. Examples: ["p", "h1", "h2"], [".article-body", "#main-content"], ["article", ".post"]',
+  excludeTags:
+    'HTML tags, classes, or IDs to exclude from scraped content. Blacklist filter to remove unwanted elements. Examples: ["#ad", ".sidebar", "nav"], [".advertisement", "aside"], ["script", "style"]',
+  formats:
+    'Output formats to extract from the page. Options: "markdown" (clean text), "html" (processed HTML), "rawHtml" (unprocessed), "links" (all hyperlinks), "images" (all image URLs), "screenshot" (page screenshot), "summary" (AI-generated summary), "branding" (brand colors/fonts). Default: ["markdown", "html"]',
+  onlyMainContent:
+    'Extract only main content, excluding headers, navigation, footers, and ads. Uses intelligent content detection to identify the primary article/content area. Default: true',
   actions: `Browser automation actions to perform before scraping. Enables interaction with dynamic pages that require user input.
 
 Action types and examples:
@@ -180,6 +192,31 @@ export const buildScrapeArgsSchema = () => {
       .default('auto')
       .describe(PARAM_DESCRIPTIONS.proxy),
     blockAds: z.boolean().optional().default(true).describe(PARAM_DESCRIPTIONS.blockAds),
+    headers: z.record(z.string()).optional().describe(PARAM_DESCRIPTIONS.headers),
+    waitFor: z.number().int().positive().optional().describe(PARAM_DESCRIPTIONS.waitFor),
+    includeTags: z.array(z.string()).optional().describe(PARAM_DESCRIPTIONS.includeTags),
+    excludeTags: z.array(z.string()).optional().describe(PARAM_DESCRIPTIONS.excludeTags),
+    formats: z
+      .array(
+        z.enum([
+          'markdown',
+          'html',
+          'rawHtml',
+          'links',
+          'images',
+          'screenshot',
+          'summary',
+          'branding',
+        ])
+      )
+      .optional()
+      .default(['markdown', 'html'])
+      .describe(PARAM_DESCRIPTIONS.formats),
+    onlyMainContent: z
+      .boolean()
+      .optional()
+      .default(true)
+      .describe(PARAM_DESCRIPTIONS.onlyMainContent),
     actions: browserActionsArraySchema.optional().describe(PARAM_DESCRIPTIONS.actions),
   };
 
@@ -265,6 +302,48 @@ export const buildInputSchema = () => {
       type: 'boolean',
       default: true,
       description: PARAM_DESCRIPTIONS.blockAds,
+    },
+    headers: {
+      type: 'object',
+      additionalProperties: { type: 'string' },
+      description: PARAM_DESCRIPTIONS.headers,
+    },
+    waitFor: {
+      type: 'number',
+      description: PARAM_DESCRIPTIONS.waitFor,
+    },
+    includeTags: {
+      type: 'array',
+      items: { type: 'string' },
+      description: PARAM_DESCRIPTIONS.includeTags,
+    },
+    excludeTags: {
+      type: 'array',
+      items: { type: 'string' },
+      description: PARAM_DESCRIPTIONS.excludeTags,
+    },
+    formats: {
+      type: 'array',
+      items: {
+        type: 'string',
+        enum: [
+          'markdown',
+          'html',
+          'rawHtml',
+          'links',
+          'images',
+          'screenshot',
+          'summary',
+          'branding',
+        ],
+      },
+      default: ['markdown', 'html'],
+      description: PARAM_DESCRIPTIONS.formats,
+    },
+    onlyMainContent: {
+      type: 'boolean',
+      default: true,
+      description: PARAM_DESCRIPTIONS.onlyMainContent,
     },
     actions: {
       type: 'array',
