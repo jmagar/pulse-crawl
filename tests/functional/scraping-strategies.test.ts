@@ -3,9 +3,10 @@ import {
   scrapeUniversal,
   scrapeWithSingleStrategy,
   scrapeWithStrategy,
-} from '../../shared/scraping-strategies.js';
-import type { IScrapingClients, IStrategyConfigClient } from '../../shared/server.js';
-import type { ScrapingStrategy } from '../../shared/strategy-config/types.js';
+  type StrategyResult,
+} from '../../shared/scraping/strategies/selector.js';
+import type { IScrapingClients } from '../../shared/server.js';
+import type { ScrapingStrategy, IStrategyConfigClient } from '../../shared/scraping/strategies/learned/index.js';
 
 describe('Scraping Strategies', () => {
   let mockClients: IScrapingClients;
@@ -13,8 +14,8 @@ describe('Scraping Strategies', () => {
 
   // Helper to check result without diagnostics for backward compatibility
   const expectResultWithoutDiagnostics = (
-    actual: ScrapeResult,
-    expected: ScrapeResult,
+    actual: StrategyResult,
+    expected: Omit<StrategyResult, 'diagnostics'>,
     shouldHaveDiagnostics = true
   ) => {
     const { diagnostics, ...actualWithoutDiagnostics } = actual;
@@ -22,9 +23,9 @@ describe('Scraping Strategies', () => {
     // Verify diagnostics exists and has expected structure (only for scrapeUniversal and scrapeWithStrategy)
     if (shouldHaveDiagnostics) {
       expect(diagnostics).toBeDefined();
-      expect(diagnostics.strategiesAttempted).toBeDefined();
-      expect(diagnostics.strategyErrors).toBeDefined();
-      expect(diagnostics.timing).toBeDefined();
+      expect(diagnostics?.strategiesAttempted).toBeDefined();
+      expect(diagnostics?.strategyErrors).toBeDefined();
+      expect(diagnostics?.timing).toBeDefined();
     }
   };
 
@@ -74,7 +75,12 @@ describe('Scraping Strategies', () => {
       const mockNativeResult = { success: false };
       const mockFirecrawlResult = {
         success: true,
-        data: { markdown: 'Firecrawl content', html: '<p>Firecrawl content</p>' },
+        data: {
+          content: 'Firecrawl content',
+          markdown: 'Firecrawl content',
+          html: '<p>Firecrawl content</p>',
+          metadata: {},
+        },
       };
 
       vi.mocked(mockClients.native.scrape).mockResolvedValue(mockNativeResult);
@@ -144,7 +150,12 @@ describe('Scraping Strategies', () => {
 
         const mockFirecrawlResult = {
           success: true,
-          data: { markdown: 'Firecrawl content', html: '<p>Firecrawl content</p>' },
+          data: {
+            content: 'Firecrawl content',
+            markdown: 'Firecrawl content',
+            html: '<p>Firecrawl content</p>',
+            metadata: {},
+          },
         };
         vi.mocked(mockClients.firecrawl!.scrape).mockResolvedValue(mockFirecrawlResult);
 
@@ -204,7 +215,12 @@ describe('Scraping Strategies', () => {
     it('should use firecrawl strategy successfully', async () => {
       const mockResult = {
         success: true,
-        data: { markdown: 'Firecrawl content', html: '<p>Content</p>' },
+        data: {
+          content: 'Firecrawl content',
+          markdown: 'Firecrawl content',
+          html: '<p>Content</p>',
+          metadata: {},
+        },
       };
       vi.mocked(mockClients.firecrawl!.scrape).mockResolvedValue(mockResult);
 
@@ -305,7 +321,12 @@ describe('Scraping Strategies', () => {
 
       const mockFirecrawlResult = {
         success: true,
-        data: { markdown: 'Firecrawl content', html: '<p>Firecrawl content</p>' },
+        data: {
+          content: 'Firecrawl content',
+          markdown: 'Firecrawl content',
+          html: '<p>Firecrawl content</p>',
+          metadata: {},
+        },
       };
       vi.mocked(mockClients.firecrawl!.scrape).mockResolvedValue(mockFirecrawlResult);
 
@@ -368,7 +389,12 @@ describe('Scraping Strategies', () => {
 
         const mockFirecrawlResult = {
           success: true,
-          data: { markdown: 'Yelp content', html: '<p>Yelp content</p>' },
+          data: {
+            content: 'Yelp content',
+            markdown: 'Yelp content',
+            html: '<p>Yelp content</p>',
+            metadata: {},
+          },
         };
         vi.mocked(mockClients.native.scrape).mockResolvedValue({ success: false });
         vi.mocked(mockClients.firecrawl!.scrape).mockResolvedValue(mockFirecrawlResult);
@@ -390,7 +416,12 @@ describe('Scraping Strategies', () => {
 
         const mockFirecrawlResult = {
           success: true,
-          data: { markdown: 'Reddit content', html: '<p>Reddit content</p>' },
+          data: {
+            content: 'Reddit content',
+            markdown: 'Reddit content',
+            html: '<p>Reddit content</p>',
+            metadata: {},
+          },
         };
         vi.mocked(mockClients.native.scrape).mockResolvedValue({ success: false });
         vi.mocked(mockClients.firecrawl!.scrape).mockResolvedValue(mockFirecrawlResult);

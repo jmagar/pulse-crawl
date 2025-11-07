@@ -1,0 +1,274 @@
+================================================================================
+FIRECRAWL SEARCH ENDPOINT - IMPLEMENTATION COVERAGE ANALYSIS
+================================================================================
+
+Generated: 2025-11-07
+Status: COMPLETE RESEARCH DONE
+
+================================================================================
+PARAMETER COVERAGE: 11/13 (85%)
+================================================================================
+
+FULLY IMPLEMENTED (11 parameters):
+  ✅ query                      - Search term (REQUIRED)
+  ✅ limit                      - Result count (default: 5, max: 100)
+  ✅ sources                    - web, images, news
+  ✅ categories                 - github, research, pdf
+  ✅ country                    - ISO country code (default: US)
+  ✅ location                   - Geographic string
+  ✅ timeout                    - Milliseconds (default: 60000)
+  ✅ ignoreInvalidURLs          - Boolean (default: false)
+  ✅ Authorization Header       - Bearer token
+  ✅ Content-Type Header        - application/json
+  ✅ scrapeOptions (6 fields)   - formats, onlyMainContent, removeBase64Images,
+                                blockAds, waitFor, parsers
+
+MISSING (1 parameter):
+  ❌ tbs                        - Time-based search filtering
+                                Priority: HIGH
+                                Effort: EASY (1-2 hours)
+                                Impact: HIGH (enable date-filtered searches)
+
+PARTIALLY IMPLEMENTED (1 parameter):
+  🔶 lang                       - In client, not exposed in schema
+                                Priority: LOW
+                                Effort: TRIVIAL (10 minutes)
+                                Impact: LOW (consistency)
+
+LIMITED IMPLEMENTATION (1 feature):
+  ⚠️ scrapeOptions             - 6 of 10+ options exposed
+                                Missing: proxy, actions, extractScreenshots,
+                                         includeTables, includeHtmlTags, wait
+                                Priority: MEDIUM
+                                Effort: MEDIUM (3-4 hours)
+                                Impact: MEDIUM (niche/advanced features)
+
+================================================================================
+FEATURE COMPARISON: FIRECRAWL API vs PULSE FETCH
+================================================================================
+
+SEARCH BASICS
+┌─────────────────┬─────────────────────┬──────────────┬────────────────────┐
+│ Feature         │ Firecrawl Supports  │ Pulse Fetch  │ Notes              │
+├─────────────────┼─────────────────────┼──────────────┼────────────────────┤
+│ Web search      │ ✅ Full             │ ✅ Full      │ Same               │
+│ Image search    │ ✅ Full             │ ✅ Full      │ Same               │
+│ News search     │ ✅ Full             │ ✅ Full      │ Same               │
+│ Categories      │ ✅ 3 (GH/RE/PDF)    │ ✅ 3 (GH/RE) │ Same               │
+│ Limit results   │ ✅ 1-100            │ ✅ 1-100     │ Same               │
+└─────────────────┴─────────────────────┴──────────────┴────────────────────┘
+
+GEOGRAPHIC TARGETING
+┌─────────────────┬─────────────────────┬──────────────┬────────────────────┐
+│ Feature         │ Firecrawl Supports  │ Pulse Fetch  │ Notes              │
+├─────────────────┼─────────────────────┼──────────────┼────────────────────┤
+│ Country code    │ ✅ ISO codes        │ ✅ ISO codes │ Same               │
+│ Location string │ ✅ Any location     │ ✅ Any       │ Same               │
+│ Language        │ ✅ Configurable     │ 🔶 Client OK │ Not in schema      │
+└─────────────────┴─────────────────────┴──────────────┴────────────────────┘
+
+TIME-BASED FILTERING
+┌─────────────────┬─────────────────────┬──────────────┬────────────────────┐
+│ Feature         │ Firecrawl Supports  │ Pulse Fetch  │ Notes              │
+├─────────────────┼─────────────────────┼──────────────┼────────────────────┤
+│ Past hour       │ ✅ qdr:h            │ ❌ Missing   │ TBS parameter      │
+│ Past day        │ ✅ qdr:d            │ ❌ Missing   │ TBS parameter      │
+│ Past week       │ ✅ qdr:w            │ ❌ Missing   │ TBS parameter      │
+│ Past month      │ ✅ qdr:m            │ ❌ Missing   │ TBS parameter      │
+│ Past year       │ ✅ qdr:y            │ ❌ Missing   │ TBS parameter      │
+│ Custom range    │ ✅ cdr:1,...        │ ❌ Missing   │ TBS parameter      │
+└─────────────────┴─────────────────────┴──────────────┴────────────────────┘
+
+CONTENT SCRAPING
+┌─────────────────────┬──────────────┬──────────────┬──────────────────────┐
+│ Option              │ Firecrawl    │ Pulse Fetch  │ Notes                │
+├─────────────────────┼──────────────┼──────────────┼──────────────────────┤
+│ formats             │ ✅           │ ✅           │ Any format string    │
+│ onlyMainContent     │ ✅           │ ✅           │ Same                 │
+│ removeBase64Images  │ ✅           │ ✅           │ Same                 │
+│ blockAds            │ ✅           │ ✅           │ Same                 │
+│ waitFor             │ ✅           │ ✅           │ Same                 │
+│ parsers             │ ✅           │ ✅           │ Same                 │
+│ proxy               │ ✅           │ ❌           │ basic/stealth        │
+│ actions             │ ✅           │ ❌           │ click/scroll/input   │
+│ extractScreenshots  │ ✅           │ ❌           │ Advanced             │
+│ includeTables       │ ✅           │ ❌           │ Advanced             │
+│ includeHtmlTags     │ ✅           │ ❌           │ Advanced             │
+└─────────────────────┴──────────────┴──────────────┴──────────────────────┘
+
+PERFORMANCE & CONTROL
+┌─────────────────┬──────────────┬──────────────┬──────────────────────┐
+│ Feature         │ Firecrawl    │ Pulse Fetch  │ Notes                │
+├─────────────────┼──────────────┼──────────────┼──────────────────────┤
+│ Timeout         │ ✅ 60000ms   │ ✅ Config    │ Same                 │
+│ Ignore bad URLs │ ✅           │ ✅           │ Same                 │
+│ Cost tracking   │ ✅ creditsUsed│ ✅ Returned  │ Same                 │
+└─────────────────┴──────────────┴──────────────┴──────────────────────┘
+
+================================================================================
+USE CASES & GAPS
+================================================================================
+
+USE CASE: Recent News Search
+  Query: "AI news"
+  Firecrawl: { query: "AI news", sources: ["news"], tbs: "qdr:d", limit: 10 }
+  Pulse Fetch: { query: "AI news", sources: ["news"], limit: 10 }
+  Gap: ❌ Can't filter by time (past 24 hours)
+  Fix: Add tbs parameter
+
+USE CASE: Research from Specific Date Range
+  Query: "machine learning transformers 2024"
+  Firecrawl: {
+    query: "machine learning transformers",
+    categories: ["research"],
+    tbs: "cdr:1,cd_min:01/01/2024,cd_max:12/31/2024"
+  }
+  Pulse Fetch: {
+    query: "machine learning transformers",
+    categories: ["research"]
+  }
+  Gap: ❌ Can't specify date range
+  Fix: Add tbs parameter
+
+USE CASE: GitHub Code with Anti-Bot Protection
+  Query: "web scraping library"
+  Firecrawl: {
+    query: "web scraping library",
+    categories: ["github"],
+    scrapeOptions: { proxy: "stealth", formats: ["markdown"] }
+  }
+  Pulse Fetch: {
+    query: "web scraping library",
+    categories: ["github"],
+    scrapeOptions: { formats: ["markdown"] }
+  }
+  Gap: ⚠️ Can't use stealth proxy (edge case)
+  Fix: Add proxy to scrapeOptions (lower priority)
+
+USE CASE: Scheduled News Aggregator
+  Query: "technology news"
+  Firecrawl: { query: "technology news", sources: ["news"], tbs: "qdr:d" }
+  Pulse Fetch: { query: "technology news", sources: ["news"] }
+  Gap: ❌ Can't automate daily news collection efficiently
+  Fix: Add tbs parameter
+
+USE CASE: Academic Paper Search
+  Query: "neural networks"
+  Firecrawl: { query: "neural networks", categories: ["research"] }
+  Pulse Fetch: { query: "neural networks", categories: ["research"] }
+  Status: ✅ Works fully (no time requirement)
+
+USE CASE: GitHub Repository Discovery
+  Query: "typescript web scraper"
+  Firecrawl: { query: "typescript web scraper", categories: ["github"] }
+  Pulse Fetch: { query: "typescript web scraper", categories: ["github"] }
+  Status: ✅ Works fully (no time requirement)
+
+================================================================================
+IMPLEMENTATION EFFORT BREAKDOWN
+================================================================================
+
+PRIORITY 1: Add TBS Parameter
+  Files: 3 (schema.ts, client.ts, SEARCH.md)
+  Time: 1-2 hours
+    - Add field to schema (5 min)
+    - Add field to client (5 min)
+    - Add tests (20 min)
+    - Update docs (20-30 min)
+    - Verify with API (10 min)
+  Impact: HIGH - Enables date-filtered searches
+  Breaking: NO - All additions optional
+
+PRIORITY 2: Enhance Documentation
+  Files: 1 (SEARCH.md)
+  Time: 1 hour
+    - Add TBS examples (20 min)
+    - Add cost implications (10 min)
+    - Add query operators guide (15 min)
+    - Add best practices (15 min)
+  Impact: HIGH - Better user understanding
+  Breaking: NO
+
+PRIORITY 3: Expose Lang Parameter
+  Files: 1 (schema.ts)
+  Time: 10 minutes
+  Impact: LOW - Consistency
+  Breaking: NO
+
+PRIORITY 4: Advanced ScrapeOptions
+  Files: 3 (schema.ts, client.ts, tests)
+  Time: 3-4 hours
+    - Add fields to schema (30 min)
+    - Add fields to client (10 min)
+    - Add tests (60 min)
+    - Update docs (30 min)
+  Impact: MEDIUM - Niche/advanced features
+  Breaking: NO - All optional
+  Status: DEFER - Users can request later
+
+================================================================================
+COST ANALYSIS
+================================================================================
+
+CURRENT IMPLEMENTATION
+  Base search (no scraping):  2 credits per 10 results
+  With scraping:              Standard scrape costs per result
+
+IF TBS ADDED - NO ADDITIONAL COST
+  Time filtering doesn't change credit cost
+  Same scraping costs apply
+
+IF ADVANCED SCRAPE OPTIONS ADDED - POTENTIAL COST IMPACT
+  Stealth proxy:              +4 credits per result (vs basic)
+  PDF parsing:                +1 credit per page
+  JSON mode:                  +4 credits per result
+  Screenshots:                Additional (not documented)
+
+================================================================================
+FIRECRAWL API CHANGES OVER TIME
+================================================================================
+
+API Evolution:
+  v1: Search results only (flat array)
+  v2: Multiple sources (web/images/news with organized response)
+     + Category filtering (github/research/pdf)
+     + Time-based search (tbs parameter)
+     + Advanced scraping options
+
+Current Implementation: v2 compatible (except TBS parameter)
+
+================================================================================
+RECOMMENDATIONS SUMMARY
+================================================================================
+
+DO NOW (1-2 hours investment):
+  1. Add TBS parameter → Enables date-filtered searches
+  2. Enhance documentation → Better user experience
+  3. Expose lang → Consistency
+
+CONSIDER LATER (If users request):
+  4. Advanced scrapeOptions → Niche features
+  5. Proxy modes → Anti-bot handling
+  6. Actions support → Page interaction before scraping
+
+DEFER INDEFINITELY (Low priority):
+  - JSON schema extraction (use scrape tool for this)
+  - Complex action sequences (niche edge case)
+
+================================================================================
+CHECKLIST: READY TO IMPLEMENT
+================================================================================
+
+Review complete. Documentation available:
+  ✅ .docs/sessions/2025-11-07-firecrawl-search-endpoint-research.md
+     (Complete detailed analysis)
+  ✅ .docs/SEARCH_ENDPOINT_AUDIT.md
+     (Quick reference & checklists)
+  ✅ .docs/SEARCH_IMPLEMENTATION_GUIDE.md
+     (Ready-to-implement code snippets)
+  ✅ .docs/RESEARCH_SUMMARY.md
+     (Executive summary)
+
+Next step: Review documentation and implement Priority 1 items.
+
+================================================================================

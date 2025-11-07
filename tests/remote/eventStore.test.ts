@@ -148,9 +148,9 @@ describe('InMemoryEventStore', () => {
       });
 
       expect(replayed).toHaveLength(3);
-      expect(replayed[0].method).toBe('second');
-      expect(replayed[1].method).toBe('third');
-      expect(replayed[2].method).toBe('fourth');
+      expect('method' in replayed[0] && replayed[0].method).toBe('second');
+      expect('method' in replayed[1] && replayed[1].method).toBe('third');
+      expect('method' in replayed[2] && replayed[2].method).toBe('fourth');
     });
   });
 });

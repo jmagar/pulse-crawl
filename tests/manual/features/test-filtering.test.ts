@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createCleaner } from '../../../shared/src/clean/index.js';
+import { createCleaner } from '../../../shared/processing/cleaning/index.js';
 
 describe('Manual filtering test', () => {
   it('should filter HTML content effectively', async () => {

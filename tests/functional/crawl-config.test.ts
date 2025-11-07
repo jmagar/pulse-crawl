@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildCrawlRequestConfig, shouldStartCrawl } from '../../shared/crawl/config.js';
+import { buildCrawlRequestConfig, shouldStartCrawl } from '../../shared/config/crawl-config.js';
 
 describe('Crawl config builder', () => {
   it('builds domain-specific excludes for docs.claude.com', () => {

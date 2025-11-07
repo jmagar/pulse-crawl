@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { extractUrlPattern } from '../../shared/scraping-strategies.js';
+import { extractUrlPattern } from '../../shared/scraping/strategies/selector.js';
 
 describe('extractUrlPattern', () => {
   describe('Basic patterns', () => {

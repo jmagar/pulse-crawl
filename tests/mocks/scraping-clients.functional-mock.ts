@@ -2,8 +2,8 @@ import type {
   INativeFetcher,
   IFirecrawlClient,
   IScrapingClients,
-} from '../../shared/build/server.js';
-import type { CrawlRequestConfig } from '../../shared/build/crawl/config.js';
+} from '../../shared/server.js';
+import type { CrawlRequestConfig } from '../../shared/config/crawl-config.js';
 
 export interface MockNativeFetcher extends INativeFetcher {
   setMockResponse(response: {
@@ -49,7 +49,12 @@ export function createMockNativeFetcher(): MockNativeFetcher {
   };
 
   return {
-    async scrape(_url: string) {
+    async scrape(_url: string, _options?: { timeout?: number } & RequestInit): Promise<{
+      success: boolean;
+      status?: number;
+      data?: string;
+      error?: string;
+    }> {
       return mockResponse;
     },
     setMockResponse(response) {
@@ -85,10 +90,23 @@ export function createMockFirecrawlClient(): MockFirecrawlClient {
   const crawlCalls: CrawlRequestConfig[] = [];
 
   return {
-    async scrape(_url: string) {
+    async scrape(_url: string, _options?: Record<string, unknown>): Promise<{
+      success: boolean;
+      data?: {
+        content: string;
+        markdown: string;
+        html: string;
+        metadata: Record<string, unknown>;
+      };
+      error?: string;
+    }> {
       return mockResponse;
     },
-    async startCrawl(config: CrawlRequestConfig) {
+    async startCrawl(config: CrawlRequestConfig): Promise<{
+      success: boolean;
+      crawlId?: string;
+      error?: string;
+    }> {
       crawlCalls.push(config);
       return mockResponse.crawl || { success: true, crawlId: 'mock-crawl-id' };
     },

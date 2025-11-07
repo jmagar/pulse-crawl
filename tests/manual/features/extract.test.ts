@@ -3,8 +3,8 @@ import {
   AnthropicExtractClient,
   OpenAIExtractClient,
   OpenAICompatibleExtractClient,
-} from '../../../shared/src/extract/index.js';
-import type { LLMConfig } from '../../../shared/src/extract/index.js';
+} from '../../../shared/processing/extraction/index.js';
+import type { LLMConfig } from '../../../shared/processing/extraction/index.js';
 
 describe('Extract Functionality', () => {
   const sampleContent = `

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createCrawlTool } from './index.js';
-import type { FirecrawlConfig } from '../../../types.js';
+import type { FirecrawlConfig, ToolResponse } from '../../../types.js';
 
 describe('Crawl Tool', () => {
   let config: FirecrawlConfig;
@@ -31,7 +31,8 @@ describe('Crawl Tool', () => {
     });
 
     const tool = createCrawlTool(config);
-    const result = await tool.handler({ url: 'https://example.com', limit: 100 });
+    const handler = tool.handler as (args: unknown) => Promise<ToolResponse>;
+    const result = await handler({ url: 'https://example.com', limit: 100 });
 
     expect(result.isError).toBe(false);
     expect(result.content[0].text).toContain('crawl-job-123');
@@ -51,7 +52,8 @@ describe('Crawl Tool', () => {
     });
 
     const tool = createCrawlTool(config);
-    const result = await tool.handler({ jobId: 'crawl-job-123' });
+    const handler = tool.handler as (args: unknown) => Promise<ToolResponse>;
+    const result = await handler({ jobId: 'crawl-job-123' });
 
     expect(result.isError).toBe(false);
     expect(result.content[0].text).toContain('Crawl Status:');
@@ -64,7 +66,8 @@ describe('Crawl Tool', () => {
     });
 
     const tool = createCrawlTool(config);
-    const result = await tool.handler({ jobId: 'crawl-job-123', cancel: true });
+    const handler = tool.handler as (args: unknown) => Promise<ToolResponse>;
+    const result = await handler({ jobId: 'crawl-job-123', cancel: true });
 
     expect(result.isError).toBe(false);
     expect(result.content[0].text).toContain('cancelled');

@@ -16,7 +16,10 @@ describe('Search Tool', () => {
     const tool = createSearchTool(config);
 
     expect(tool.name).toBe('search');
-    expect(tool.description.toLowerCase()).toContain('search the web');
+    expect(tool.description).toBeDefined();
+    if (tool.description) {
+      expect(tool.description.toLowerCase()).toContain('search the web');
+    }
     expect(tool.inputSchema).toBeDefined();
     expect(typeof tool.handler).toBe('function');
   });
@@ -29,10 +32,12 @@ describe('Search Tool', () => {
         data: [{ url: 'https://example.com', title: 'Test' }],
         creditsUsed: 2,
       }),
-    });
+    }) as typeof fetch;
 
     const tool = createSearchTool(config);
-    const result = await tool.handler({ query: 'test', limit: 5 });
+    const result = await (
+      tool.handler as (args: unknown) => Promise<{ isError?: boolean; content: unknown[] }>
+    )({ query: 'test', limit: 5 });
 
     expect(result.isError).toBe(false);
     expect(result.content).toBeDefined();

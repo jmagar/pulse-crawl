@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { FilesystemStrategyConfigClient } from '../../shared/strategy-config/filesystem-client.js';
-import type { StrategyConfigEntry } from '../../shared/strategy-config/types.js';
+import { FilesystemStrategyConfigClient } from '../../shared/scraping/strategies/learned/filesystem-client.js';
+import type { StrategyConfigEntry } from '../../shared/scraping/strategies/learned/types.js';
 import { promises as fs } from 'fs';
 
 // Mock fs

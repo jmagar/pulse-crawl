@@ -1,5 +1,5 @@
 services:
-  pulse-fetch-http:
+  pulse-crawl:
     build:
       context: .
       dockerfile: Dockerfile
@@ -7,17 +7,18 @@ services:
       # Map host port (configurable via PORT env var) to container port (fixed at 3060)
       - "${PORT:-3060}:3060"
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=${NODE_ENV:-production}
       - PORT=3060
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-*}
       - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost:3060}
       - ENABLE_RESUMABILITY=${ENABLE_RESUMABILITY:-true}
       - OPTIMIZE_FOR=${OPTIMIZE_FOR:-speed}
-      - RESOURCE_STORAGE=${RESOURCE_STORAGE:-memory}
+      - MCP_RESOURCE_STORAGE=${MCP_RESOURCE_STORAGE:-filesystem}
+      - MCP_RESOURCE_FILESYSTEM_ROOT=${MCP_RESOURCE_FILESYSTEM_ROOT:-/app/resources}
     env_file:
       - .env
     restart: unless-stopped
-    container_name: pulse-fetch-http
+    container_name: pulse-crawl
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3060/health || exit 1"]
       interval: 30s
@@ -28,8 +29,8 @@ services:
       # Mount resources directory if using filesystem storage
       - ./resources:/app/resources
     networks:
-      - pulse-fetch-network
+      - pulse-crawl-network
 
 networks:
-  pulse-fetch-network:
+  pulse-crawl-network:
     driver: bridge

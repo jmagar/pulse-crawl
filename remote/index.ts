@@ -3,7 +3,8 @@
 import { config } from 'dotenv';
 import { createExpressServer } from './server.js';
 import { runHealthChecks, type HealthCheckResult } from './shared/config/health-checks.js';
-import { logInfo, logError, logServerStart } from './shared/utils/logging.js';
+import { logInfo, logError } from './shared/utils/logging.js';
+import { displayStartupInfo } from './startup/display.js';
 
 // Load environment variables
 config();
@@ -81,13 +82,19 @@ async function main(): Promise<void> {
   const port = parseInt(process.env.PORT || '3060', 10);
 
   // Start listening
-  const server = app.listen(port, () => {
-    logServerStart('Pulse Fetch HTTP', 'http', {
+  const server = app.listen(port, async () => {
+    const serverConfig = {
       port,
       serverUrl: `http://localhost:${port}`,
       mcpEndpoint: `http://localhost:${port}/mcp`,
       healthEndpoint: `http://localhost:${port}/health`,
-    });
+      allowedOrigins: process.env.ALLOWED_ORIGINS?.split(',').filter(Boolean) || ['*'],
+      allowedHosts: process.env.ALLOWED_HOSTS?.split(',').filter(Boolean) || [],
+      oauthEnabled: process.env.ENABLE_OAUTH === 'true',
+      resumabilityEnabled: process.env.ENABLE_RESUMABILITY === 'true',
+    };
+
+    await displayStartupInfo(serverConfig);
   });
 
   // Handle server startup errors

@@ -40,8 +40,8 @@ COPY --from=builder /app/remote/package*.json ./remote/
 
 # Copy built files
 COPY --from=builder /app/remote/dist ./remote/dist
-# Copy shared dist into remote/dist/shared to match compiled import paths
-COPY --from=builder /app/shared/dist ./remote/dist/shared
+# Copy shared dist into remote/dist/remote/shared to match compiled import paths
+COPY --from=builder /app/shared/dist ./remote/dist/remote/shared
 
 # Install production dependencies and set ownership
 RUN npm ci --omit=dev --ignore-scripts && chown -R nodejs:nodejs /app
@@ -64,4 +64,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node -e "require('http').get('http://localhost:' + (process.env.PORT || 3060) + '/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"
 
 # Start server
-CMD ["node", "/app/remote/dist/index.js"]
+CMD ["node", "/app/remote/dist/remote/index.js"]

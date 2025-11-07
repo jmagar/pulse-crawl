@@ -17,14 +17,14 @@ import {
   type PageTestCase,
   type EnvVarConfig,
 } from './test-config.js';
-import { scrapeTool } from '../../../shared/src/tools/scrape.js';
+import { scrapeTool } from '../../../shared/mcp/tools/scrape/index.js';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import type {
   ClientFactory,
   StrategyConfigFactory,
   IScrapingClients,
-} from '../../../shared/src/server.js';
-import { NativeFetcher, FirecrawlClient } from '../../../shared/src/server.js';
+} from '../../../shared/server.js';
+import { NativeFetcher, FirecrawlClient } from '../../../shared/server.js';
 
 interface TestResult {
   page: PageTestCase;
@@ -92,10 +92,10 @@ async function testPageWithConfig(page: PageTestCase, config: EnvVarConfig): Pro
 
     // Create strategy config factory that returns a mock client (no persistence)
     const strategyConfigFactory: StrategyConfigFactory = () => ({
-      getStrategyForUrl: async () => null, // Always return null (no stored strategy)
+      loadConfig: async () => [], // Empty config
+      saveConfig: async () => {}, // No-op
       upsertEntry: async () => {}, // No-op
-      getAllEntries: async () => [], // Empty array
-      deleteEntry: async () => false, // No-op
+      getStrategyForUrl: async () => null, // Always return null (no stored strategy)
     });
 
     // Get the scrape tool
@@ -130,7 +130,7 @@ async function testPageWithConfig(page: PageTestCase, config: EnvVarConfig): Pro
         const errorText = result.content?.[0]?.text || '';
         const strategiesMatch = errorText.match(/Strategies attempted: ([^\n]+)/);
         if (strategiesMatch) {
-          strategiesAttempted = strategiesMatch[1].split(', ').map((s) => s.trim());
+          strategiesAttempted = strategiesMatch[1].split(', ').map((s: string) => s.trim());
         }
       }
 

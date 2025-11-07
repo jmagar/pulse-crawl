@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import { getStrategyConfigPath } from '../../shared/strategy-config/default-config.js';
+import { getStrategyConfigPath } from '../../shared/scraping/strategies/learned/default-config.js';
 
 describe('Default Config Path', () => {
   const originalEnv = process.env.STRATEGY_CONFIG_PATH;

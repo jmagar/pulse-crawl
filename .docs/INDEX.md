@@ -1,399 +1,223 @@
-# Pulse Fetch OAuth & Authentication Exploration - Documentation Index
+# Firecrawl Search Endpoint Research - Complete Documentation Index
 
-Generated: November 6, 2025
-
-This directory contains comprehensive documentation about OAuth and authentication implementation (or lack thereof) in the Pulse Fetch remote HTTP server.
-
-## Documentation Files
-
-### 1. QUICK_REFERENCE.md - START HERE
-
-**Format**: Markdown  
-**Size**: ~8.5 KB  
-**Read Time**: 5-10 minutes
-
-Quick lookup guide for developers. Best starting point for:
-
-- Key findings summary
-- File and line number references
-- Environment variable configuration
-- Implementation options comparison
-- Immediate next steps
-
-**Sections**:
-
-- Key findings and status
-- Core files reference table
-- Environment variables (current vs. missing)
-- MCP endpoints reference
-- Implementation approaches
-- File locations and contact points
-- Recommended action plan
+**Research Date**: November 7, 2025
+**Status**: Complete
+**Coverage**: All available Firecrawl search endpoint parameters analyzed
 
 ---
 
-### 2. oauth-authentication-exploration.md - COMPLETE ANALYSIS
+## Documents Created
 
-**Format**: Markdown  
-**Size**: ~17 KB  
-**Read Time**: 20-30 minutes
+### 1. Quick Reference Documents
 
-Comprehensive technical deep-dive with code examples and complete analysis.
+**File**: `.docs/RESEARCH_SUMMARY.md`
 
-**Contents**:
+- **Length**: ~200 lines
+- **Audience**: Decision makers, project leads
+- **Content**: Executive summary with before/after examples, timeline, key findings
+- **Best for**: Understanding the scope and impact in 5 minutes
 
-- Executive summary
-- Current architecture (three-layer design)
-- Authentication status (placeholder analysis)
-- Environment variable configuration
-- Server implementation details (file-by-file)
-- Session management explanation
-- MCP protocol compliance
-- Testing infrastructure analysis
-- Dependencies catalog
-- Security configuration
-- File locations summary
-- How the server currently works
-- Security gaps analysis
-- Next steps for implementation
+**File**: `.docs/FIRECRAWL_API_COVERAGE.txt`
 
-**Best For**:
+- **Length**: ~500 lines, ASCII tables and formatted text
+- **Audience**: Developers and architects
+- **Content**: Parameter coverage matrix, feature comparison tables, use case analysis
+- **Best for**: Visual comparison and detailed planning
 
-- Understanding complete system architecture
-- Code review and analysis
-- Implementation planning
-- Security assessment
+**File**: `.docs/SEARCH_ENDPOINT_AUDIT.md`
+
+- **Length**: ~250 lines
+- **Audience**: Developers implementing changes
+- **Content**: Missing parameters, implementation checklist, quick timeline
+- **Best for**: Project planning and task breakdown
 
 ---
 
-### 3. OAUTH_FINDINGS_SUMMARY.txt - EXECUTIVE SUMMARY
+### 2. Implementation Documents
 
-**Format**: Plain text with ASCII art  
-**Size**: ~8.3 KB  
-**Read Time**: 10-15 minutes
+**File**: `.docs/SEARCH_IMPLEMENTATION_GUIDE.md`
 
-Structured summary perfect for reports and team discussions.
+- **Length**: ~400 lines
+- **Audience**: Developers implementing changes
+- **Content**: Ready-to-copy code snippets, exact file locations, test cases
+- **Best for**: Actually implementing the changes (copy/paste ready)
 
-**Sections**:
+**File**: `.docs/sessions/2025-11-07-firecrawl-search-endpoint-research.md`
 
-- Quick summary (top findings)
-- File locations with line numbers
-- Environment variables inventory
-- Security assessment (✓ what works, ✗ what's missing)
-- Architecture overview
-- How it currently works (request flow)
-- Request/response examples
-- Implementation options
-- Dependencies available
-- Production checklist status
-- Recommendations and conclusions
-
-**Best For**:
-
-- Status reports to stakeholders
-- Team presentations
-- Quick reference during meetings
-- Implementation planning
+- **Length**: ~700 lines
+- **Audience**: Anyone wanting comprehensive details
+- **Content**: All 13 parameters documented, best practices, detailed rationale
+- **Best for**: Complete understanding and future reference
 
 ---
 
-### 4. AUTH_ARCHITECTURE_DIAGRAM.txt - VISUAL REFERENCE
+## Quick Start Guide
 
-**Format**: ASCII diagrams and flows  
-**Size**: ~19 KB  
-**Read Time**: 15-20 minutes
+### For Decision Makers (5 min read)
 
-Visual representations of architecture and flows.
+1. Start with: `.docs/RESEARCH_SUMMARY.md`
+2. Key finding: 85% complete, missing 1 high-value parameter (TBS)
+3. Recommendation: 1-2 hour investment for Priority 1 items
 
-**Diagrams**:
+### For Architects (15 min read)
 
-- Current state (no authentication)
-- Proposed OAuth 2.0 state
-- Request flow comparison (current vs. proposed)
-- Middleware chain (current vs. proposed)
-- File structure overview
-- Environment variable flow
-- Session lifecycle (current vs. with auth)
-- Deployment architecture
+1. Start with: `.docs/FIRECRAWL_API_COVERAGE.txt`
+2. Review: Parameter tables and feature comparison
+3. Understand: Gap analysis and implementation roadmap
 
-**Best For**:
+### For Developers (30 min read)
 
-- Visual learners
-- Architecture discussions
-- Whiteboarding sessions
-- Design reviews
+1. Start with: `.docs/SEARCH_ENDPOINT_AUDIT.md`
+2. Review: `.docs/SEARCH_IMPLEMENTATION_GUIDE.md`
+3. Copy code snippets and implement Priority 1 items
+4. Reference: `.docs/sessions/2025-11-07-firecrawl-search-endpoint-research.md` for details
 
 ---
 
-## Key Findings At A Glance
+## Key Findings Summary
 
-**Status**: OAuth is NOT implemented
+### Implementation Status
 
-**Auth Middleware**:
+- **Total Parameters**: 13
+- **Implemented**: 11 (85%)
+- **Missing**: 1 (TBS - Time-Based Search)
+- **Partial**: 1 (Lang - in client, not schema)
+- **Limited**: 1 (ScrapeOptions - 6 of 10+ options)
 
-- File: `remote/src/middleware/auth.ts` (line 17)
-- Status: Placeholder (no-op passthrough)
-- Note: TODO comment states "Implement authentication logic"
+### Priority 1: Add TBS Parameter
 
-**Express Server**:
-
-- File: `remote/src/server.ts` (lines 22-23)
-- Status: Auth middleware imported but NOT registered
-- Impact: All requests bypass authentication
-
-**What Works**:
-
-- Secure session IDs (UUID v4)
-- CORS protection (configurable)
-- DNS rebinding protection (production)
-- Health checks for external services
-
-**What's Missing**:
-
-- Client authentication
-- Request validation
-- Rate limiting
-- Per-request API key checking
-- Audit logging
-
-**Production Risk**: HIGH (not deployment-ready)
-
----
-
-## How To Use This Documentation
-
-### For Developers Implementing Auth:
-
-1. Start with **QUICK_REFERENCE.md** (5 min overview)
-2. Review **oauth-authentication-exploration.md** (detailed understanding)
-3. Reference **AUTH_ARCHITECTURE_DIAGRAM.txt** (visual flows)
-4. Check code locations and line numbers as needed
-
-### For Managers/Leads:
-
-1. Review **OAUTH_FINDINGS_SUMMARY.txt** (executive overview)
-2. Check production checklist status
-3. Review security assessment
-4. Plan implementation timeline
-
-### For Security Review:
-
-1. Review security assessment in **OAUTH_FINDINGS_SUMMARY.txt**
-2. Examine file locations in **oauth-authentication-exploration.md**
-3. Review deployment architecture in **AUTH_ARCHITECTURE_DIAGRAM.txt**
-4. Plan risk mitigation
-
-### For Architecture Review:
-
-1. Study **AUTH_ARCHITECTURE_DIAGRAM.txt** (visual overview)
-2. Review system components in **oauth-authentication-exploration.md**
-3. Check implementation options in **QUICK_REFERENCE.md**
-
----
-
-## Critical Files To Know
-
-### To Implement Authentication:
-
-- **File**: `remote/src/middleware/auth.ts` (line 17)
-- **Action**: Implement actual authentication logic
-- **Also Update**: `remote/src/server.ts` (line 23) to register middleware
-
-### For Configuration:
-
-- **File**: `.env.example`
-- **Action**: Add authentication environment variables
-- **Note**: Currently only has external service API keys
-
-### For Testing:
-
-- **File**: `tests/remote/middleware.test.ts` (line 95)
-- **Action**: Add tests for authentication failure cases
-- **Current**: Only tests that auth is no-op
-
-### For Documentation:
-
-- **File**: `remote/README.md` (production checklist)
-- **Note**: Item 5 explicitly flags auth as TODO
-
----
-
-## Environment Variables
-
-### Currently Configured
-
-```bash
-# External Service Authentication (NOT CLIENT AUTH)
-FIRECRAWL_API_KEY=...          # Web scraping service
-ANTHROPIC_API_KEY=...          # LLM extraction service
-OPENAI_API_KEY=...             # LLM extraction service
-
-# Server Configuration
-PORT=3060
-NODE_ENV=production            # Enables DNS protection
-ALLOWED_ORIGINS=...            # CORS whitelist
-ALLOWED_HOSTS=...              # DNS protection whitelist
+```typescript
+// What to add (one field)
+tbs: z.string().optional(),
+  // Supports: 'qdr:h|d|w|m|y' or custom date ranges
 ```
 
-### Missing (Need to Add)
+- **Effort**: 1-2 hours
+- **Impact**: HIGH - Enables date-filtered searches
+- **Use cases**: Recent news, specific date ranges, trending topics
 
-```bash
-# OAuth Configuration (NOT YET)
-# OAUTH_PROVIDER=...
-# OAUTH_CLIENT_ID=...
-# OAUTH_CLIENT_SECRET=...
+### Priority 2: Documentation
 
-# JWT Configuration (NOT YET)
-# JWT_SECRET=...
+- **Effort**: 1 hour
+- **Impact**: HIGH - Better user understanding
+- **Includes**: Examples, best practices, cost analysis
 
-# API Key Configuration (NOT YET)
-# MCP_API_KEY=...
+### Priority 3: Expose Lang
 
-# Rate Limiting (NOT YET)
-# RATE_LIMIT_REQUESTS=...
-# RATE_LIMIT_WINDOW=...
-```
+- **Effort**: 10 minutes
+- **Impact**: LOW - Consistency
+- **Includes**: Making language preference discoverable
 
 ---
 
-## Implementation Roadmap
+## Files to Modify
 
-### Immediate (Before Production)
+### For Priority 1 + 2 Implementation
 
-- [ ] Define authentication strategy
-- [ ] Add environment variables
-- [ ] Implement auth middleware
-- [ ] Register middleware in Express
-- [ ] Add tests
+1. `/shared/mcp/tools/search/schema.ts`
+   - Add 1 line: `tbs: z.string().optional(),`
+   - Location: After `location` field
 
-### Short-term (Production Ready)
+2. `/shared/clients/firecrawl-search.client.ts`
+   - Add 1 line: `tbs?: string;`
+   - Location: In SearchOptions interface
 
-- [ ] Implement rate limiting
-- [ ] Add audit logging
-- [ ] Update documentation
-- [ ] Deploy with HTTPS
+3. `/shared/mcp/tools/search/index.test.ts`
+   - Add test cases for TBS parameter
+   - Ready-to-copy test code in implementation guide
 
-### Long-term (Scaling)
-
-- [ ] Persistent event store
-- [ ] OAuth provider support
-- [ ] Token refresh logic
-- [ ] Monitoring and alerting
+4. `/docs/tools/SEARCH.md`
+   - Add TBS section with examples
+   - Add cost implications
+   - Ready-to-copy documentation in implementation guide
 
 ---
 
-## Architecture Quick Reference
+## Firecrawl API Resources
 
-### Three-Layer Design
-
-```
-shared/    ← Core business logic (both local & remote)
-local/     ← Stdio transport (Claude Desktop)
-remote/    ← HTTP streaming (THIS NEEDS AUTH)
-```
-
-### MCP Protocol
-
-- **Version**: 2025-03-26
-- **Transport**: StreamableHTTPServerTransport
-- **Primary Mode**: HTTP POST with JSON responses
-- **Optional Streaming**: Server-Sent Events (SSE) for server-initiated messages
-- **Session Header**: Mcp-Session-Id (UUID v4)
-
-### Current Data Flow
-
-```
-Client → [No Auth] → Express → MCP Transport → External APIs
-                     (CORS)    (Session IDs)   (API Key Auth)
-```
+- **Full Search Docs**: https://docs.firecrawl.dev/features/search
+- **API Reference**: https://docs.firecrawl.dev/api-reference/endpoint/search
+- **Locations List**: https://firecrawl.dev/search_locations.json
+- **Pricing**: https://www.firecrawl.dev/pricing
 
 ---
 
-## Security Assessment
+## No Breaking Changes
 
-**Current Risk Level**: HIGH (for production)
+All recommendations are **additive only**:
 
-**Why**:
-
-- Any client can create sessions
-- No request validation
-- No rate limiting
-- No audit trail
-- No per-request authentication
-
-**Before Production**, you must:
-
-- [ ] Implement client authentication
-- [ ] Add rate limiting
-- [ ] Enable audit logging
-- [ ] Use HTTPS (reverse proxy)
-- [ ] Monitor for abuse
-
----
-
-## File Sizes and Statistics
-
-| Document                            | Format   | Size        | Approx. Read Time |
-| ----------------------------------- | -------- | ----------- | ----------------- |
-| QUICK_REFERENCE.md                  | Markdown | 8.5 KB      | 5-10 min          |
-| oauth-authentication-exploration.md | Markdown | 17 KB       | 20-30 min         |
-| OAUTH_FINDINGS_SUMMARY.txt          | Text     | 8.3 KB      | 10-15 min         |
-| AUTH_ARCHITECTURE_DIAGRAM.txt       | Text     | 19 KB       | 15-20 min         |
-| **TOTAL**                           |          | **52.8 KB** | **50-75 min**     |
-
----
-
-## Navigation Tips
-
-- **Line numbers referenced**: All code line numbers are current as of November 6, 2025
-- **File paths**: All paths are absolute from project root
-- **Cross-references**: Documents reference each other with specific section names
-- **Code snippets**: See oauth-authentication-exploration.md for detailed code
-
----
-
-## Contact Points in Code
-
-### For Authentication:
-
-- `remote/src/middleware/auth.ts` - Implementation location
-- `remote/src/server.ts:23` - Registration location
-- `remote/src/index.ts` - Validation location
-
-### For Sessions:
-
-- `remote/src/transport.ts:51` - Session ID generation
-- `remote/src/server.ts:29` - Session storage
-- `remote/src/eventStore.ts` - Event replay
-
-### For Configuration:
-
-- `remote/src/index.ts:8` - Environment loading
-- `remote/src/transport.ts:62-63` - Security configuration
-- `.env.example` - Configuration template
+- New parameters are optional
+- Existing functionality unchanged
+- Backward compatible
+- Safe to implement anytime
 
 ---
 
 ## Next Steps
 
-1. **Read QUICK_REFERENCE.md** (5 min) for overview
-2. **Review oauth-authentication-exploration.md** (25 min) for details
-3. **Consult AUTH_ARCHITECTURE_DIAGRAM.txt** (15 min) for architecture
-4. **Check code files** using line number references
-5. **Plan implementation** using recommended approaches
+1. Review appropriate documents above based on your role
+2. Decide on scope (Priority 1 only? 1+2? 1+2+3?)
+3. Use implementation guide for exact code changes
+4. Run tests and verify
+5. Update CHANGELOG.md
 
 ---
 
-## Questions to Consider
+## Document Map
 
-1. **What authentication method** will you use? (OAuth 2.0, JWT, API keys)
-2. **Which OAuth provider** (if applicable)? (Google, GitHub, custom)
-3. **How will you handle rate limiting**? (IP-based, key-based, hybrid)
-4. **What audit logging do you need**? (User actions, failed attempts, rate limits)
-5. **How will you manage tokens/keys**? (Rotation, expiration, revocation)
+```
+.docs/
+├── RESEARCH_SUMMARY.md
+│   └── Executive summary (5 min read)
+├── FIRECRAWL_API_COVERAGE.txt
+│   └── Detailed parameter matrix (15 min read)
+├── SEARCH_ENDPOINT_AUDIT.md
+│   └── Quick audit checklist (10 min read)
+├── SEARCH_IMPLEMENTATION_GUIDE.md
+│   └── Copy-paste implementation (20 min read + 1-2 hours implementation)
+├── sessions/
+│   └── 2025-11-07-firecrawl-search-endpoint-research.md
+│       └── Complete detailed analysis (30 min read)
+└── INDEX.md (this file)
+    └── Navigation guide
+```
 
 ---
 
-**Last Updated**: November 6, 2025  
-**Status**: Complete - No OAuth implemented, placeholder auth middleware exists  
-**Recommendation**: Implement authentication before production deployment
+## Questions Answered
+
+**Q: How complete is the search implementation?**
+A: 85% complete (11/13 parameters). No critical gaps - all basic functionality works.
+
+**Q: What's missing?**
+A: TBS (time-based search) parameter for date filtering. One optional parameter.
+
+**Q: Is it urgent?**
+A: No. Current implementation is production-ready for all standard use cases. TBS is a nice-to-have for specific workflows (news, research, trends).
+
+**Q: How hard is it to add TBS?**
+A: Very easy. One field in schema, one field in client interface, documentation and tests.
+
+**Q: What are the costs of adding TBS?**
+A: Zero. Time-based filtering doesn't add API costs. Same 2 credits per 10 results.
+
+**Q: Any breaking changes?**
+A: No. All additions are optional parameters. Fully backward compatible.
+
+**Q: What about advanced features?**
+A: Firecrawl supports advanced scraping options (proxy, actions, screenshots) that aren't exposed. These are edge-case features - users can request them if needed.
+
+---
+
+## Recommendation
+
+Implement Priority 1 items for best value:
+
+1. Add TBS parameter (1-2 hours)
+2. Enhance documentation (1 hour)
+3. Expose lang parameter (10 minutes)
+
+Total time investment: 2-3 hours
+Impact: Significant UX improvement for date-filtered searches
+
+Everything is documented and ready to implement.

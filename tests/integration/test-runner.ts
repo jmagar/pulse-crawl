@@ -1,5 +1,6 @@
 import { describe, it, expect, afterEach, beforeAll } from 'vitest';
-import { TestMCPClient } from '../../../../libs/test-mcp-client/build/index.js';
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { existsSync } from 'fs';
 
 interface MockConfig {
@@ -18,12 +19,12 @@ interface TestMode {
 }
 
 /**
- * Helper function to create a TestMCPClient with mocked scraping clients.
+ * Helper function to create a Client with mocked scraping clients.
  */
 async function createTestMCPClientWithMocks(
   serverPath: string,
   config: MockConfig
-): Promise<TestMCPClient> {
+): Promise<Client> {
   const env: Record<string, string> = {};
 
   // Native fetcher mocks
@@ -48,13 +49,31 @@ async function createTestMCPClientWithMocks(
     }
   }
 
-  const client = new TestMCPClient({
-    serverPath,
-    env,
-    debug: false,
+  // Filter out undefined values from process.env
+  const processEnv: Record<string, string> = {};
+  for (const [key, value] of Object.entries(process.env)) {
+    if (value !== undefined) {
+      processEnv[key] = value;
+    }
+  }
+
+  const transport = new StdioClientTransport({
+    command: 'node',
+    args: [serverPath],
+    env: { ...processEnv, ...env },
   });
 
-  await client.connect();
+  const client = new Client(
+    {
+      name: 'test-client',
+      version: '1.0.0',
+    },
+    {
+      capabilities: {},
+    }
+  );
+
+  await client.connect(transport);
   return client;
 }
 
@@ -63,7 +82,7 @@ async function createTestMCPClientWithMocks(
  */
 export function runIntegrationTests(mode: TestMode) {
   describe(`Pulse Fetch MCP Server Integration Tests [${mode.name}]`, () => {
-    let client: TestMCPClient | null = null;
+    let client: Client | null = null;
 
     beforeAll(async () => {
       if (mode.setup) {
@@ -80,7 +99,7 @@ export function runIntegrationTests(mode: TestMode) {
 
     afterEach(async () => {
       if (client) {
-        await client.disconnect();
+        await client.close();
         client = null;
       }
     });
@@ -92,9 +111,12 @@ export function runIntegrationTests(mode: TestMode) {
           nativeData: 'Native scrape success!',
         });
 
-        const result = await client.callTool('scrape', {
-          url: 'https://example.com',
-          resultHandling: 'returnOnly',
+        const result = await client.callTool({
+          name: 'scrape',
+          arguments: {
+            url: 'https://example.com',
+            resultHandling: 'returnOnly',
+          },
         });
 
         expect(result).toMatchObject({
@@ -105,7 +127,16 @@ export function runIntegrationTests(mode: TestMode) {
             },
           ],
         });
-        expect(result.content[0].text).toContain('Scraped using: native');
+
+        // Type guard for content array
+        if (!Array.isArray(result.content)) {
+          throw new Error('Expected result.content to be an array');
+        }
+        const firstContent = result.content[0];
+        if (!firstContent || typeof firstContent !== 'object' || !('text' in firstContent)) {
+          throw new Error('Expected first content item to have text property');
+        }
+        expect(firstContent.text).toContain('Scraped using: native');
       });
 
       it('should fallback to Firecrawl when native fails', async () => {
@@ -116,9 +147,12 @@ export function runIntegrationTests(mode: TestMode) {
           firecrawlData: 'Firecrawl fallback success!',
         });
 
-        const result = await client.callTool('scrape', {
-          url: 'https://example.com',
-          resultHandling: 'returnOnly',
+        const result = await client.callTool({
+          name: 'scrape',
+          arguments: {
+            url: 'https://example.com',
+            resultHandling: 'returnOnly',
+          },
         });
 
         expect(result).toMatchObject({
@@ -129,7 +163,16 @@ export function runIntegrationTests(mode: TestMode) {
             },
           ],
         });
-        expect(result.content[0].text).toContain('Scraped using: firecrawl');
+
+        // Type guard for content array
+        if (!Array.isArray(result.content)) {
+          throw new Error('Expected result.content to be an array');
+        }
+        const firstContent = result.content[0];
+        if (!firstContent || typeof firstContent !== 'object' || !('text' in firstContent)) {
+          throw new Error('Expected first content item to have text property');
+        }
+        expect(firstContent.text).toContain('Scraped using: firecrawl');
       });
 
       it('should handle complete failure gracefully', async () => {
@@ -139,9 +182,12 @@ export function runIntegrationTests(mode: TestMode) {
           firecrawlSuccess: false,
         });
 
-        const result = await client.callTool('scrape', {
-          url: 'https://example.com',
-          resultHandling: 'returnOnly',
+        const result = await client.callTool({
+          name: 'scrape',
+          arguments: {
+            url: 'https://example.com',
+            resultHandling: 'returnOnly',
+          },
         });
 
         expect(result).toMatchObject({
@@ -158,9 +204,12 @@ export function runIntegrationTests(mode: TestMode) {
       it('should validate required url parameter', async () => {
         client = await createTestMCPClientWithMocks(mode.serverPath, {});
 
-        const result = await client.callTool('scrape', {
-          // Missing url parameter
-          resultHandling: 'returnOnly',
+        const result = await client.callTool({
+          name: 'scrape',
+          arguments: {
+            // Missing url parameter
+            resultHandling: 'returnOnly',
+          },
         });
 
         // Tool should return error response, not throw
@@ -183,13 +232,24 @@ export function runIntegrationTests(mode: TestMode) {
           nativeData: longContent,
         });
 
-        const result = await client.callTool('scrape', {
-          url: 'https://example.com',
-          maxChars: 100,
-          resultHandling: 'returnOnly',
+        const result = await client.callTool({
+          name: 'scrape',
+          arguments: {
+            url: 'https://example.com',
+            maxChars: 100,
+            resultHandling: 'returnOnly',
+          },
         });
 
-        expect(result.content[0].text).toContain('[Content truncated at 100 characters');
+        // Type guard for content array
+        if (!Array.isArray(result.content)) {
+          throw new Error('Expected result.content to be an array');
+        }
+        const firstContent = result.content[0];
+        if (!firstContent || typeof firstContent !== 'object' || !('text' in firstContent)) {
+          throw new Error('Expected first content item to have text property');
+        }
+        expect(firstContent.text).toContain('[Content truncated at 100 characters');
       });
     });
   });

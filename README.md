@@ -612,13 +612,13 @@ ALLOWED_ORIGINS=*
 1. **Check server logs:**
 
    ```bash
-   docker compose logs -f pulse-fetch-http
+   docker compose logs -f pulse-crawl
    ```
 
 2. **Verify environment variables:**
 
    ```bash
-   docker compose exec pulse-fetch-http env | grep -E 'ALLOWED_HOSTS|NODE_ENV|PORT'
+   docker compose exec pulse-crawl env | grep -E 'ALLOWED_HOSTS|NODE_ENV|PORT'
    ```
 
 3. **Test health endpoint:**

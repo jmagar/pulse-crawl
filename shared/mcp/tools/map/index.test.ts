@@ -33,7 +33,15 @@ describe('Map Tool', () => {
     });
 
     const tool = createMapTool(config);
-    const result = await tool.handler({ url: 'https://example.com', limit: 100 });
+
+    if (typeof tool.handler !== 'function') {
+      throw new Error('Tool handler is not a function');
+    }
+
+    const result = (await tool.handler({ url: 'https://example.com', limit: 100 })) as {
+      isError?: boolean;
+      content?: unknown;
+    };
 
     expect(result.isError).toBe(false);
     expect(result.content).toBeDefined();

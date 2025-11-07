@@ -2,8 +2,8 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import { FilesystemStrategyConfigClient } from '../../shared/strategy-config/filesystem-client.js';
-import type { StrategyConfigEntry } from '../../shared/strategy-config/types.js';
+import { FilesystemStrategyConfigClient } from '../../shared/scraping/strategies/learned/filesystem-client.js';
+import type { StrategyConfigEntry } from '../../shared/scraping/strategies/learned/types.js';
 
 describe('FilesystemStrategyConfigClient with Environment', () => {
   const originalEnv = process.env.STRATEGY_CONFIG_PATH;
@@ -102,7 +102,7 @@ describe('FilesystemStrategyConfigClient with Environment', () => {
     const config = await newClient.loadConfig();
 
     // The config should contain our entry (among possibly others from initialization)
-    const addedEntry = config.find((e) => e.prefix === 'default.com');
+    const addedEntry = config.find((e: StrategyConfigEntry) => e.prefix === 'default.com');
     expect(addedEntry).toBeDefined();
     expect(addedEntry?.default_strategy).toBe('firecrawl');
     expect(addedEntry?.notes).toBe('Default location');

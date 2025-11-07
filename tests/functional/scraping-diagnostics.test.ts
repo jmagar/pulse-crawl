@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { scrapeUniversal } from '../../shared/scraping-strategies.js';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { scrapeUniversal } from '../../shared/scraping/strategies/selector.js';
 import type { IScrapingClients } from '../../shared/server.js';
 
 describe('Scraping Error Diagnostics', () => {
@@ -173,7 +173,12 @@ describe('Scraping Error Diagnostics', () => {
       });
       vi.mocked(mockClients.firecrawl!.scrape).mockResolvedValue({
         success: true,
-        data: { html: '<p>Content</p>' },
+        data: {
+          content: 'Content',
+          markdown: 'Content',
+          html: '<p>Content</p>',
+          metadata: {},
+        },
       });
 
       const result = await scrapeUniversal(mockClients, {

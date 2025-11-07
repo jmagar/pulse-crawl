@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { CallToolResultSchema } from '@modelcontextprotocol/sdk/types.js';
-import { scrapeTool } from '../../shared/tools/scrape.js';
+import { scrapeTool } from '../../shared/mcp/tools/scrape/index.js';
 import type { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import type { IScrapingClients, StrategyConfigFactory } from '../../shared/server.js';
 import { ResourceStorageFactory } from '../../shared/storage/index.js';

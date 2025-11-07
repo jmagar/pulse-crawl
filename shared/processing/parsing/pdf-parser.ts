@@ -15,8 +15,8 @@ export class PDFParser extends BaseContentParser {
     }
 
     try {
-      // Import the actual parser module to avoid test code execution
-      const pdfParse = (await import('pdf-parse/lib/pdf-parse.js')).default;
+      // Import the actual parser module
+      const pdfParse = (await import('pdf-parse')).default;
 
       // Convert ArrayBuffer to Buffer for pdf-parse
       const buffer = Buffer.from(data);

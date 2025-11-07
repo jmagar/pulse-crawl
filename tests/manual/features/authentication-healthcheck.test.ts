@@ -1,8 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { runHealthChecks } from '../../../shared/src/healthcheck.js';
-import { AnthropicExtractClient } from '../../../shared/src/extract/anthropic-client.js';
-import { OpenAIExtractClient } from '../../../shared/src/extract/openai-client.js';
-import { OpenAICompatibleExtractClient } from '../../../shared/src/extract/openai-compatible-client.js';
+import {
+  runHealthChecks,
+  type HealthCheckResult,
+} from '../../../shared/config/health-checks.js';
+import { AnthropicExtractClient } from '../../../shared/processing/extraction/providers/anthropic-client.js';
+import { OpenAIExtractClient } from '../../../shared/processing/extraction/providers/openai-client.js';
+import { OpenAICompatibleExtractClient } from '../../../shared/processing/extraction/providers/openai-compatible-client.js';
 
 describe('Authentication Health Checks', () => {
   describe('Scraping Service Authentication', () => {
@@ -37,7 +40,7 @@ describe('Authentication Health Checks', () => {
       }
 
       // At least one service should authenticate successfully if configured
-      const hasSuccessfulAuth = results.some((r) => r.success);
+      const hasSuccessfulAuth = results.some((r: HealthCheckResult) => r.success);
       if (results.length > 0) {
         expect(hasSuccessfulAuth).toBe(true);
       }
@@ -57,15 +60,18 @@ describe('Authentication Health Checks', () => {
       console.log(`🔑 Using API key: ${apiKey.substring(0, 10)}...`);
 
       try {
-        const client = new AnthropicExtractClient({ apiKey });
+        const client = new AnthropicExtractClient({
+          provider: 'anthropic' as const,
+          apiKey
+        });
 
         // Try a minimal extraction to test auth
         const result = await client.extract('Test content', 'Extract the word "Test"');
 
         expect(result.success).toBe(true);
-        expect(result.data).toBeDefined();
+        expect(result.content).toBeDefined();
         console.log('✅ Anthropic authentication successful');
-        console.log(`📝 Response preview: ${result.data?.substring(0, 50)}...`);
+        console.log(`📝 Response preview: ${result.content?.substring(0, 50)}...`);
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         if (
@@ -94,15 +100,18 @@ describe('Authentication Health Checks', () => {
       console.log(`🔑 Using API key: ${apiKey.substring(0, 10)}...`);
 
       try {
-        const client = new OpenAIExtractClient({ apiKey });
+        const client = new OpenAIExtractClient({
+          provider: 'openai' as const,
+          apiKey
+        });
 
         // Try a minimal extraction to test auth
         const result = await client.extract('Test content', 'Extract the word "Test"');
 
         expect(result.success).toBe(true);
-        expect(result.data).toBeDefined();
+        expect(result.content).toBeDefined();
         console.log('✅ OpenAI authentication successful');
-        console.log(`📝 Response preview: ${result.data?.substring(0, 50)}...`);
+        console.log(`📝 Response preview: ${result.content?.substring(0, 50)}...`);
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         if (
@@ -139,8 +148,9 @@ describe('Authentication Health Checks', () => {
 
       try {
         const client = new OpenAICompatibleExtractClient({
+          provider: 'openai-compatible' as const,
           apiKey,
-          baseUrl,
+          apiBaseUrl: baseUrl,
           model,
         });
 
@@ -148,9 +158,9 @@ describe('Authentication Health Checks', () => {
         const result = await client.extract('Test content', 'Extract the word "Test"');
 
         expect(result.success).toBe(true);
-        expect(result.data).toBeDefined();
+        expect(result.content).toBeDefined();
         console.log('✅ OpenAI-compatible service authentication successful');
-        console.log(`📝 Response preview: ${result.data?.substring(0, 50)}...`);
+        console.log(`📝 Response preview: ${result.content?.substring(0, 50)}...`);
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         if (

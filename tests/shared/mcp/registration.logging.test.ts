@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { registerTools, registerResources } from '../../../shared/mcp/registration.js';
 import type { ClientFactory, StrategyConfigFactory } from '../../../shared/server.js';
@@ -8,8 +8,8 @@ describe('MCP Registration Logging', () => {
   let server: Server;
   let clientFactory: ClientFactory;
   let strategyConfigFactory: StrategyConfigFactory;
-  let consoleLogSpy: any;
-  let consoleErrorSpy: any;
+  let consoleLogSpy: ReturnType<typeof vi.spyOn>;
+  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
   const originalEnv = process.env;
 
   beforeEach(() => {
@@ -32,10 +32,12 @@ describe('MCP Registration Logging', () => {
 
     // Mock factories
     clientFactory = vi.fn();
-    strategyConfigFactory = {
-      load: vi.fn().mockResolvedValue(null),
-      save: vi.fn().mockResolvedValue(undefined),
-    };
+    strategyConfigFactory = vi.fn(() => ({
+      loadConfig: vi.fn().mockResolvedValue([]),
+      saveConfig: vi.fn().mockResolvedValue(undefined),
+      upsertEntry: vi.fn().mockResolvedValue(undefined),
+      getStrategyForUrl: vi.fn().mockResolvedValue(null),
+    }));
 
     // Spy on console.log and console.error for structured logging
     consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
