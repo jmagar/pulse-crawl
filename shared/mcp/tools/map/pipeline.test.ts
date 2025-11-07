@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mapPipeline } from './pipeline.js';
-import type { FirecrawlMapClient } from '../../../clients/firecrawl-map.client.js';
+import type { FirecrawlMapClient } from '../../../clients/firecrawl/index.js';
 import type { MapOptions } from './schema.js';
 
 describe('Map Pipeline', () => {

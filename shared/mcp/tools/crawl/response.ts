@@ -2,7 +2,7 @@ import type {
   StartCrawlResult,
   CrawlStatusResult,
   CancelResult,
-} from '../../../clients/firecrawl-crawl.client.js';
+} from '../../../clients/firecrawl/index.js';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 
 export function formatCrawlResponse(

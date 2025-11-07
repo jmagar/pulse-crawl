@@ -4,7 +4,7 @@ import type {
   StartCrawlResult,
   CrawlStatusResult,
   CancelResult,
-} from '../../../clients/firecrawl-crawl.client.js';
+} from '../../../clients/firecrawl/index.js';
 import type { CrawlOptions } from './schema.js';
 
 export async function crawlPipeline(
@@ -34,9 +34,9 @@ export async function crawlPipeline(
   } else if ('jobId' in options && options.jobId) {
     // Cancel or status operation
     if (options.cancel) {
-      return await client.cancel(options.jobId);
+      return await client.cancelCrawl(options.jobId);
     } else {
-      return await client.getStatus(options.jobId);
+      return await client.getCrawlStatus(options.jobId);
     }
   } else {
     throw new Error('Either url (to start crawl) or jobId (to check status/cancel) is required');

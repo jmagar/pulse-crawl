@@ -25,6 +25,7 @@ import { ResourceStorageFactory } from '../storage/index.js';
 import type { FirecrawlConfig } from '../types.js';
 import { logInfo, logError } from '../utils/logging.js';
 import { registrationTracker } from '../utils/mcp-status.js';
+import { getMetricsCollector } from '../monitoring/index.js';
 
 /**
  * Register MCP tools with the server
@@ -130,6 +131,7 @@ export function registerTools(
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const { name, arguments: args } = request.params;
     const startTime = Date.now();
+    const metrics = getMetricsCollector();
 
     logInfo('tool-call', `Calling tool: ${name}`, { tool: name });
 
@@ -144,11 +146,13 @@ export function registerTools(
       const result = (await (tool.handler as any)(args)) as any;
 
       const duration = Date.now() - startTime;
+      metrics.recordRequest(duration, false);
       logInfo('tool-call', `Tool completed: ${name}`, { tool: name, duration: `${duration}ms` });
 
       return result;
     } catch (error) {
       const duration = Date.now() - startTime;
+      metrics.recordRequest(duration, true);
       logError('tool-call', error, { tool: name, duration: `${duration}ms` });
       throw error;
     }

@@ -4,7 +4,13 @@ import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import { createMCPServer } from './shared/index.js';
 import { createTransport } from './transport.js';
-import { healthCheck, getCorsOptions, hostValidationLogger } from './middleware/index.js';
+import {
+  healthCheck,
+  getCorsOptions,
+  hostValidationLogger,
+  metricsAuthMiddleware,
+} from './middleware/index.js';
+import { getMetricsConsole, getMetricsJSON, resetMetrics } from './middleware/metrics.js';
 import { logInfo, logError } from './shared/utils/logging.js';
 
 /**
@@ -25,6 +31,21 @@ export async function createExpressServer(): Promise<Application> {
 
   // Health check endpoint
   app.get('/health', healthCheck);
+
+  /**
+   * Metrics endpoints
+   *
+   * Security note: These endpoints can expose operational details.
+   * In production, enable authentication with:
+   * - METRICS_AUTH_ENABLED=true
+   * - METRICS_AUTH_KEY=your-secret-key
+   *
+   * Access authenticated endpoints with:
+   * - X-Metrics-Key header or ?key= query parameter
+   */
+  app.get('/metrics', metricsAuthMiddleware, getMetricsConsole);
+  app.get('/metrics/json', metricsAuthMiddleware, getMetricsJSON);
+  app.post('/metrics/reset', metricsAuthMiddleware, resetMetrics);
 
   // OAuth endpoints - check ENABLE_OAUTH environment variable
   const oauthEnabled = process.env.ENABLE_OAUTH === 'true';

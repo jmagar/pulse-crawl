@@ -31,6 +31,8 @@ export interface IFirecrawlClient {
       content: string;
       markdown: string;
       html: string;
+      screenshot?: string;
+      links?: string[];
       metadata: Record<string, unknown>;
     };
     error?: string;
@@ -131,6 +133,8 @@ export class FirecrawlClient implements IFirecrawlClient {
       content: string;
       markdown: string;
       html: string;
+      screenshot?: string;
+      links?: string[];
       metadata: Record<string, unknown>;
     };
     error?: string;

@@ -2,7 +2,9 @@
 node_modules/
 **/node_modules/
 .mcp.json
-resources/
+/resources/
+**/temp-resources/
+**/runtime-resources/
 
 # Environment variables
 .env

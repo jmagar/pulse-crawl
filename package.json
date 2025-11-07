@@ -29,6 +29,8 @@
     "test:manual:features": "node scripts/run-manual-built.js features",
     "test:manual:pages": "node scripts/run-manual-built.js pages",
     "test:all": "npm run test:run && npm run test:integration",
+    "deps:sync": "node scripts/sync-dependencies.js",
+    "deps:validate": "node scripts/validate-dependencies.js",
     "lint": "cd .. && npm run lint",
     "lint:fix": "cd .. && npm run lint:fix",
     "format": "cd .. && npm run format",

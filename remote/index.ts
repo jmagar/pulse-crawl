@@ -6,8 +6,8 @@ import { runHealthChecks, type HealthCheckResult } from './shared/config/health-
 import { logInfo, logError } from './shared/utils/logging.js';
 import { displayStartupInfo } from './startup/display.js';
 
-// Load environment variables
-config();
+// Load environment variables (quiet mode to suppress v17 logging)
+config({ quiet: true });
 
 /**
  * Validates environment variables and logs configuration

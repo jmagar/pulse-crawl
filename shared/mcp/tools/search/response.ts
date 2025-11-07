@@ -1,4 +1,4 @@
-import type { SearchResult } from '../../../clients/firecrawl-search.client.js';
+import type { SearchResult } from '../../../clients/firecrawl/index.js';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 
 export function formatSearchResponse(result: SearchResult, query: string): CallToolResult {

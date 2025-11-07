@@ -11,10 +11,9 @@ export type {
 } from './native-scrape-client.js';
 export { NativeScrapingClient } from './native-scrape-client.js';
 
-// Firecrawl scraping client
+// Firecrawl scraping client (unified location)
 export type {
-  IFirecrawlScrapingClient,
   FirecrawlScrapingOptions,
   FirecrawlScrapingResult,
-} from '../firecrawl/client.js';
-export { FirecrawlScrapingClient } from '../firecrawl/client.js';
+} from '../../../clients/firecrawl/index.js';
+export { FirecrawlScrapingClient } from '../../../clients/firecrawl/index.js';

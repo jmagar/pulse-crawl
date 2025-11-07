@@ -12,6 +12,7 @@ import type { IScrapingClients } from '../../server.js';
 import type { ScrapingStrategy, IStrategyConfigClient } from './learned/index.js';
 import { logDebug, logWarning } from '../../utils/logging.js';
 import type { ScrapeDiagnostics } from '../../types.js';
+import { getMetricsCollector } from '../../monitoring/index.js';
 
 /**
  * Options for scraping strategy execution
@@ -131,12 +132,15 @@ export async function scrapeUniversal(
   const tryNative = async (): Promise<StrategyResult | null> => {
     const startTime = Date.now();
     diagnostics.strategiesAttempted.push('native');
+    const metrics = getMetricsCollector();
 
     try {
       const nativeResult = await clients.native.scrape(url, { timeout: options.timeout });
-      diagnostics.timing.native = Date.now() - startTime;
+      const duration = Date.now() - startTime;
+      diagnostics.timing.native = duration;
 
       if (nativeResult.success && nativeResult.status === 200 && nativeResult.data) {
+        metrics.recordStrategyExecution('native', true, duration);
         return {
           success: true,
           content: nativeResult.data,
@@ -147,18 +151,26 @@ export async function scrapeUniversal(
 
       // Record the failure reason
       if (!nativeResult.success) {
-        diagnostics.strategyErrors.native =
-          nativeResult.error || `HTTP ${nativeResult.status || 'unknown'}`;
+        const errorMsg = nativeResult.error || `HTTP ${nativeResult.status || 'unknown'}`;
+        diagnostics.strategyErrors.native = errorMsg;
+        metrics.recordStrategyExecution('native', false, duration);
+        metrics.recordStrategyError('native', errorMsg);
       }
     } catch (error) {
-      diagnostics.timing.native = Date.now() - startTime;
-      diagnostics.strategyErrors.native = error instanceof Error ? error.message : 'Unknown error';
+      const duration = Date.now() - startTime;
+      diagnostics.timing.native = duration;
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      diagnostics.strategyErrors.native = errorMsg;
+      metrics.recordStrategyExecution('native', false, duration);
+      metrics.recordStrategyError('native', errorMsg);
     }
     return null;
   };
 
   // Helper function to try Firecrawl scraping
   const tryFirecrawl = async (): Promise<StrategyResult | null> => {
+    const metrics = getMetricsCollector();
+
     if (!clients.firecrawl) {
       diagnostics.strategyErrors.firecrawl = 'Firecrawl client not configured';
       return null;
@@ -171,9 +183,11 @@ export async function scrapeUniversal(
       const firecrawlResult = await clients.firecrawl.scrape(url, {
         formats: ['html'],
       });
-      diagnostics.timing.firecrawl = Date.now() - startTime;
+      const duration = Date.now() - startTime;
+      diagnostics.timing.firecrawl = duration;
 
       if (firecrawlResult.success && firecrawlResult.data) {
+        metrics.recordStrategyExecution('firecrawl', true, duration);
         return {
           success: true,
           content: firecrawlResult.data.html,
@@ -191,7 +205,10 @@ export async function scrapeUniversal(
             errorLower.includes('invalid token') ||
             errorLower.includes('authentication')
           ) {
-            diagnostics.strategyErrors.firecrawl = `Authentication failed: ${firecrawlResult.error}`;
+            const errorMsg = `Authentication failed: ${firecrawlResult.error}`;
+            diagnostics.strategyErrors.firecrawl = errorMsg;
+            metrics.recordStrategyExecution('firecrawl', false, duration);
+            metrics.recordStrategyError('firecrawl', errorMsg);
             return {
               success: false,
               content: null,
@@ -202,19 +219,29 @@ export async function scrapeUniversal(
             };
           }
           diagnostics.strategyErrors.firecrawl = firecrawlResult.error;
+          metrics.recordStrategyExecution('firecrawl', false, duration);
+          metrics.recordStrategyError('firecrawl', firecrawlResult.error);
         } else {
-          diagnostics.strategyErrors.firecrawl = 'Request failed without error details';
+          const errorMsg = 'Request failed without error details';
+          diagnostics.strategyErrors.firecrawl = errorMsg;
+          metrics.recordStrategyExecution('firecrawl', false, duration);
+          metrics.recordStrategyError('firecrawl', errorMsg);
         }
       }
     } catch (error) {
-      diagnostics.timing.firecrawl = Date.now() - startTime;
-      diagnostics.strategyErrors.firecrawl =
-        error instanceof Error ? error.message : 'Unknown error';
+      const duration = Date.now() - startTime;
+      diagnostics.timing.firecrawl = duration;
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      diagnostics.strategyErrors.firecrawl = errorMsg;
+      metrics.recordStrategyExecution('firecrawl', false, duration);
+      metrics.recordStrategyError('firecrawl', errorMsg);
     }
     return null;
   };
 
   // Execute strategies based on optimization mode
+  const metrics = getMetricsCollector();
+
   if (optimizeFor === 'speed') {
     // speed mode: firecrawl only (skip native)
     const firecrawlResult = await tryFirecrawl();
@@ -232,6 +259,8 @@ export async function scrapeUniversal(
     const nativeResult = await tryNative();
     if (nativeResult) return nativeResult;
 
+    // Native failed, trying firecrawl (fallback)
+    metrics.recordFallback('native', 'firecrawl');
     const firecrawlResult = await tryFirecrawl();
     if (firecrawlResult) {
       // Return immediately on authentication errors

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { formatMapResponse } from './response.js';
-import type { MapResult } from '../../../clients/firecrawl-map.client.js';
+import type { MapResult } from '../../../clients/firecrawl/index.js';
 
 describe('Map Response Formatter', () => {
   const createMockResult = (count: number): MapResult => ({
