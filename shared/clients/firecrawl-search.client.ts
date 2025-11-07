@@ -10,6 +10,7 @@ export interface SearchOptions {
   location?: string;
   timeout?: number;
   ignoreInvalidURLs?: boolean;
+  tbs?: string;
   scrapeOptions?: {
     formats?: string[];
     onlyMainContent?: boolean;

@@ -10,6 +10,16 @@ export const searchOptionsSchema = z.object({
   location: z.string().optional(),
   timeout: z.number().int().positive().optional(),
   ignoreInvalidURLs: z.boolean().optional().default(false),
+  tbs: z
+    .string()
+    .optional()
+    .describe(
+      'Time-based search filter. Filters results by date range. ' +
+        'Valid values: ' +
+        'qdr:h (past hour), qdr:d (past day), qdr:w (past week), qdr:m (past month), qdr:y (past year), ' +
+        'or custom range: cdr:a,cd_min:MM/DD/YYYY,cd_max:MM/DD/YYYY. ' +
+        'Examples: "qdr:d" (past 24 hours), "qdr:w" (past week), "cdr:a,cd_min:01/01/2024,cd_max:12/31/2024" (custom range)'
+    ),
   scrapeOptions: z
     .object({
       formats: z.array(z.string()).optional(),

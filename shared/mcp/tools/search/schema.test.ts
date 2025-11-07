@@ -35,4 +35,37 @@ describe('Search Schema', () => {
 
     expect(result.success).toBe(true);
   });
+
+  describe('tbs parameter', () => {
+    it('accepts past hour filter', () => {
+      const result = searchOptionsSchema.parse({
+        query: 'test',
+        tbs: 'qdr:h',
+      });
+      expect(result.tbs).toBe('qdr:h');
+    });
+
+    it('accepts past day filter', () => {
+      const result = searchOptionsSchema.parse({
+        query: 'test',
+        tbs: 'qdr:d',
+      });
+      expect(result.tbs).toBe('qdr:d');
+    });
+
+    it('accepts custom date range', () => {
+      const result = searchOptionsSchema.parse({
+        query: 'test',
+        tbs: 'cdr:a,cd_min:01/01/2024,cd_max:12/31/2024',
+      });
+      expect(result.tbs).toBe('cdr:a,cd_min:01/01/2024,cd_max:12/31/2024');
+    });
+
+    it('is optional', () => {
+      const result = searchOptionsSchema.parse({
+        query: 'test',
+      });
+      expect(result.tbs).toBeUndefined();
+    });
+  });
 });
