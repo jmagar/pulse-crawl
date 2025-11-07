@@ -5,8 +5,9 @@
   "author": "PulseMCP",
   "license": "MIT",
   "workspaces": [
-    "local",
+    "server",
     "shared",
+    "local",
     "remote"
   ],
   "type": "module",
