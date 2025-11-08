@@ -1,9 +1,8 @@
 import { FirecrawlSearchClient } from '../../../clients/firecrawl/index.js';
 import type { FirecrawlConfig } from '../../../types.js';
-import { searchOptionsSchema } from './schema.js';
+import { searchOptionsSchema, buildSearchInputSchema } from './schema.js';
 import { searchPipeline } from './pipeline.js';
 import { formatSearchResponse } from './response.js';
-import { zodToJsonSchema } from 'zod-to-json-schema';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 
 export function createSearchTool(config: FirecrawlConfig): Tool {
@@ -13,7 +12,7 @@ export function createSearchTool(config: FirecrawlConfig): Tool {
     name: 'search',
     description:
       'Search the web using Firecrawl with optional content scraping. Supports web, image, and news search with filtering by category (GitHub, research papers, PDFs).',
-    inputSchema: zodToJsonSchema(searchOptionsSchema) as any,
+    inputSchema: buildSearchInputSchema(),
 
     handler: async (args: unknown) => {
       try {

@@ -33,3 +33,113 @@ export const searchOptionsSchema = z.object({
 });
 
 export type SearchOptions = z.infer<typeof searchOptionsSchema>;
+
+/**
+ * Build JSON Schema for search tool input
+ *
+ * Manually constructs JSON Schema to avoid zodToJsonSchema cross-module
+ * instanceof issues. Schemas imported from dist/ fail instanceof checks,
+ * returning empty schemas.
+ */
+export const buildSearchInputSchema = () => {
+  return {
+    type: 'object' as const,
+    properties: {
+      query: {
+        type: 'string',
+        minLength: 1,
+        description: 'Search query (required)',
+      },
+      limit: {
+        type: 'number',
+        minimum: 1,
+        maximum: 100,
+        default: 5,
+        description: 'Maximum number of results to return per source',
+      },
+      sources: {
+        type: 'array',
+        items: {
+          type: 'string',
+          enum: ['web', 'images', 'news'],
+        },
+        description: 'Which search sources to query (web, images, news)',
+      },
+      categories: {
+        type: 'array',
+        items: {
+          type: 'string',
+          enum: ['github', 'research', 'pdf'],
+        },
+        description: 'Filter results by category (GitHub repos, research papers, PDFs)',
+      },
+      country: {
+        type: 'string',
+        description: 'Country code for localized results (e.g., "us", "gb")',
+      },
+      lang: {
+        type: 'string',
+        default: 'en',
+        description: 'Language code for results (e.g., "en", "es")',
+      },
+      location: {
+        type: 'string',
+        description: 'Geographic location for localized results',
+      },
+      timeout: {
+        type: 'number',
+        minimum: 1,
+        description: 'Request timeout in milliseconds',
+      },
+      ignoreInvalidURLs: {
+        type: 'boolean',
+        default: false,
+        description: 'Skip results with invalid URLs',
+      },
+      tbs: {
+        type: 'string',
+        description:
+          'Time-based search filter. Filters results by date range. ' +
+          'Valid values: ' +
+          'qdr:h (past hour), qdr:d (past day), qdr:w (past week), qdr:m (past month), qdr:y (past year), ' +
+          'or custom range: cdr:a,cd_min:MM/DD/YYYY,cd_max:MM/DD/YYYY. ' +
+          'Examples: "qdr:d" (past 24 hours), "qdr:w" (past week), "cdr:a,cd_min:01/01/2024,cd_max:12/31/2024" (custom range)',
+      },
+      scrapeOptions: {
+        type: 'object',
+        properties: {
+          formats: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'Content formats to extract (markdown, html, etc.)',
+          },
+          onlyMainContent: {
+            type: 'boolean',
+            description: 'Extract only main content, excluding nav/ads',
+          },
+          removeBase64Images: {
+            type: 'boolean',
+            default: true,
+            description: 'Remove base64-encoded images from output',
+          },
+          blockAds: {
+            type: 'boolean',
+            default: true,
+            description: 'Block advertisements and trackers',
+          },
+          waitFor: {
+            type: 'number',
+            description: 'Milliseconds to wait for page load',
+          },
+          parsers: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'Custom parsers to apply',
+          },
+        },
+        description: 'Options for scraping search result pages',
+      },
+    },
+    required: ['query'],
+  };
+};
