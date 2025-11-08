@@ -422,7 +422,7 @@ Or configure per-session in `claude_desktop_config.json`:
   "mcpServers": {
     "pulse": {
       "command": "node",
-      "args": ["/path/to/pulse-fetch/local/build/index.js"],
+      "args": ["/path/to/pulse-fetch/local/dist/index.js"],
       "env": {
         "FIRECRAWL_API_KEY": "your-key",
         "LLM_PROVIDER": "anthropic",
@@ -446,7 +446,7 @@ After=network.target
 Type=simple
 User=pulse
 WorkingDirectory=/opt/pulse-fetch
-ExecStart=/usr/bin/node /opt/pulse-fetch/remote/build/index.js
+ExecStart=/usr/bin/node /opt/pulse-fetch/remote/dist/index.js
 Restart=always
 
 # Environment variables
@@ -524,5 +524,5 @@ curl http://localhost:3060/health
 
 - **[Getting Started](GETTING_STARTED.md)** - First scrape tutorial
 - **[Architecture Overview](ARCHITECTURE.md)** - How configuration affects system behavior
-- **[Tool Documentation](docs/tools/)** - Tool-specific parameters
-- **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Common configuration issues (coming soon)
+- **[Tool Documentation](tools/)** - Tool-specific parameters
+- **[TROUBLESHOOTING.md](../TROUBLESHOOTING.md)** - Common configuration issues (coming soon)
