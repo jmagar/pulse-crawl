@@ -104,7 +104,7 @@ describe('Map Options Schema', () => {
       expect(result.sitemap).toBe('include');
       expect(result.includeSubdomains).toBe(true);
       expect(result.ignoreQueryParameters).toBe(true);
-      expect(result.location?.country).toBe('US');
+      expect(result.location).toBeUndefined();
     });
   });
 
@@ -119,46 +119,30 @@ describe('Map Options Schema', () => {
       process.env = originalEnv;
     });
 
-    it('should use MAP_DEFAULT_COUNTRY from environment', async () => {
-      process.env.MAP_DEFAULT_COUNTRY = 'AU';
-
-      // Re-import to get fresh defaults
-      vi.resetModules();
-      const { mapOptionsSchema } = await import('./schema.js');
-
+    it('should accept location.country when provided', async () => {
       const result = mapOptionsSchema.parse({
         url: 'https://example.com',
+        location: { country: 'AU' },
       });
 
-      expect(result.location.country).toBe('AU');
+      expect(result.location?.country).toBe('AU');
     });
 
-    it('should use MAP_DEFAULT_LANGUAGES from environment', async () => {
-      process.env.MAP_DEFAULT_LANGUAGES = 'es-ES,en-US';
-
-      vi.resetModules();
-      const { mapOptionsSchema } = await import('./schema.js');
-
+    it('should accept location.languages when provided', async () => {
       const result = mapOptionsSchema.parse({
         url: 'https://example.com',
+        location: { languages: ['es-ES', 'en-US'] },
       });
 
-      expect(result.location.languages).toEqual(['es-ES', 'en-US']);
+      expect(result.location?.languages).toEqual(['es-ES', 'en-US']);
     });
 
-    it('should fall back to US and en-US if env vars not set', async () => {
-      delete process.env.MAP_DEFAULT_COUNTRY;
-      delete process.env.MAP_DEFAULT_LANGUAGES;
-
-      vi.resetModules();
-      const { mapOptionsSchema } = await import('./schema.js');
-
+    it('should have no location defaults if not provided', async () => {
       const result = mapOptionsSchema.parse({
         url: 'https://example.com',
       });
 
-      expect(result.location.country).toBe('US');
-      expect(result.location.languages).toEqual(['en-US']);
+      expect(result.location).toBeUndefined();
     });
 
     it('should use MAP_MAX_RESULTS_PER_PAGE from environment', async () => {
