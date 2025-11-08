@@ -53,3 +53,98 @@ export const mapOptionsSchema = z.object({
 });
 
 export type MapOptions = z.infer<typeof mapOptionsSchema>;
+
+/**
+ * Build JSON Schema for map tool input
+ *
+ * Manually constructs JSON Schema to avoid zodToJsonSchema cross-module
+ * instanceof issues. Schemas imported from dist/ fail instanceof checks,
+ * returning empty schemas.
+ */
+export const buildMapInputSchema = () => {
+  return {
+    type: 'object' as const,
+    properties: {
+      url: {
+        type: 'string',
+        format: 'uri',
+        description: 'Base URL to discover links from',
+      },
+      search: {
+        type: 'string',
+        description: 'Optional search query to filter discovered URLs',
+      },
+      limit: {
+        type: 'integer',
+        minimum: 1,
+        maximum: 100000,
+        default: 5000,
+        description: 'Maximum total URLs to crawl (deprecated: use maxResults)',
+      },
+      sitemap: {
+        type: 'string',
+        enum: ['skip', 'include', 'only'],
+        default: 'include',
+        description:
+          'How to handle sitemap URLs: skip (ignore sitemap), include (mix with crawled), only (sitemap only)',
+      },
+      includeSubdomains: {
+        type: 'boolean',
+        default: true,
+        description: 'Include URLs from subdomains of the base domain',
+      },
+      ignoreQueryParameters: {
+        type: 'boolean',
+        default: true,
+        description: 'Ignore URL query parameters when deduplicating',
+      },
+      timeout: {
+        type: 'integer',
+        minimum: 1,
+        description: 'Request timeout in milliseconds',
+      },
+      location: {
+        type: 'object',
+        properties: {
+          country: {
+            type: 'string',
+            default: DEFAULT_COUNTRY,
+            description: 'Country code for localized results',
+          },
+          languages: {
+            type: 'array',
+            items: { type: 'string' },
+            default: DEFAULT_LANGUAGES,
+            description: 'Language codes for results',
+          },
+        },
+        default: { country: DEFAULT_COUNTRY, languages: DEFAULT_LANGUAGES },
+        description: 'Location-based filtering options',
+      },
+      startIndex: {
+        type: 'integer',
+        minimum: 0,
+        default: 0,
+        description: 'Starting index for pagination (0-based)',
+      },
+      maxResults: {
+        type: 'integer',
+        minimum: 1,
+        maximum: 5000,
+        default: DEFAULT_MAX_RESULTS,
+        description: 'Maximum URLs to return (1-5000, default 200 for ~13k tokens)',
+      },
+      resultHandling: {
+        type: 'string',
+        enum: ['saveOnly', 'saveAndReturn', 'returnOnly'],
+        default: 'saveAndReturn',
+        description:
+          'How to handle results:\n' +
+          '- saveOnly: Save as resource, return only link (token-efficient)\n' +
+          '- saveAndReturn: Save and embed full content (default)\n' +
+          '- returnOnly: Return inline without saving',
+      },
+    },
+    required: ['url'],
+  };
+};
