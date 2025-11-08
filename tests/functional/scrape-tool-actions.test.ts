@@ -17,8 +17,9 @@ describe('Scrape actions parameter', () => {
         url: 'https://example.com',
         actions: [{ type: 'wait', milliseconds: 2000 }],
       });
+      expect(result.actions).toBeDefined();
       expect(result.actions).toHaveLength(1);
-      expect(result.actions[0]).toEqual({ type: 'wait', milliseconds: 2000 });
+      expect(result.actions?.[0]).toEqual({ type: 'wait', milliseconds: 2000 });
     });
 
     it('rejects wait without milliseconds', () => {
@@ -55,7 +56,8 @@ describe('Scrape actions parameter', () => {
         url: 'https://example.com',
         actions: [{ type: 'click', selector: '#load-more' }],
       });
-      expect(result.actions[0]).toEqual({ type: 'click', selector: '#load-more' });
+      expect(result.actions).toBeDefined();
+      expect(result.actions?.[0]).toEqual({ type: 'click', selector: '#load-more' });
     });
 
     it('accepts click with class selector', () => {
@@ -63,7 +65,8 @@ describe('Scrape actions parameter', () => {
         url: 'https://example.com',
         actions: [{ type: 'click', selector: '.cookie-accept' }],
       });
-      expect(result.actions[0]).toEqual({ type: 'click', selector: '.cookie-accept' });
+      expect(result.actions).toBeDefined();
+      expect(result.actions?.[0]).toEqual({ type: 'click', selector: '.cookie-accept' });
     });
 
     it('rejects click without selector', () => {
@@ -82,7 +85,8 @@ describe('Scrape actions parameter', () => {
         url: 'https://example.com',
         actions: [{ type: 'write', selector: '#input', text: 'test' }],
       });
-      expect(result.actions[0]).toEqual({ type: 'write', selector: '#input', text: 'test' });
+      expect(result.actions).toBeDefined();
+      expect(result.actions?.[0]).toEqual({ type: 'write', selector: '#input', text: 'test' });
     });
 
     it('accepts write with empty text', () => {
@@ -90,7 +94,8 @@ describe('Scrape actions parameter', () => {
         url: 'https://example.com',
         actions: [{ type: 'write', selector: '#input', text: '' }],
       });
-      expect(result.actions[0]).toEqual({ type: 'write', selector: '#input', text: '' });
+      expect(result.actions).toBeDefined();
+      expect(result.actions?.[0]).toEqual({ type: 'write', selector: '#input', text: '' });
     });
 
     it('rejects write without selector', () => {
@@ -118,7 +123,8 @@ describe('Scrape actions parameter', () => {
         url: 'https://example.com',
         actions: [{ type: 'press', key: 'Enter' }],
       });
-      expect(result.actions[0]).toEqual({ type: 'press', key: 'Enter' });
+      expect(result.actions).toBeDefined();
+      expect(result.actions?.[0]).toEqual({ type: 'press', key: 'Enter' });
     });
 
     it('accepts press with Escape key', () => {
@@ -126,7 +132,8 @@ describe('Scrape actions parameter', () => {
         url: 'https://example.com',
         actions: [{ type: 'press', key: 'Escape' }],
       });
-      expect(result.actions[0]).toEqual({ type: 'press', key: 'Escape' });
+      expect(result.actions).toBeDefined();
+      expect(result.actions?.[0]).toEqual({ type: 'press', key: 'Escape' });
     });
 
     it('accepts press with Tab key', () => {
@@ -134,7 +141,8 @@ describe('Scrape actions parameter', () => {
         url: 'https://example.com',
         actions: [{ type: 'press', key: 'Tab' }],
       });
-      expect(result.actions[0]).toEqual({ type: 'press', key: 'Tab' });
+      expect(result.actions).toBeDefined();
+      expect(result.actions?.[0]).toEqual({ type: 'press', key: 'Tab' });
     });
 
     it('rejects press without key', () => {
@@ -153,7 +161,8 @@ describe('Scrape actions parameter', () => {
         url: 'https://example.com',
         actions: [{ type: 'scroll', direction: 'down' }],
       });
-      expect(result.actions[0]).toEqual({ type: 'scroll', direction: 'down' });
+      expect(result.actions).toBeDefined();
+      expect(result.actions?.[0]).toEqual({ type: 'scroll', direction: 'down' });
     });
 
     it('accepts scroll up', () => {
@@ -161,7 +170,8 @@ describe('Scrape actions parameter', () => {
         url: 'https://example.com',
         actions: [{ type: 'scroll', direction: 'up' }],
       });
-      expect(result.actions[0]).toEqual({ type: 'scroll', direction: 'up' });
+      expect(result.actions).toBeDefined();
+      expect(result.actions?.[0]).toEqual({ type: 'scroll', direction: 'up' });
     });
 
     it('accepts scroll with amount', () => {
@@ -169,7 +179,8 @@ describe('Scrape actions parameter', () => {
         url: 'https://example.com',
         actions: [{ type: 'scroll', direction: 'down', amount: 500 }],
       });
-      expect(result.actions[0]).toEqual({ type: 'scroll', direction: 'down', amount: 500 });
+      expect(result.actions).toBeDefined();
+      expect(result.actions?.[0]).toEqual({ type: 'scroll', direction: 'down', amount: 500 });
     });
 
     it('rejects scroll without direction', () => {
@@ -206,7 +217,8 @@ describe('Scrape actions parameter', () => {
         url: 'https://example.com',
         actions: [{ type: 'screenshot' }],
       });
-      expect(result.actions[0]).toEqual({ type: 'screenshot' });
+      expect(result.actions).toBeDefined();
+      expect(result.actions?.[0]).toEqual({ type: 'screenshot' });
     });
 
     it('accepts screenshot with name', () => {
@@ -214,7 +226,8 @@ describe('Scrape actions parameter', () => {
         url: 'https://example.com',
         actions: [{ type: 'screenshot', name: 'after-login' }],
       });
-      expect(result.actions[0]).toEqual({ type: 'screenshot', name: 'after-login' });
+      expect(result.actions).toBeDefined();
+      expect(result.actions?.[0]).toEqual({ type: 'screenshot', name: 'after-login' });
     });
   });
 
@@ -224,7 +237,8 @@ describe('Scrape actions parameter', () => {
         url: 'https://example.com',
         actions: [{ type: 'scrape' }],
       });
-      expect(result.actions[0]).toEqual({ type: 'scrape' });
+      expect(result.actions).toBeDefined();
+      expect(result.actions?.[0]).toEqual({ type: 'scrape' });
     });
 
     it('accepts scrape with selector', () => {
@@ -232,7 +246,8 @@ describe('Scrape actions parameter', () => {
         url: 'https://example.com',
         actions: [{ type: 'scrape', selector: '#content' }],
       });
-      expect(result.actions[0]).toEqual({ type: 'scrape', selector: '#content' });
+      expect(result.actions).toBeDefined();
+      expect(result.actions?.[0]).toEqual({ type: 'scrape', selector: '#content' });
     });
   });
 
@@ -242,7 +257,8 @@ describe('Scrape actions parameter', () => {
         url: 'https://example.com',
         actions: [{ type: 'executeJavascript', script: 'console.log("test")' }],
       });
-      expect(result.actions[0]).toEqual({
+      expect(result.actions).toBeDefined();
+      expect(result.actions?.[0]).toEqual({
         type: 'executeJavascript',
         script: 'console.log("test")',
       });
@@ -254,7 +270,8 @@ describe('Scrape actions parameter', () => {
         url: 'https://example.com',
         actions: [{ type: 'executeJavascript', script }],
       });
-      expect(result.actions[0]).toEqual({ type: 'executeJavascript', script });
+      expect(result.actions).toBeDefined();
+      expect(result.actions?.[0]).toEqual({ type: 'executeJavascript', script });
     });
 
     it('rejects executeJavascript without script', () => {

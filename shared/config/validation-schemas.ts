@@ -4,8 +4,8 @@ import { zodToJsonSchema } from 'zod-to-json-schema';
 /**
  * Create a JSON schema from a Zod schema with standard options
  */
-export function createInputSchema<T>(schema: z.ZodType<T>): unknown {
-  return zodToJsonSchema(schema, {
+export function createInputSchema(schema: z.ZodTypeAny): unknown {
+  return zodToJsonSchema(schema as any, {
     target: 'openApi3',
   });
 }
@@ -14,7 +14,7 @@ export function createInputSchema<T>(schema: z.ZodType<T>): unknown {
  * Validate environment variables against a schema
  */
 export function validateEnvironment<T>(
-  schema: z.ZodType<T>,
+  schema: z.ZodSchema<T>,
   env: NodeJS.ProcessEnv = process.env
 ): T {
   try {

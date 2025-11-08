@@ -9,7 +9,7 @@ describe('Firecrawl Scraping Client', () => {
       return;
     }
 
-    const client = new FirecrawlScrapingClient(apiKey);
+    const client = new FirecrawlScrapingClient({ apiKey });
     const url = 'https://example.com';
 
     console.log(`🔥 Testing Firecrawl Scraping Client for: ${url}`);

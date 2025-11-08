@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { createMCPServer } from './shared/index.js';
-import type { IScrapingClients, INativeFetcher, IFirecrawlClient } from './shared/index.js';
+import { createMCPServer } from '../shared/index.js';
+import type { IScrapingClients, INativeFetcher, IFirecrawlClient } from '../shared/index.js';
 
 // Mock client implementations for integration testing
 class MockNativeFetcher implements INativeFetcher {

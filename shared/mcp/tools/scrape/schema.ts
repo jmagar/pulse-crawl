@@ -192,7 +192,7 @@ export const buildScrapeArgsSchema = () => {
       .default('auto')
       .describe(PARAM_DESCRIPTIONS.proxy),
     blockAds: z.boolean().optional().default(true).describe(PARAM_DESCRIPTIONS.blockAds),
-    headers: z.record(z.string()).optional().describe(PARAM_DESCRIPTIONS.headers),
+    headers: z.record(z.string(), z.string()).optional().describe(PARAM_DESCRIPTIONS.headers),
     waitFor: z.number().int().positive().optional().describe(PARAM_DESCRIPTIONS.waitFor),
     includeTags: z.array(z.string()).optional().describe(PARAM_DESCRIPTIONS.includeTags),
     excludeTags: z.array(z.string()).optional().describe(PARAM_DESCRIPTIONS.excludeTags),

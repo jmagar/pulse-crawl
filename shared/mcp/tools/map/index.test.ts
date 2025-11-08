@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createMapTool } from './index.js';
-import type { FirecrawlConfig } from '../../../types.js';
+import type { FirecrawlConfig, ToolResponse } from '../../../types.js';
 
 describe('Map Tool', () => {
   let config: FirecrawlConfig;
@@ -34,7 +34,8 @@ describe('Map Tool', () => {
 
   it('should handle pagination parameters', async () => {
     const tool = createMapTool(config);
-    const result = await tool.handler({
+    const handler = tool.handler as (args: unknown) => Promise<ToolResponse>;
+    const result = await handler({
       url: 'https://example.com',
       startIndex: 1000,
       maxResults: 500,
@@ -47,7 +48,8 @@ describe('Map Tool', () => {
 
   it('should handle resultHandling parameter', async () => {
     const tool = createMapTool(config);
-    const result = await tool.handler({
+    const handler = tool.handler as (args: unknown) => Promise<ToolResponse>;
+    const result = await handler({
       url: 'https://example.com',
       resultHandling: 'saveOnly',
     });
@@ -58,7 +60,8 @@ describe('Map Tool', () => {
 
   it('should use default pagination values', async () => {
     const tool = createMapTool(config);
-    const result = await tool.handler({
+    const handler = tool.handler as (args: unknown) => Promise<ToolResponse>;
+    const result = await handler({
       url: 'https://example.com',
     });
 
@@ -75,7 +78,8 @@ describe('Map Tool', () => {
     });
 
     const tool = createMapTool(config);
-    const result = await tool.handler({
+    const handler = tool.handler as (args: unknown) => Promise<ToolResponse>;
+    const result = await handler({
       url: 'https://example.com',
     });
 

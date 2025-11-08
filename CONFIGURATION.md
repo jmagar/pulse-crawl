@@ -192,7 +192,7 @@ Pulse Fetch caches scraped content in three tiers: **raw** (original HTML), **cl
 
 | Variable                       | Type   | Default     | Description                                                     |
 | ------------------------------ | ------ | ----------- | --------------------------------------------------------------- |
-| `MCP_RESOURCE_STORAGE`         | string | `memory`    | Storage backend: `memory`, `filesystem`, or `qdrant`            |
+| `MCP_RESOURCE_STORAGE`         | string | `memory`    | Storage backend: `memory` or `filesystem`                       |
 | `MCP_RESOURCE_FILESYSTEM_ROOT` | string | OS temp dir | Directory for filesystem storage (only if `filesystem` backend) |
 | `MCP_RESOURCE_TTL`             | number | `86400`     | Resource time-to-live in seconds (0 = infinite)                 |
 | `MCP_RESOURCE_MAX_SIZE`        | number | `100`       | Maximum total cache size in MB                                  |
@@ -200,11 +200,10 @@ Pulse Fetch caches scraped content in three tiers: **raw** (original HTML), **cl
 
 **Storage Backend Comparison:**
 
-| Backend        | Pros                      | Cons                   | Best For                                     |
-| -------------- | ------------------------- | ---------------------- | -------------------------------------------- |
-| **memory**     | Fast, no setup            | Lost on restart        | Development, testing, stateless deployments  |
-| **filesystem** | Persistent, debuggable    | Slower than memory     | Local development, single-server deployments |
-| **qdrant**     | Semantic search, scalable | Requires Qdrant server | Production, multi-server, vector search      |
+| Backend        | Pros                   | Cons               | Best For                                     |
+| -------------- | ---------------------- | ------------------ | -------------------------------------------- |
+| **memory**     | Fast, no setup         | Lost on restart    | Development, testing, stateless deployments  |
+| **filesystem** | Persistent, debuggable | Slower than memory | Local development, single-server deployments |
 
 **Memory Storage** (default):
 
@@ -221,15 +220,6 @@ MCP_RESOURCE_STORAGE=filesystem
 MCP_RESOURCE_FILESYSTEM_ROOT=/var/cache/pulse-fetch
 MCP_RESOURCE_TTL=0
 MCP_RESOURCE_MAX_SIZE=500
-```
-
-**Qdrant Storage** (requires Qdrant server):
-
-```env
-MCP_RESOURCE_STORAGE=qdrant
-QDRANT_URL=http://localhost:6333
-QDRANT_COLLECTION=pulse-fetch
-MCP_RESOURCE_MAX_ITEMS=10000
 ```
 
 ### LLM Provider (Extract Feature)

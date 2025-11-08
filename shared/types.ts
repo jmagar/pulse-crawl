@@ -106,19 +106,19 @@ export type Tool = z.infer<typeof ToolSchema>;
  * Type guard to check if content is TextContent
  */
 export function isTextContent(content: ContentBlock): content is TextContent {
-  return content.type === 'text';
+  return (content as { type: string }).type === 'text';
 }
 
 /**
  * Type guard to check if content is ResourceLink
  */
 export function isResourceLink(content: ContentBlock): content is ResourceLink {
-  return content.type === 'resource_link';
+  return (content as { type: string }).type === 'resource_link';
 }
 
 /**
  * Type guard to check if content is EmbeddedResource
  */
 export function isEmbeddedResource(content: ContentBlock): content is EmbeddedResource {
-  return content.type === 'resource';
+  return (content as { type: string }).type === 'resource';
 }

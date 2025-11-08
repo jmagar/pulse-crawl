@@ -14,6 +14,8 @@ import type { IStrategyConfigClient } from './scraping/strategies/learned/index.
 import { FilesystemStrategyConfigClient } from './scraping/strategies/learned/index.js';
 import { NativeScrapingClient } from './scraping/clients/native/native-scrape-client.js';
 import type { CrawlRequestConfig } from './config/crawl-config.js';
+import { FirecrawlClient as ActualFirecrawlClient } from './clients/firecrawl/client.js';
+import type { FirecrawlConfig } from './clients/firecrawl/types.js';
 
 /**
  * Interface for Firecrawl API client
@@ -107,22 +109,31 @@ export class NativeFetcher implements INativeFetcher {
 }
 
 /**
- * Firecrawl API client implementation
+ * Default Firecrawl API client implementation
  *
- * Provides access to Firecrawl's advanced scraping capabilities including
- * JavaScript rendering, anti-bot bypass, and intelligent content extraction.
- * Requires a Firecrawl API key.
+ * Wrapper around the unified FirecrawlClient that adapts it to the
+ * IFirecrawlClient interface. Provides access to Firecrawl's advanced
+ * scraping capabilities including JavaScript rendering, anti-bot bypass,
+ * and intelligent content extraction.
  *
  * @example
  * ```typescript
- * const client = new FirecrawlClient(process.env.FIRECRAWL_API_KEY);
+ * const client = new DefaultFirecrawlClient(process.env.FIRECRAWL_API_KEY);
  * const result = await client.scrape('https://example.com', {
  *   formats: ['markdown', 'html']
  * });
  * ```
  */
-export class FirecrawlClient implements IFirecrawlClient {
-  constructor(private apiKey: string) {}
+export class DefaultFirecrawlClient implements IFirecrawlClient {
+  private client: ActualFirecrawlClient;
+
+  constructor(apiKey: string, baseUrl?: string) {
+    const config: FirecrawlConfig = { apiKey };
+    if (baseUrl) {
+      config.baseUrl = baseUrl;
+    }
+    this.client = new ActualFirecrawlClient(config);
+  }
 
   async scrape(
     url: string,
@@ -139,8 +150,22 @@ export class FirecrawlClient implements IFirecrawlClient {
     };
     error?: string;
   }> {
-    const { scrapeWithFirecrawl } = await import('./scraping/clients/firecrawl/api.js');
-    return scrapeWithFirecrawl(this.apiKey, url, options);
+    const result = await this.client.scrape(url, options);
+
+    return {
+      success: result.success,
+      data: result.data
+        ? {
+            content: result.data.markdown || result.data.html || '',
+            markdown: result.data.markdown || '',
+            html: result.data.html || '',
+            screenshot: result.data.screenshot,
+            links: result.data.links,
+            metadata: result.data.metadata || {},
+          }
+        : undefined,
+      error: result.error,
+    };
   }
 
   async startCrawl(config: CrawlRequestConfig): Promise<{
@@ -148,8 +173,13 @@ export class FirecrawlClient implements IFirecrawlClient {
     crawlId?: string;
     error?: string;
   }> {
-    const { startFirecrawlCrawl } = await import('./scraping/clients/firecrawl/api.js');
-    return startFirecrawlCrawl(this.apiKey, config);
+    const result = await this.client.startCrawl(config);
+
+    return {
+      success: result.success,
+      crawlId: result.id,
+      error: result.error,
+    };
   }
 }
 
@@ -207,8 +237,13 @@ export function createMCPServer() {
     },
     {
       capabilities: {
-        resources: {},
-        tools: {},
+        resources: {
+          subscribe: false,
+          listChanged: false,
+        },
+        tools: {
+          listChanged: false,
+        },
       },
     }
   );
@@ -223,13 +258,14 @@ export function createMCPServer() {
       clientFactory ||
       (() => {
         const firecrawlApiKey = process.env.FIRECRAWL_API_KEY;
+        const firecrawlBaseUrl = process.env.FIRECRAWL_BASE_URL;
 
         const clients: IScrapingClients = {
           native: new NativeFetcher(),
         };
 
         if (firecrawlApiKey) {
-          clients.firecrawl = new FirecrawlClient(firecrawlApiKey);
+          clients.firecrawl = new DefaultFirecrawlClient(firecrawlApiKey, firecrawlBaseUrl);
         }
 
         return clients;

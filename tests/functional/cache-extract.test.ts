@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { MemoryResourceStorage } from '../../shared/storage/resources/backends/memory.js';
 import { FileSystemResourceStorage } from '../../shared/storage/resources/backends/filesystem.js';
-import type { ResourceData } from '../../shared/storage/resources/types.js';
+import type { StoredResource } from '../../shared/storage/resources/types.js';
 import { join } from 'path';
 import { mkdtemp, rm } from 'fs/promises';
 import { tmpdir } from 'os';
@@ -63,7 +63,7 @@ describe('Storage findByUrlAndExtract', () => {
       const noExtractResources = await storage.findByUrlAndExtract(url);
       // Should find resources without extractionPrompt
       expect(noExtractResources.length).toBeGreaterThan(0);
-      expect(noExtractResources.every((r: ResourceData) => !r.metadata.extractionPrompt)).toBe(true);
+      expect(noExtractResources.every((r: StoredResource) => !r.metadata.extractionPrompt)).toBe(true);
 
       // Test no matches for non-existent extract prompt
       const noMatches = await storage.findByUrlAndExtract(url, 'non-existent prompt');
@@ -159,11 +159,11 @@ describe('Storage findByUrlAndExtract', () => {
       // Test finding resources without extraction
       const noExtractResources = await storage.findByUrlAndExtract(url);
       // Should find raw and cleaned resources (not extracted)
-      const types = noExtractResources.map((r: ResourceData) => r.metadata.resourceType);
+      const types = noExtractResources.map((r: StoredResource) => r.metadata.resourceType);
       expect(types).toContain('raw');
       expect(types).toContain('cleaned');
       expect(types).not.toContain('extracted');
-      expect(noExtractResources.every((r: ResourceData) => !r.metadata.extractionPrompt)).toBe(true);
+      expect(noExtractResources.every((r: StoredResource) => !r.metadata.extractionPrompt)).toBe(true);
 
       // Test no matches for non-existent extract prompt
       const noMatches = await storage.findByUrlAndExtract(url, 'non-existent prompt');

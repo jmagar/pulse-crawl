@@ -137,7 +137,10 @@ describe('HTTP Transport End-to-End', () => {
       expect(data.result.tools.length).toBeGreaterThan(0);
 
       // Verify scrape tool exists
-      const scrapeTool = data.result.tools.find((t: Tool) => t.name === 'scrape');
+      const scrapeTool = data.result.tools.find((t: unknown): t is Tool => {
+        if (!t || typeof t !== 'object') return false;
+        return 'name' in t && t.name === 'scrape';
+      });
       expect(scrapeTool).toBeTruthy();
       expect(scrapeTool.description).toBeTruthy();
       expect(scrapeTool.inputSchema).toBeTruthy();
@@ -176,7 +179,10 @@ describe('HTTP Transport End-to-End', () => {
       expect(data.result.content.length).toBeGreaterThan(0);
 
       // Verify content includes expected text from example.com
-      const textContent = data.result.content.find((c: ContentBlock): c is TextContent => c.type === 'text');
+      const textContent = data.result.content.find((c: unknown): c is TextContent => {
+        if (!c || typeof c !== 'object') return false;
+        return 'type' in c && c.type === 'text';
+      });
       expect(textContent).toBeTruthy();
       expect(textContent?.text).toContain('Example Domain');
     }, 30000); // 30s timeout for actual network request
@@ -284,7 +290,10 @@ describe('HTTP Transport End-to-End', () => {
       expect(data.result.content).toBeTruthy();
 
       // Find resource link in response
-      const resourceLink = data.result.content.find((c: ContentBlock): c is ResourceLink => c.type === 'resource_link');
+      const resourceLink = data.result.content.find((c: unknown): c is ResourceLink => {
+        if (!c || typeof c !== 'object') return false;
+        return 'type' in c && c.type === 'resource_link';
+      });
       if (resourceLink) {
         resourceUri = resourceLink.uri;
       }

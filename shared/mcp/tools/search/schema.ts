@@ -51,7 +51,7 @@ export const buildSearchInputSchema = () => {
         description: 'Search query (required)',
       },
       limit: {
-        type: 'number',
+        type: 'integer',
         minimum: 1,
         maximum: 100,
         default: 5,
@@ -87,7 +87,7 @@ export const buildSearchInputSchema = () => {
         description: 'Geographic location for localized results',
       },
       timeout: {
-        type: 'number',
+        type: 'integer',
         minimum: 1,
         description: 'Request timeout in milliseconds',
       },
@@ -128,7 +128,7 @@ export const buildSearchInputSchema = () => {
             description: 'Block advertisements and trackers',
           },
           waitFor: {
-            type: 'number',
+            type: 'integer',
             description: 'Milliseconds to wait for page load',
           },
           parsers: {

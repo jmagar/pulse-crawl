@@ -35,6 +35,11 @@ describe('Firecrawl Crawl Client', () => {
 
     const jobId = startResult.id;
 
+    // Type guard: Ensure jobId is defined before proceeding
+    if (!jobId) {
+      throw new Error('jobId is undefined after successful crawl start');
+    }
+
     // Step 2: Monitor progress
     console.log('\n📍 Step 2: Monitoring crawl progress...');
     let attempts = 0;
@@ -42,7 +47,7 @@ describe('Firecrawl Crawl Client', () => {
     let statusResult;
 
     while (attempts < maxAttempts) {
-      statusResult = await client.getStatus(jobId);
+      statusResult = await client.getCrawlStatus(jobId);
       console.log(`   Status: ${statusResult.status}, Progress: ${statusResult.completed}/${statusResult.total}`);
 
       if (statusResult.status === 'completed' || statusResult.status === 'failed') {
@@ -66,7 +71,7 @@ describe('Firecrawl Crawl Client', () => {
 
       // Step 3: Cancel crawl
       console.log('\n📍 Step 3: Cancelling crawl job...');
-      const cancelResult = await client.cancel(jobId);
+      const cancelResult = await client.cancelCrawl(jobId);
 
       expect(cancelResult.status).toBe('cancelled');
       console.log(`✅ Crawl cancelled: ${cancelResult.status}`);
@@ -100,8 +105,15 @@ describe('Firecrawl Crawl Client', () => {
 
     console.log(`✅ Crawl with path filtering started: ${startResult.id}`);
 
+    const jobId = startResult.id;
+
+    // Type guard: Ensure jobId is defined before cancelling
+    if (!jobId) {
+      throw new Error('jobId is undefined after successful crawl start');
+    }
+
     // Clean up by cancelling
-    await client.cancel(startResult.id);
+    await client.cancelCrawl(jobId);
     console.log('✅ Test crawl cancelled');
   }, 30000);
 });

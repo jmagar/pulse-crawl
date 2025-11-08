@@ -1,4 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { MockedFunction } from 'vitest';
 import {
   AnthropicExtractClient,
   OpenAIExtractClient,
@@ -7,50 +8,69 @@ import {
 } from '../../shared/processing/extraction/index.js';
 import type { LLMConfig } from '../../shared/processing/extraction/types.js';
 
-// Mock the SDK modules
-vi.mock('@anthropic-ai/sdk', () => {
-  return {
-    default: vi.fn().mockImplementation(() => ({
-      messages: {
+// Mock the SDK modules with proper factory functions
+vi.mock('@anthropic-ai/sdk', () => ({
+  default: vi.fn(() => ({
+    messages: {
+      create: vi.fn(),
+    },
+  })),
+}));
+
+vi.mock('openai', () => ({
+  default: vi.fn(() => ({
+    chat: {
+      completions: {
         create: vi.fn(),
       },
-    })),
-  };
-});
+    },
+  })),
+}));
 
-vi.mock('openai', () => {
-  return {
-    default: vi.fn().mockImplementation(() => ({
-      chat: {
-        completions: {
-          create: vi.fn(),
-        },
-      },
-    })),
+// Import mocked modules after mocking them
+const { default: Anthropic } = await import('@anthropic-ai/sdk');
+const { default: OpenAI } = await import('openai');
+
+// Type the mocked SDK instances
+type AnthropicInstance = {
+  messages: {
+    create: MockedFunction<(...args: unknown[]) => Promise<unknown>>;
   };
-});
+};
+
+type OpenAIInstance = {
+  chat: {
+    completions: {
+      create: MockedFunction<(...args: unknown[]) => Promise<unknown>>;
+    };
+  };
+};
+
+type AnthropicConstructor = MockedFunction<(config: { apiKey: string }) => AnthropicInstance>;
+type OpenAIConstructor = MockedFunction<
+  (config: { apiKey: string; baseURL?: string }) => OpenAIInstance
+>;
+
+const MockedAnthropic = Anthropic as unknown as AnthropicConstructor;
+const MockedOpenAI = OpenAI as unknown as OpenAIConstructor;
 
 describe('Extract Clients', () => {
   const mockContent = '<html><body><h1>Test Article</h1><p>This is test content.</p></body></html>';
   const mockQuery = 'Extract the article title';
 
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   describe('AnthropicExtractClient', () => {
     it('should extract content successfully', async () => {
-      const mockAnthropicModule = await import('@anthropic-ai/sdk');
-      const AnthropicMock = vi.mocked(mockAnthropicModule.default);
-
       const mockCreate = vi.fn().mockResolvedValue({
         content: [{ type: 'text', text: 'Test Article' }],
       });
 
-      AnthropicMock.mockImplementation(
-        () =>
-          ({
-            messages: {
-              create: mockCreate,
-            },
-          }) as unknown as ReturnType<typeof AnthropicMock>
-      );
+      MockedAnthropic.mockReturnValue({
+        messages: { create: mockCreate },
+      } as AnthropicInstance);
 
       const config: LLMConfig = {
         provider: 'anthropic',
@@ -77,19 +97,11 @@ describe('Extract Clients', () => {
     });
 
     it('should handle extraction errors', async () => {
-      const mockAnthropicModule = await import('@anthropic-ai/sdk');
-      const AnthropicMock = vi.mocked(mockAnthropicModule.default);
-
       const mockCreate = vi.fn().mockRejectedValue(new Error('API Error'));
 
-      AnthropicMock.mockImplementation(
-        () =>
-          ({
-            messages: {
-              create: mockCreate,
-            },
-          }) as unknown as ReturnType<typeof AnthropicMock>
-      );
+      MockedAnthropic.mockReturnValue({
+        messages: { create: mockCreate },
+      } as AnthropicInstance);
 
       const config: LLMConfig = {
         provider: 'anthropic',
@@ -104,21 +116,13 @@ describe('Extract Clients', () => {
     });
 
     it('should use custom model if provided', async () => {
-      const mockAnthropicModule = await import('@anthropic-ai/sdk');
-      const AnthropicMock = vi.mocked(mockAnthropicModule.default);
-
       const mockCreate = vi.fn().mockResolvedValue({
         content: [{ type: 'text', text: 'Test Article' }],
       });
 
-      AnthropicMock.mockImplementation(
-        () =>
-          ({
-            messages: {
-              create: mockCreate,
-            },
-          }) as unknown as ReturnType<typeof AnthropicMock>
-      );
+      MockedAnthropic.mockReturnValue({
+        messages: { create: mockCreate },
+      } as AnthropicInstance);
 
       const config: LLMConfig = {
         provider: 'anthropic',
@@ -139,23 +143,13 @@ describe('Extract Clients', () => {
 
   describe('OpenAIExtractClient', () => {
     it('should extract content successfully', async () => {
-      const mockOpenAIModule = await import('openai');
-      const OpenAIMock = vi.mocked(mockOpenAIModule.default);
-
       const mockCreate = vi.fn().mockResolvedValue({
         choices: [{ message: { content: 'Test Article' } }],
       });
 
-      OpenAIMock.mockImplementation(
-        () =>
-          ({
-            chat: {
-              completions: {
-                create: mockCreate,
-              },
-            },
-          }) as unknown as ReturnType<typeof OpenAIMock>
-      );
+      MockedOpenAI.mockReturnValue({
+        chat: { completions: { create: mockCreate } },
+      } as OpenAIInstance);
 
       const config: LLMConfig = {
         provider: 'openai',
@@ -185,23 +179,13 @@ describe('Extract Clients', () => {
     });
 
     it('should handle empty response', async () => {
-      const mockOpenAIModule = await import('openai');
-      const OpenAIMock = vi.mocked(mockOpenAIModule.default);
-
       const mockCreate = vi.fn().mockResolvedValue({
         choices: [{ message: { content: null } }],
       });
 
-      OpenAIMock.mockImplementation(
-        () =>
-          ({
-            chat: {
-              completions: {
-                create: mockCreate,
-              },
-            },
-          }) as unknown as ReturnType<typeof OpenAIMock>
-      );
+      MockedOpenAI.mockReturnValue({
+        chat: { completions: { create: mockCreate } },
+      } as OpenAIInstance);
 
       const config: LLMConfig = {
         provider: 'openai',
@@ -218,23 +202,13 @@ describe('Extract Clients', () => {
 
   describe('OpenAICompatibleExtractClient', () => {
     it('should extract content successfully with custom base URL', async () => {
-      const mockOpenAIModule = await import('openai');
-      const OpenAIMock = vi.mocked(mockOpenAIModule.default);
-
       const mockCreate = vi.fn().mockResolvedValue({
         choices: [{ message: { content: 'Test Article' } }],
       });
 
-      OpenAIMock.mockImplementation(
-        () =>
-          ({
-            chat: {
-              completions: {
-                create: mockCreate,
-              },
-            },
-          }) as unknown as ReturnType<typeof OpenAIMock>
-      );
+      MockedOpenAI.mockReturnValue({
+        chat: { completions: { create: mockCreate } },
+      } as OpenAIInstance);
 
       const config: LLMConfig = {
         provider: 'openai-compatible',
@@ -248,7 +222,7 @@ describe('Extract Clients', () => {
 
       expect(result.success).toBe(true);
       expect(result.content).toBe('Test Article');
-      expect(OpenAIMock).toHaveBeenCalledWith({
+      expect(MockedOpenAI).toHaveBeenCalledWith({
         apiKey: 'test-api-key',
         baseURL: 'https://api.together.xyz/v1',
       });
@@ -286,14 +260,14 @@ describe('Extract Clients', () => {
       process.env = { ...originalEnv };
     });
 
-    afterEach(() => {
-      process.env = originalEnv;
-    });
-
     it('should create client from environment variables', () => {
       process.env.LLM_PROVIDER = 'anthropic';
       process.env.LLM_API_KEY = 'test-key';
       process.env.LLM_MODEL = 'claude-3-opus-20240229';
+
+      MockedAnthropic.mockReturnValue({
+        messages: { create: vi.fn() },
+      } as AnthropicInstance);
 
       const client = ExtractClientFactory.createFromEnv();
       expect(client).toBeInstanceOf(AnthropicExtractClient);
@@ -318,6 +292,14 @@ describe('Extract Clients', () => {
     });
 
     it('should create correct client type based on provider', () => {
+      MockedAnthropic.mockReturnValue({
+        messages: { create: vi.fn() },
+      } as AnthropicInstance);
+
+      MockedOpenAI.mockReturnValue({
+        chat: { completions: { create: vi.fn() } },
+      } as OpenAIInstance);
+
       const anthropicConfig: LLMConfig = {
         provider: 'anthropic',
         apiKey: 'test-key',

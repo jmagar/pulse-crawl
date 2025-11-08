@@ -58,7 +58,7 @@ describe('Map Pipeline', () => {
         sitemap: 'include',
         includeSubdomains: true,
         ignoreQueryParameters: true,
-        location: { country: 'US' },
+        location: { country: 'US', languages: ['en-US'] },
       };
 
       await mapPipeline(mockClient, options);
@@ -80,7 +80,7 @@ describe('Map Pipeline', () => {
         sitemap: 'include',
         includeSubdomains: true,
         ignoreQueryParameters: true,
-        location: { country: 'US' },
+        location: { country: 'US', languages: ['en-US'] },
       };
 
       await mapPipeline(mockClient, options);
@@ -100,7 +100,7 @@ describe('Map Pipeline', () => {
         sitemap: 'include',
         includeSubdomains: true,
         ignoreQueryParameters: true,
-        location: { country: 'US' },
+        location: { country: 'US', languages: ['en-US'] },
         startIndex: 0,
         maxResults: 200,
         resultHandling: 'saveAndReturn',
@@ -114,7 +114,7 @@ describe('Map Pipeline', () => {
         sitemap: 'include',
         includeSubdomains: true,
         ignoreQueryParameters: true,
-        location: { country: 'US' },
+        location: { country: 'US', languages: ['en-US'] },
       });
     });
   });
@@ -128,7 +128,7 @@ describe('Map Pipeline', () => {
         sitemap: 'include',
         includeSubdomains: true,
         ignoreQueryParameters: true,
-        location: { country: 'US' },
+        location: { country: 'US', languages: ['en-US'] },
         startIndex: 0,
         maxResults: 200,
         resultHandling: 'saveAndReturn',
@@ -151,7 +151,7 @@ describe('Map Pipeline', () => {
         sitemap: 'include',
         includeSubdomains: true,
         ignoreQueryParameters: true,
-        location: { country: 'US' },
+        location: { country: 'US', languages: ['en-US'] },
         startIndex: 0,
         maxResults: 200,
         resultHandling: 'saveAndReturn',
@@ -207,7 +207,7 @@ describe('Map Pipeline', () => {
         sitemap: 'include',
         includeSubdomains: true,
         ignoreQueryParameters: true,
-        location: { country: 'US' },
+        location: { country: 'US', languages: ['en-US'] },
         startIndex: 0,
         maxResults: 200,
         resultHandling: 'saveAndReturn',
@@ -227,7 +227,7 @@ describe('Map Pipeline', () => {
         sitemap: 'include',
         includeSubdomains: true,
         ignoreQueryParameters: true,
-        location: { country: 'US' },
+        location: { country: 'US', languages: ['en-US'] },
         startIndex: 0,
         maxResults: 200,
         resultHandling: 'saveAndReturn',
@@ -245,7 +245,7 @@ describe('Map Pipeline', () => {
         sitemap: 'include',
         includeSubdomains: true,
         ignoreQueryParameters: true,
-        location: { country: 'US' },
+        location: { country: 'US', languages: ['en-US'] },
         startIndex: 999,
         maxResults: 123,
         resultHandling: 'saveOnly',
@@ -284,7 +284,7 @@ describe('Map Pipeline', () => {
           sitemap: 'include',
           includeSubdomains: true,
           ignoreQueryParameters: true,
-          location: { country: 'US' },
+          location: { country: 'US', languages: ['en-US'] },
         };
 
         await mapPipeline(mockClient, options);

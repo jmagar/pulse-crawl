@@ -9,6 +9,16 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { FirecrawlConfig } from '../../../shared/types.js';
+import type {
+  FirecrawlScrapingOptions,
+  FirecrawlScrapingResult,
+  SearchOptions,
+  SearchResult,
+  MapOptions,
+  MapResult,
+  CrawlOptions,
+  StartCrawlResult,
+} from '../../../shared/clients/firecrawl/index.js';
 
 describe('Unified Firecrawl Client', () => {
   let mockFetch: ReturnType<typeof vi.fn>;
@@ -461,34 +471,25 @@ describe('Unified Firecrawl Client', () => {
     it('should export all operation option types', async () => {
       const module = await import('../../../shared/clients/firecrawl/index.js');
 
-      // Verify types are exported (TypeScript compile-time check)
-      type ScrapeOpts = typeof module.FirecrawlScrapingOptions;
-      type SearchOpts = typeof module.SearchOptions;
-      type MapOpts = typeof module.MapOptions;
-      type CrawlOpts = typeof module.CrawlOptions;
-
-      // Runtime check that module exports exist
+      // Type imports at top of file verify these types are exported and compile-time valid
+      // This test verifies the runtime exports (client class and functions)
       expect(module.FirecrawlClient).toBeDefined();
     });
 
     it('should export all result types', async () => {
       const module = await import('../../../shared/clients/firecrawl/index.js');
 
-      // Verify types are exported (TypeScript compile-time check)
-      type ScrapeResult = typeof module.FirecrawlScrapingResult;
-      type SearchResult = typeof module.SearchResult;
-      type MapResult = typeof module.MapResult;
-      type CrawlResult = typeof module.StartCrawlResult;
-
-      // Runtime check
+      // Type imports at top of file verify these types are exported and compile-time valid
+      // This test verifies the runtime exports (client class and functions)
       expect(module.FirecrawlClient).toBeDefined();
     });
 
-    it('should export error types', async () => {
+    it('should export error types and functions', async () => {
       const module = await import('../../../shared/clients/firecrawl/index.js');
 
-      // Verify error function is exported
+      // Verify error categorization function is exported
       expect(module.categorizeFirecrawlError).toBeDefined();
+      expect(typeof module.categorizeFirecrawlError).toBe('function');
     });
   });
 });

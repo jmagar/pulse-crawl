@@ -10,9 +10,8 @@
 // Main client
 export { FirecrawlClient } from './client.js';
 
-// Types
+// Types (FirecrawlConfig is exported from shared/types.ts, not here)
 export type {
-  FirecrawlConfig,
   FirecrawlScrapingOptions,
   FirecrawlScrapingResult,
   SearchOptions,

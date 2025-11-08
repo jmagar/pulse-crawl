@@ -15,6 +15,7 @@ services:
       - OPTIMIZE_FOR=${OPTIMIZE_FOR:-speed}
       - MCP_RESOURCE_STORAGE=${MCP_RESOURCE_STORAGE:-filesystem}
       - MCP_RESOURCE_FILESYSTEM_ROOT=${MCP_RESOURCE_FILESYSTEM_ROOT:-/app/resources}
+      - FORCE_COLOR=1
     env_file:
       - .env
     restart: unless-stopped

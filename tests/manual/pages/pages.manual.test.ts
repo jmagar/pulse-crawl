@@ -24,7 +24,8 @@ import type {
   StrategyConfigFactory,
   IScrapingClients,
 } from '../../../shared/server.js';
-import { NativeFetcher, FirecrawlClient } from '../../../shared/server.js';
+import { NativeFetcher } from '../../../shared/server.js';
+import { FirecrawlClient } from '../../../shared/clients/firecrawl/index.js';
 
 interface TestResult {
   page: PageTestCase;
@@ -84,7 +85,7 @@ async function testPageWithConfig(page: PageTestCase, config: EnvVarConfig): Pro
       };
 
       if (firecrawlApiKey) {
-        clients.firecrawl = new FirecrawlClient(firecrawlApiKey);
+        clients.firecrawl = new FirecrawlClient({ apiKey: firecrawlApiKey });
       }
 
       return clients;

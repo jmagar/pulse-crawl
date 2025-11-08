@@ -57,17 +57,17 @@ function displayBanner(): void {
       Colors.cyan,
       Colors.bold
     ),
-    colorize('║                     ', Colors.cyan, Colors.bold) +
+    colorize('║                       ', Colors.cyan, Colors.bold) +
       colorize('🌊 Pulse Fetch MCP Server', Colors.brightWhite, Colors.bold) +
-      colorize('                         ║', Colors.cyan, Colors.bold),
+      colorize('                        ║', Colors.cyan, Colors.bold),
     colorize(
       '║                                                                               ║',
       Colors.cyan,
       Colors.bold
     ),
-    colorize('║                         ', Colors.cyan, Colors.bold) +
+    colorize('║                           ', Colors.cyan, Colors.bold) +
       colorize('Remote HTTP Transport', Colors.brightCyan) +
-      colorize('                              ║', Colors.cyan, Colors.bold),
+      colorize('                           ║', Colors.cyan, Colors.bold),
     colorize(
       '║                                                                               ║',
       Colors.cyan,

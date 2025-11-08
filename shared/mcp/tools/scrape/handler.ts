@@ -31,7 +31,8 @@ export async function handleScrapeRequest(
     }
 
     // Check if screenshot is requested
-    const formats = ((validatedArgs as Record<string, unknown>).formats as string[] | undefined) || [];
+    const formats =
+      ((validatedArgs as Record<string, unknown>).formats as string[] | undefined) || [];
     const includeScreenshot = formats.includes('screenshot');
 
     // Check for cached resources (skip cache if screenshot requested)
@@ -120,7 +121,7 @@ export async function handleScrapeRequest(
         content: [
           {
             type: 'text',
-            text: `Invalid arguments: ${error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`,
+            text: `Invalid arguments: ${error.issues.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`,
           },
         ],
         isError: true,

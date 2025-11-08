@@ -124,18 +124,17 @@ Pulse Fetch supports two MCP transport protocols:
 
 **How it works:**
 
-1. Client spawns Node.js process via `node /path/to/local/build/index.js`
+1. Client spawns Node.js process via `node /path/to/local/dist/index.js`
 2. Communication happens via stdin/stdout using JSON-RPC
 3. Process lifecycle managed by the MCP client
 
 **Implementation:** [`local/index.ts`](local/index.ts)
 
 ```typescript
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/index.js';
-import { createMCPServer, registerHandlers } from 'pulse-crawl-shared';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { createMCPServer } from './shared/index.js';
 
 const server = createMCPServer();
-registerHandlers(server);
 
 const transport = new StdioServerTransport();
 await server.connect(transport);
@@ -163,18 +162,20 @@ await server.connect(transport);
 2. Clients POST JSON-RPC requests to `/mcp` endpoint
 3. Server responds with JSON or SSE stream
 
-**Implementation:** [`remote/index.ts`](remote/index.ts)
+**Implementation:** [`remote/server.ts`](remote/server.ts)
 
 ```typescript
 import express from 'express';
-import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/index.js';
-import { createMCPServer, registerHandlers } from 'pulse-crawl-shared';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import { createMCPServer } from './shared/index.js';
 
 const app = express();
 const server = createMCPServer();
-registerHandlers(server);
 
-const transport = new StreamableHTTPServerTransport('/mcp', app);
+const transport = new StreamableHTTPServerTransport({
+  endpoint: '/mcp',
+  app,
+});
 await server.connect(transport);
 
 app.listen(process.env.PORT || 3060);
@@ -297,7 +298,7 @@ Tools return MCP-compliant responses:
     {
       type: 'resource',
       resource: {
-        uri: 'pulse://cleaned/example.com/abc123',
+        uri: 'memory://cleaned/example_com_20250107120000',
         name: 'Example Page (Cleaned)',
         mimeType: 'text/markdown',
         text: '...',
@@ -320,17 +321,17 @@ Pulse Fetch caches scraped content in **three tiers** to enable efficient reuse:
                         │
                 ┌───────▼────────┐
                 │   Raw Tier     │  ← Original HTML from fetch/browser/Firecrawl
-                │ pulse://raw/*  │
+                │ memory://raw/* │
                 └───────┬────────┘
                         │
                 ┌───────▼────────┐
                 │ Cleaned Tier   │  ← HTML → Markdown, main content only
-                │pulse://cleaned/*│
+                │memory://cleaned/*│
                 └───────┬────────┘
                         │
                 ┌───────▼────────┐
                 │ Extracted Tier │  ← LLM-processed structured data
-                │pulse://extracted/*│
+                │memory://extracted/*│
                 └────────────────┘
 ```
 
@@ -338,7 +339,10 @@ Pulse Fetch caches scraped content in **three tiers** to enable efficient reuse:
 
 **Purpose:** Store original content exactly as fetched
 
-**URI Pattern:** `pulse://raw/<domain>/<hash>`
+**URI Pattern:**
+
+- Memory: `memory://raw/<sanitized-url>_<timestamp>`
+- Filesystem: `file://<root>/raw/<filename>`
 
 **Content:** Full HTML response with metadata (headers, status code)
 
@@ -352,7 +356,10 @@ Pulse Fetch caches scraped content in **three tiers** to enable efficient reuse:
 
 **Purpose:** Store human-readable Markdown
 
-**URI Pattern:** `pulse://cleaned/<domain>/<hash>`
+**URI Pattern:**
+
+- Memory: `memory://cleaned/<sanitized-url>_<timestamp>`
+- Filesystem: `file://<root>/cleaned/<filename>`
 
 **Content:** Semantic Markdown with:
 
@@ -371,7 +378,10 @@ Pulse Fetch caches scraped content in **three tiers** to enable efficient reuse:
 
 **Purpose:** Store LLM-processed structured data
 
-**URI Pattern:** `pulse://extracted/<domain>/<hash-with-prompt>`
+**URI Pattern:**
+
+- Memory: `memory://extracted/<sanitized-url>_<timestamp>`
+- Filesystem: `file://<root>/extracted/<filename>`
 
 **Content:** Structured data matching the extraction prompt
 
@@ -440,16 +450,6 @@ Pulse Fetch uses a **multi-strategy fallback cascade** for robust scraping:
        │               │
        ▼               │
 ┌──────────────┐       │
-│   Browser    │       │
-│  Automation  │       │
-└──────┬───────┘       │
-       │               │
-    Success? ────Yes───┤
-       │               │
-      No               │
-       │               │
-       ▼               │
-┌──────────────┐       │
 │  Firecrawl   │       │
 │     API      │       │
 └──────┬───────┘       │
@@ -469,28 +469,21 @@ Pulse Fetch uses a **multi-strategy fallback cascade** for robust scraping:
 
 **Native Fetch** (always attempted first if `OPTIMIZE_FOR=cost`):
 
-- Simple HTTP GET request
+- Simple HTTP GET request with `fetch()`
 - No JavaScript execution
 - Fastest (~500ms)
 - Cheapest (free)
 - **Fails on:** SPAs, bot detection, JavaScript-required content
 
-**Browser Automation** (if `ENABLE_BROWSER=true`):
-
-- Full Chrome/Firefox browser
-- JavaScript execution
-- Can handle SPAs
-- Medium speed (~2-5s)
-- **Fails on:** Aggressive bot detection (Cloudflare, etc.)
-
 **Firecrawl** (if `FIRECRAWL_API_KEY` set):
 
-- Enhanced extraction engine
+- Enhanced extraction engine with browser rendering
 - Anti-bot bypass built-in
-- Handles most edge cases
-- Slowest (~3-10s)
-- Most expensive (API costs)
-- **Fails on:** Extremely rare edge cases
+- JavaScript execution support
+- Handles most edge cases (SPAs, dynamic content, bot protection)
+- Slower (~3-10s)
+- Costs API credits
+- **Rarely fails** - most robust option
 
 ### Configuration
 

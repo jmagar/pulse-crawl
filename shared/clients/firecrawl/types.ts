@@ -179,8 +179,9 @@ export interface CrawlOptions {
  */
 export interface StartCrawlResult {
   success: boolean;
-  id: string;
-  url: string;
+  id?: string;
+  url?: string;
+  error?: string;
 }
 
 /**

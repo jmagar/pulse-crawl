@@ -6,7 +6,8 @@ import type {
   StrategyConfigFactory,
   IScrapingClients,
 } from '../../../shared/server.js';
-import { NativeFetcher, FirecrawlClient } from '../../../shared/server.js';
+import { NativeFetcher } from '../../../shared/server.js';
+import { FirecrawlClient } from '../../../shared/clients/firecrawl/index.js';
 import { FilesystemStrategyConfigClient } from '../../../shared/scraping/strategies/learned/index.js';
 
 describe('Scrape Tool', () => {
@@ -25,7 +26,7 @@ describe('Scrape Tool', () => {
       };
 
       if (firecrawlApiKey) {
-        clients.firecrawl = new FirecrawlClient(firecrawlApiKey);
+        clients.firecrawl = new FirecrawlClient({ apiKey: firecrawlApiKey });
       }
 
       return clients;

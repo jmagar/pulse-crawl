@@ -104,11 +104,15 @@ async function testToolsList(sessionId: string) {
     });
     
     const data = await response.json();
-    
+
+    const rawTools = data.result?.tools ?? [];
+    const tools = rawTools as Tool[];
+    const toolNames = tools.map((tool) => (tool as { name: string }).name);
+
     console.log('✅ Tools list response:', {
       status: response.status,
-      toolCount: data.result?.tools?.length || 0,
-      tools: data.result?.tools?.map((t: Tool) => t.name) || [],
+      toolCount: tools.length,
+      tools: toolNames,
     });
     
     if (!data.result?.tools) {

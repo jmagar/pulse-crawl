@@ -8,8 +8,8 @@ export {
   categorizeFirecrawlError,
 } from './firecrawl/index.js';
 
+// Re-export types (FirecrawlConfig is exported from shared/types.ts)
 export type {
-  FirecrawlConfig,
   FirecrawlScrapingOptions,
   FirecrawlScrapingResult,
   SearchOptions,

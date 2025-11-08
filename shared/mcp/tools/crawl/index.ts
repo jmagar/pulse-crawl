@@ -13,7 +13,7 @@ export function createCrawlTool(config: FirecrawlConfig): Tool {
     name: 'crawl',
     description:
       'Manage website crawling jobs. Start a crawl with url parameter, check status with jobId, or cancel with jobId + cancel=true.',
-    inputSchema: zodToJsonSchema(crawlOptionsSchema) as any,
+    inputSchema: zodToJsonSchema(crawlOptionsSchema as any) as any,
 
     handler: async (args: unknown) => {
       try {
