@@ -73,7 +73,32 @@ Configure geographic location for content localization and proxy selection.
 
 - `MAP_DEFAULT_COUNTRY` - Override default country code
 - `MAP_DEFAULT_LANGUAGES` - Override default languages (comma-separated)
-- `MAP_MAX_RESULTS_PER_PAGE` - Override default maxResults value
+- `MAP_MAX_RESULTS_PER_PAGE` - Override default maxResults value (must be 1-5000)
+
+**Default Location Behavior:**
+
+The `location` parameter always defaults to:
+
+```json
+{
+  "country": "US", // or MAP_DEFAULT_COUNTRY env var
+  "languages": ["en-US"] // or MAP_DEFAULT_LANGUAGES env var
+}
+```
+
+Location is **always sent to the API**, even when not explicitly specified by the user.
+
+**Environment Variable Validation:**
+
+`MAP_MAX_RESULTS_PER_PAGE` must be between 1-5000. Invalid values trigger a console warning and default to 200:
+
+```bash
+# Valid
+MAP_MAX_RESULTS_PER_PAGE=500
+
+# Invalid - will use 200 with console warning
+MAP_MAX_RESULTS_PER_PAGE=10000
+```
 
 ## Response Format
 
@@ -101,6 +126,29 @@ Returns an array of discovered URLs with optional metadata:
 Typical performance: **~1.4 seconds to discover 1,200+ links**
 
 The map tool is optimized for speed and does not extract page content. It only discovers URLs.
+
+### Token Estimation
+
+Token estimates use a **4:1 character-to-token ratio**:
+
+- 200 URLs ≈ 13,000 tokens
+- 1000 URLs ≈ 65,000 tokens
+
+Formula: `estimatedTokens = ceil(characterCount / 4)`
+
+This estimation helps plan pagination and context window usage.
+
+### Resource URI Format
+
+Saved resources use this URI format:
+
+```
+pulse-crawl://map/{hostname}/{timestamp}/page-{pageNumber}
+```
+
+Where `pageNumber = floor(startIndex / maxResults)`
+
+Example: `pulse-crawl://map/example.com/1699564800000/page-2`
 
 ## Use Cases
 
