@@ -2,6 +2,16 @@
 
 The `crawl` tool enables recursive website crawling with progress tracking and job management. A single consolidated tool handles start, status, and cancel operations.
 
+## Features
+
+- **Natural Language Prompts**: Describe what to crawl in plain English
+- **Browser Automation**: Apply actions to every page in the crawl
+- **Job Management**: Async crawling with status tracking
+- **Path Filtering**: Include/exclude URLs with regex patterns
+- **Depth Control**: Limit how deep the crawler follows links
+- **Domain Scope**: Configure subdomain and external link behavior
+- **Rate Limiting**: Respectful crawling with delays and concurrency limits
+
 ## Operations
 
 ### Start a Crawl
@@ -89,40 +99,58 @@ Provide `jobId` + `cancel: true` to cancel an in-progress job.
 
 ## Parameters
 
+### Operation Mode
+
+The tool uses **XOR validation** - you must provide **exactly one** of these parameter groups:
+
+**Mode 1: Start a New Crawl**
+
+- `url` (required): string - Starting URL for the crawl
+
+**Mode 2: Check Status or Cancel**
+
+- `jobId` (required): string - Job ID from start response
+- `cancel` (optional): boolean - Set true to cancel
+
 ### Start Crawl Parameters
 
-| Parameter               | Type    | Required | Default   | Description                                               |
-| ----------------------- | ------- | -------- | --------- | --------------------------------------------------------- |
-| `url`                   | string  | Yes      | -         | Starting URL for the crawl                                |
-| `prompt`                | string  | No       | -         | Natural language description of what to crawl (see below) |
-| `limit`                 | number  | No       | 100       | Maximum pages to crawl (1-100,000)                        |
-| `maxDepth`              | number  | No       | -         | Maximum link traversal depth                              |
-| `crawlEntireDomain`     | boolean | No       | false     | Crawl all pages in the domain                             |
-| `allowSubdomains`       | boolean | No       | false     | Include subdomain URLs                                    |
-| `allowExternalLinks`    | boolean | No       | false     | Follow external links                                     |
-| `includePaths`          | array   | No       | -         | Include only URLs matching these patterns                 |
-| `excludePaths`          | array   | No       | -         | Exclude URLs matching these patterns                      |
-| `ignoreQueryParameters` | boolean | No       | true      | Ignore URL query parameters                               |
-| `sitemap`               | string  | No       | "include" | Sitemap handling: `include`, `skip`                       |
-| `delay`                 | number  | No       | -         | Delay between requests (ms)                               |
-| `maxConcurrency`        | number  | No       | -         | Maximum concurrent requests                               |
-| `scrapeOptions`         | object  | No       | -         | Options for scraping each page                            |
+| Parameter               | Type    | Required | Default   | Description                                              |
+| ----------------------- | ------- | -------- | --------- | -------------------------------------------------------- |
+| `url`                   | string  | Yes\*    | -         | Starting URL for the crawl                               |
+| `prompt`                | string  | No       | -         | Natural language crawl description (AI-generated params) |
+| `limit`                 | number  | No       | 100       | Maximum pages to crawl (1-100,000)                       |
+| `maxDepth`              | number  | No       | -         | Maximum link traversal depth                             |
+| `crawlEntireDomain`     | boolean | No       | false     | Crawl all pages in the domain                            |
+| `allowSubdomains`       | boolean | No       | false     | Include subdomain URLs                                   |
+| `allowExternalLinks`    | boolean | No       | false     | Follow external links                                    |
+| `includePaths`          | array   | No       | -         | Include only URLs matching these patterns                |
+| `excludePaths`          | array   | No       | -         | Exclude URLs matching these patterns                     |
+| `ignoreQueryParameters` | boolean | No       | true      | Ignore URL query parameters                              |
+| `sitemap`               | enum    | No       | 'include' | Sitemap handling: `include`, `skip`                      |
+| `delay`                 | number  | No       | -         | Delay between requests (ms)                              |
+| `maxConcurrency`        | number  | No       | -         | Maximum concurrent requests                              |
+| `scrapeOptions`         | object  | No       | -         | Options for scraping each page                           |
+
+\*Required when starting a crawl; cannot be provided with `jobId`.
 
 ### Status/Cancel Parameters
 
 | Parameter | Type    | Required | Default | Description                      |
 | --------- | ------- | -------- | ------- | -------------------------------- |
-| `jobId`   | string  | Yes      | -       | Job ID from start crawl response |
+| `jobId`   | string  | Yes\*    | -       | Job ID from start crawl response |
 | `cancel`  | boolean | No       | false   | Set to true to cancel the job    |
+
+\*Required when checking status or canceling; cannot be provided with `url`.
 
 ### Scrape Options
 
-| Option            | Type    | Default      | Description                |
-| ----------------- | ------- | ------------ | -------------------------- |
-| `formats`         | array   | ["markdown"] | Content formats to extract |
-| `onlyMainContent` | boolean | true         | Extract only main content  |
-| `includeTags`     | array   | -            | HTML tags to include       |
-| `excludeTags`     | array   | -            | HTML tags to exclude       |
+| Option            | Type    | Default      | Description                            |
+| ----------------- | ------- | ------------ | -------------------------------------- |
+| `formats`         | array   | ["markdown"] | Content formats to extract             |
+| `onlyMainContent` | boolean | true         | Extract only main content              |
+| `includeTags`     | array   | -            | HTML tags to include                   |
+| `excludeTags`     | array   | -            | HTML tags to exclude                   |
+| `actions`         | array   | -            | Browser automation actions (see below) |
 
 ## Natural Language Crawling
 
@@ -259,6 +287,56 @@ In this case:
 ```
 
 The prompt-based approach is simpler but the manual approach gives you precise control over patterns and behavior.
+
+## Browser Actions
+
+**NEW FEATURE**: Apply browser automation actions to **every page** in the crawl (added recently).
+
+### Supported Actions
+
+The `actions` parameter in `scrapeOptions` supports the same 8 action types as the SCRAPE tool:
+
+1. **wait**: `{ "type": "wait", "milliseconds": number }`
+2. **click**: `{ "type": "click", "selector": string }`
+3. **write**: `{ "type": "write", "selector": string, "text": string }`
+4. **press**: `{ "type": "press", "key": string }`
+5. **scroll**: `{ "type": "scroll", "direction": "up"|"down", "amount": number }`
+6. **screenshot**: `{ "type": "screenshot", "name": string }`
+7. **scrape**: `{ "type": "scrape", "selector": string }`
+8. **executeJavascript**: `{ "type": "executeJavascript", "script": string }`
+
+### Key Difference from SCRAPE Tool
+
+**SCRAPE**: Actions run once on a single page
+**CRAWL**: Actions run on **every page** in the crawl
+
+This enables powerful workflows like:
+
+- Close cookie banners on every page
+- Expand "show more" sections across entire site
+- Remove ads/popups from all crawled pages
+- Take screenshots of every page
+
+### Example: Close Modals on Every Page
+
+```json
+{
+  "url": "https://example.com",
+  "limit": 50,
+  "scrapeOptions": {
+    "formats": ["markdown"],
+    "onlyMainContent": true,
+    "actions": [
+      { "type": "click", "selector": ".cookie-accept" },
+      { "type": "wait", "milliseconds": 500 },
+      {
+        "type": "executeJavascript",
+        "script": "document.querySelector('.newsletter-popup')?.remove()"
+      }
+    ]
+  }
+}
+```
 
 ## Advanced Options
 
@@ -408,6 +486,33 @@ Add delays to be respectful of server resources:
 }
 ```
 
+### Crawl with Browser Actions
+
+```json
+{
+  "url": "https://example.com",
+  "limit": 100,
+  "scrapeOptions": {
+    "formats": ["markdown"],
+    "onlyMainContent": true,
+    "actions": [
+      { "type": "wait", "milliseconds": 2000 },
+      { "type": "scroll", "direction": "down", "amount": 1000 }
+    ]
+  }
+}
+```
+
+## Environment Variables
+
+**Required**:
+
+- `FIRECRAWL_API_KEY` - Firecrawl API key
+
+**Optional**:
+
+- `FIRECRAWL_BASE_URL` - Custom base URL (default: `https://api.firecrawl.dev`)
+
 ## Tips
 
 - Try the `prompt` parameter first for quick, intuitive crawling
@@ -423,10 +528,18 @@ Add delays to be respectful of server resources:
 
 ## Comparison: Map vs Crawl vs Scrape
 
-| Feature      | Map           | Crawl              | Scrape              |
-| ------------ | ------------- | ------------------ | ------------------- |
-| Pages        | Many          | Many               | Single              |
-| Content      | URLs only     | Full content       | Full content        |
-| Speed        | Fastest       | Moderate           | Fast                |
-| Job tracking | No            | Yes                | No                  |
-| Use case     | URL discovery | Multi-page content | Single-page content |
+| Feature              | Map           | Crawl              | Scrape              |
+| -------------------- | ------------- | ------------------ | ------------------- |
+| **Pages**            | Many          | Many               | Single              |
+| **Content**          | URLs only     | Full content       | Full content        |
+| **Speed**            | Fastest       | Moderate           | Fast                |
+| **Job tracking**     | No            | Yes                | No                  |
+| **Browser Actions**  | No            | Yes (per-page)     | Yes                 |
+| **Natural Language** | No            | Yes (prompt)       | No                  |
+| **Use case**         | URL discovery | Multi-page content | Single-page content |
+
+**When to use:**
+
+- **Map:** Quick site structure, URL list before selective scraping
+- **Crawl:** Related pages, entire site sections, multi-page content extraction
+- **Scrape:** Single page with LLM extraction or browser interaction
