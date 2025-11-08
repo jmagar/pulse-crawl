@@ -82,3 +82,141 @@ export const crawlOptionsSchema = z
   );
 
 export type CrawlOptions = z.infer<typeof crawlOptionsSchema>;
+
+/**
+ * Build JSON Schema for crawl tool input
+ *
+ * Manually constructs JSON Schema to avoid zodToJsonSchema cross-module
+ * instanceof issues. Schemas imported from dist/ fail instanceof checks,
+ * returning empty schemas.
+ */
+export const buildCrawlInputSchema = () => {
+  return {
+    type: 'object' as const,
+    properties: {
+      url: {
+        type: 'string',
+        format: 'uri',
+        description: 'URL to start crawling from (for starting new crawl)',
+      },
+      jobId: {
+        type: 'string',
+        minLength: 1,
+        description: 'Crawl job ID (for checking status or canceling)',
+      },
+      cancel: {
+        type: 'boolean',
+        default: false,
+        description: 'Set to true with jobId to cancel a running crawl',
+      },
+      prompt: {
+        type: 'string',
+        description:
+          'Natural language prompt describing the crawl you want to perform. ' +
+          'Firecrawl will automatically generate optimal crawl parameters based on your description. ' +
+          'Examples: ' +
+          '"Find all blog posts about AI from the past year", ' +
+          '"Crawl the documentation section and extract API endpoints", ' +
+          '"Get all product pages with pricing information", ' +
+          '"Map the entire site but exclude admin pages". ' +
+          'When provided, this takes precedence over manual parameters like limit, maxDepth, etc.',
+      },
+      limit: {
+        type: 'integer',
+        minimum: 1,
+        maximum: 100000,
+        default: 100,
+        description: 'Maximum pages to crawl (1-100000, default 100)',
+      },
+      maxDepth: {
+        type: 'integer',
+        minimum: 1,
+        description: 'Maximum crawl depth (number of link levels to follow)',
+      },
+      crawlEntireDomain: {
+        type: 'boolean',
+        default: false,
+        description: 'Crawl the entire domain (not just the starting path)',
+      },
+      allowSubdomains: {
+        type: 'boolean',
+        default: false,
+        description: 'Include URLs from subdomains of the base domain',
+      },
+      allowExternalLinks: {
+        type: 'boolean',
+        default: false,
+        description: 'Allow following links to external domains',
+      },
+      includePaths: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'URL patterns to include in crawl (whitelist)',
+      },
+      excludePaths: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'URL patterns to exclude from crawl',
+      },
+      ignoreQueryParameters: {
+        type: 'boolean',
+        default: true,
+        description: 'Ignore URL query parameters when determining uniqueness',
+      },
+      sitemap: {
+        type: 'string',
+        enum: ['include', 'skip'],
+        default: 'include',
+        description: 'How to handle sitemap URLs: include or skip',
+      },
+      delay: {
+        type: 'integer',
+        minimum: 0,
+        description: 'Delay in milliseconds between requests',
+      },
+      maxConcurrency: {
+        type: 'integer',
+        minimum: 1,
+        description: 'Maximum number of concurrent requests',
+      },
+      scrapeOptions: {
+        type: 'object',
+        properties: {
+          formats: {
+            type: 'array',
+            items: { type: 'string' },
+            default: ['markdown'],
+            description: 'Content formats to extract (markdown, html, etc.)',
+          },
+          onlyMainContent: {
+            type: 'boolean',
+            default: true,
+            description: 'Extract only main content, excluding nav/ads',
+          },
+          includeTags: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'HTML tags to include in extraction',
+          },
+          excludeTags: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'HTML tags to exclude from extraction',
+          },
+          actions: {
+            type: 'array',
+            items: { type: 'object' },
+            description:
+              'Browser actions to perform on each page before scraping. ' +
+              'Same action types as scrape tool: wait, click, write, press, scroll, screenshot, scrape, executeJavascript. ' +
+              'Applied to every page in the crawl.',
+          },
+        },
+        description: 'Options for scraping crawled pages',
+      },
+    },
+    // Note: url and jobId are mutually exclusive, but JSON Schema
+    // can't express XOR at root level for Anthropic API compatibility.
+    // Validation happens in Zod schema via .refine()
+  };
+};
