@@ -28,6 +28,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive test coverage for all new tools (78 tests passing)
 - Manual testing scripts for each tool in `tests/manual/features/`
 - Complete documentation in `docs/tools/` (SEARCH.md, MAP.md, CRAWL.md)
+- **documentation**: Complete SCRAPE tool documentation with all 17 parameters
+  - 8 browser action types with detailed examples
+  - LLM extraction feature setup and usage
+  - Multi-tier caching system explanation
+  - Response format examples for all modes (saveOnly, saveAndReturn, returnOnly)
+  - Advanced usage examples and comprehensive troubleshooting guide
+- **documentation**: Complete CRAWL tool documentation
+  - Natural language prompt feature with AI-generated parameters
+  - Browser actions support (NEW: actions apply to every page in crawl)
+  - XOR validation for operation modes (url vs jobId)
+  - Job management workflow (start/status/cancel)
+  - Response format and status values
+- **documentation**: Enhanced SEARCH tool documentation
+  - Detailed tbs parameter documentation for time-based filtering
+  - Preset time ranges (qdr:h, qdr:d, qdr:w, qdr:m, qdr:y)
+  - Custom date range format with examples
+- **documentation**: Enhanced MAP tool documentation
+  - Environment variable validation details (MAP_MAX_RESULTS_PER_PAGE)
+  - Default location behavior clarification
+  - Resource URI format specification
+  - Token estimation formula (4:1 character-to-token ratio)
 
 ### Changed
 
@@ -37,6 +58,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **search tool**: Fixed `tbs` parameter not being passed to Firecrawl API
+  - The tbs parameter was validated in schema but never included in the pipeline mapping
+  - Added test verification and fixed pipeline to pass tbs to API calls
+  - Time-based search filtering now works correctly
 - **Environment Variable Consistency**: Standardized all Firecrawl tools to use `FIRECRAWL_BASE_URL` (previously had inconsistent naming causing authentication failures)
 - **Crawl Tool Schema Compatibility**: Fixed Anthropic API validation error by flattening crawl schema to avoid `anyOf` at root level (previously used Zod `.or()` union which generated incompatible JSON schema)
 - **Debug Logging**: Added server-side logging to detect schema validation issues at startup (enable with `DEBUG=true` or `NODE_ENV=development`)
