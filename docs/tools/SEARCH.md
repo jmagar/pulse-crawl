@@ -65,6 +65,7 @@ The `search` tool enables web searching with optional content scraping using Fir
 | `lang`              | string  | No       | "en"    | Language preference                                    |
 | `location`          | string  | No       | -       | Location for localized results                         |
 | `timeout`           | number  | No       | -       | Request timeout in milliseconds                        |
+| `tbs`               | string  | No       | -       | Time-based search filter (see below)                   |
 | `ignoreInvalidURLs` | boolean | No       | false   | Skip invalid URLs in results                           |
 | `scrapeOptions`     | object  | No       | -       | Options for scraping search results                    |
 
@@ -80,6 +81,47 @@ When `scrapeOptions` is provided, the tool will scrape the full content of searc
 | `blockAds`           | boolean | true    | Block advertisements                               |
 | `waitFor`            | number  | -       | Wait time in milliseconds before scraping          |
 | `parsers`            | array   | -       | Custom parser configuration                        |
+
+### Time-Based Search Filtering
+
+The `tbs` parameter filters search results by date range, allowing you to find recent or historical content.
+
+**Preset Ranges:**
+
+| Value   | Description   |
+| ------- | ------------- |
+| `qdr:h` | Past hour     |
+| `qdr:d` | Past 24 hours |
+| `qdr:w` | Past week     |
+| `qdr:m` | Past month    |
+| `qdr:y` | Past year     |
+
+**Custom Date Ranges:**
+
+Format: `cdr:a,cd_min:MM/DD/YYYY,cd_max:MM/DD/YYYY`
+
+**Examples:**
+
+```json
+// Find AI news from the past day
+{
+  "query": "AI news",
+  "tbs": "qdr:d"
+}
+
+// Search for articles from 2024
+{
+  "query": "web scraping",
+  "tbs": "cdr:a,cd_min:01/01/2024,cd_max:12/31/2024"
+}
+
+// Recent research papers (past month)
+{
+  "query": "machine learning",
+  "categories": ["research"],
+  "tbs": "qdr:m"
+}
+```
 
 ## Response Format
 
