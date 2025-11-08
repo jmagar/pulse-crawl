@@ -49,7 +49,7 @@ Add to `claude_desktop_config.json`:
   "mcpServers": {
     "pulse": {
       "command": "node",
-      "args": ["/path/to/pulse-fetch/local/build/index.js"]
+      "args": ["/path/to/pulse-fetch/local/dist/index.js"]
     }
   }
 }
