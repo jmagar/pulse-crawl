@@ -493,7 +493,7 @@ Pulse Fetch uses a **multi-strategy fallback cascade** for robust scraping:
 OPTIMIZE_FOR=cost
 ```
 
-Tries native → browser → Firecrawl
+Tries native → Firecrawl (fallback only when native fails)
 
 **Speed Optimization:**
 
@@ -501,7 +501,7 @@ Tries native → browser → Firecrawl
 OPTIMIZE_FOR=speed
 ```
 
-Skips native, goes straight to Firecrawl
+Skips native, goes straight to Firecrawl (best for sites with heavy bot protection)
 
 **Force Specific Strategy:**
 
@@ -704,14 +704,13 @@ API Check  API Check
 
 ## Performance Characteristics
 
-| Operation           | Latency | Notes                     |
-| ------------------- | ------- | ------------------------- |
-| **Cache Hit**       | ~10ms   | Memory lookup             |
-| **Native Fetch**    | ~500ms  | Simple HTTP GET           |
-| **Browser Scrape**  | ~2-5s   | Full page render          |
-| **Firecrawl**       | ~3-10s  | API call + processing     |
-| **LLM Extraction**  | ~2-5s   | Depends on content length |
-| **Clean (HTML→MD)** | ~100ms  | Local processing          |
+| Operation           | Latency | Notes                                     |
+| ------------------- | ------- | ----------------------------------------- |
+| **Cache Hit**       | ~10ms   | Memory lookup                             |
+| **Native Fetch**    | ~500ms  | Simple HTTP GET                           |
+| **Firecrawl**       | ~3-10s  | API call + browser rendering + processing |
+| **LLM Extraction**  | ~2-5s   | Depends on content length                 |
+| **Clean (HTML→MD)** | ~100ms  | Local processing                          |
 
 **Total Scrape Time:**
 
