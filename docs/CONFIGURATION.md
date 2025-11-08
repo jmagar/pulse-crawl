@@ -525,4 +525,4 @@ curl http://localhost:3060/health
 - **[Getting Started](GETTING_STARTED.md)** - First scrape tutorial
 - **[Architecture Overview](ARCHITECTURE.md)** - How configuration affects system behavior
 - **[Tool Documentation](tools/)** - Tool-specific parameters
-- **[TROUBLESHOOTING.md](../TROUBLESHOOTING.md)** - Common configuration issues (coming soon)
+- **[Troubleshooting Guide](TROUBLESHOOTING.md)** - Common configuration issues

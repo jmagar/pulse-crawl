@@ -99,14 +99,14 @@ Server runs on `http://localhost:3060`
 ### For Developers
 
 - **[Architecture](docs/ARCHITECTURE.md)** - System design and how components work together
-- **[Development Guide](DEVELOPMENT.md)** - Setup, testing, and contribution workflow _(coming soon)_
-- **[API Reference](API_REFERENCE.md)** - Complete tool schemas and parameters _(coming soon)_
+- **[Development Guide](docs/DEVELOPMENT.md)** - Setup, testing, and contribution workflow
+- **[API Reference](docs/API_REFERENCE.md)** - Complete tool schemas and parameters
 
 ### For Operators
 
-- **[Deployment Guide](DEPLOYMENT.md)** - Production setup and Docker configuration _(coming soon)_
-- **[Troubleshooting](TROUBLESHOOTING.md)** - Common issues and solutions _(coming soon)_
-- **[Performance Guide](PERFORMANCE.md)** - Optimization and caching strategies _(coming soon)_
+- **[Deployment Guide](docs/DEPLOYMENT.md)** - Production setup and Docker configuration
+- **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Common issues and solutions
+- **[Performance Guide](docs/PERFORMANCE.md)** - Optimization and caching strategies
 
 ## Configuration
 

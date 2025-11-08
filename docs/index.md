@@ -41,14 +41,14 @@ Detailed references for each of the four tools:
 **For Developers:**
 
 - **[Architecture](ARCHITECTURE.md)** - System design, monorepo structure, data flows
-- **[Development Guide](../DEVELOPMENT.md)** - Setup, testing, contributing
-- **[API Reference](../API_REFERENCE.md)** - Complete tool schemas
+- **[Development Guide](DEVELOPMENT.md)** - Setup, testing, contributing
+- **[API Reference](API_REFERENCE.md)** - Complete tool schemas
 
 **For Operators:**
 
-- **[Deployment Guide](../DEPLOYMENT.md)** - Production setup and Docker
-- **[Troubleshooting](../TROUBLESHOOTING.md)** - Common issues and solutions
-- **[Performance Guide](../PERFORMANCE.md)** - Optimization and scaling
+- **[Deployment Guide](DEPLOYMENT.md)** - Production setup and Docker
+- **[Troubleshooting](TROUBLESHOOTING.md)** - Common issues and solutions
+- **[Performance Guide](PERFORMANCE.md)** - Optimization and scaling
 
 ## Documentation by Use Case
 
@@ -69,17 +69,17 @@ Detailed references for each of the four tools:
 1. Choose deployment mode: [Local](GETTING_STARTED.md#option-1-local-mode-stdio-transport) or [Remote](GETTING_STARTED.md#option-2-remote-mode-http-transport)
 2. Review [Configuration - Production](CONFIGURATION.md#production-http-server)
 3. Read [Architecture - Transport Implementations](ARCHITECTURE.md#transport-implementations)
-4. Follow [Deployment Guide](../DEPLOYMENT.md) for production setup
+4. Follow [Deployment Guide](DEPLOYMENT.md) for production setup
 
 ### I want to contribute
 
 1. Set up dev environment: [README - Development](../README.md#development)
 2. Understand the architecture: [Architecture Overview](ARCHITECTURE.md)
-3. Follow [Development Guide](../DEVELOPMENT.md) for contribution workflow
+3. Follow [Development Guide](DEVELOPMENT.md) for contribution workflow
 
 ### I'm having issues
 
-1. Check [Troubleshooting Guide](../TROUBLESHOOTING.md) for common issues and solutions
+1. Check [Troubleshooting Guide](TROUBLESHOOTING.md) for common issues and solutions
 2. Review [Configuration](CONFIGURATION.md) to verify environment variables
 3. Check [Getting Started - Troubleshooting](GETTING_STARTED.md#troubleshooting) for basic debugging
 
@@ -110,8 +110,8 @@ Detailed references for each of the four tools:
 **By Role:**
 
 - **End User** → [Getting Started](GETTING_STARTED.md) + [Tool Docs](tools/)
-- **Developer** → [Architecture](ARCHITECTURE.md) + [Development Guide](../DEVELOPMENT.md)
-- **Operator** → [Configuration](CONFIGURATION.md) + [Deployment Guide](../DEPLOYMENT.md)
+- **Developer** → [Architecture](ARCHITECTURE.md) + [Development Guide](DEVELOPMENT.md)
+- **Operator** → [Configuration](CONFIGURATION.md) + [Deployment Guide](DEPLOYMENT.md)
 
 **By Task:**
 
@@ -119,8 +119,8 @@ Detailed references for each of the four tools:
 - **Configure** → [Configuration](CONFIGURATION.md)
 - **Use Tools** → [Tool Documentation](tools/)
 - **Understand System** → [Architecture](ARCHITECTURE.md)
-- **Troubleshoot** → [Troubleshooting Guide](../TROUBLESHOOTING.md)
-- **Contribute** → [Development Guide](../DEVELOPMENT.md)
+- **Troubleshoot** → [Troubleshooting Guide](TROUBLESHOOTING.md)
+- **Contribute** → [Development Guide](DEVELOPMENT.md)
 
 ---
 
