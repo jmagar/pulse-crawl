@@ -83,3 +83,16 @@ Tests in [../tests/](../tests/) at project root
 Mocks in [../tests/mocks/](../tests/mocks/)
 
 **Test Isolation**: Always call `ResourceStorageFactory.reset()` in `beforeEach`
+
+## Claude Learnings
+
+### Zod Schema Export and Cross-Module Boundaries
+
+- **The Dual-Package Hazard**: When Zod schemas are compiled to dist/ and imported, they reference a different Zod instance than libraries like zod-to-json-schema use. The library's internal `instanceof` checks fail, returning empty schemas: `{ "$schema": "..." }`
+- **Symptom**: Tools show as registered but clients see "no tools available" because inputSchema has no properties
+- **Root Cause**: Multiple Zod module instances in module graph (one in source, one in dist, one in zod-to-json-schema)
+- **instanceof Failure**: Zod uses prototype-based instanceof which fails across module boundaries, even with same version
+- **Solution**: Manual JSON Schema construction via buildInputSchema() functions, avoiding zodToJsonSchema() entirely
+- **Testing**: Simple schemas work (same module), imported schemas fail (cross-module)
+- **Pattern**: Follow scrape tool's proven buildInputSchema() approach for all MCP tools
+- **Future**: Zod v4 will use Symbol.hasInstance for cross-module instanceof, but manual construction is still more reliable
