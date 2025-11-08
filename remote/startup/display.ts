@@ -172,7 +172,8 @@ function displayEnvironmentVariables(): void {
 /**
  * Display MCP registration status
  *
- * Shows status of all registered MCP tools and resources with success/failure indicators
+ * Shows status of all registered MCP tools and resources with success/failure indicators.
+ * Note: Tools and resources are registered when clients connect, not at server startup.
  */
 function displayMCPStatus(): void {
   console.log(createSectionHeader('MCP Registration Status', SECTION_WIDTH));
@@ -181,7 +182,8 @@ function displayMCPStatus(): void {
 
   if (statusLines.length === 0) {
     console.log('');
-    console.log(colorHelpers.dim('  No registrations recorded'));
+    console.log(colorHelpers.dim('  Tools and resources will be registered when clients connect'));
+    console.log(colorHelpers.dim('  Available: scrape, search, map, crawl'));
     console.log('');
     return;
   }
