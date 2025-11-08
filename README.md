@@ -63,7 +63,7 @@ docker compose up -d
 
 Server runs on `http://localhost:3060`
 
-[→ Full installation guide](GETTING_STARTED.md#installation)
+[→ Full installation guide](docs/GETTING_STARTED.md#installation)
 
 ### Your First Scrape
 
@@ -75,7 +75,7 @@ Server runs on `http://localhost:3060`
 }
 ```
 
-[→ More examples in Getting Started](GETTING_STARTED.md#your-first-scrape)
+[→ More examples in Getting Started](docs/GETTING_STARTED.md#your-first-scrape)
 
 ## Tools Overview
 
@@ -86,19 +86,19 @@ Server runs on `http://localhost:3060`
 | **map**    | Discover site structure      | ~5-10s  | [MAP.md](docs/tools/MAP.md)       |
 | **crawl**  | Deep multi-page crawling     | ~30-90s | [CRAWL.md](docs/tools/CRAWL.md)   |
 
-[→ When to use which tool](GETTING_STARTED.md#understanding-the-tools)
+[→ When to use which tool](docs/GETTING_STARTED.md#understanding-the-tools)
 
 ## Documentation
 
 ### For New Users
 
-- **[Getting Started](GETTING_STARTED.md)** - Installation, first scrape, and common patterns
-- **[Configuration](CONFIGURATION.md)** - Complete environment variable reference
+- **[Getting Started](docs/GETTING_STARTED.md)** - Installation, first scrape, and common patterns
+- **[Configuration](docs/CONFIGURATION.md)** - Complete environment variable reference
 - **[Tool References](docs/tools/)** - Detailed documentation for each tool
 
 ### For Developers
 
-- **[Architecture](ARCHITECTURE.md)** - System design and how components work together
+- **[Architecture](docs/ARCHITECTURE.md)** - System design and how components work together
 - **[Development Guide](DEVELOPMENT.md)** - Setup, testing, and contribution workflow _(coming soon)_
 - **[API Reference](API_REFERENCE.md)** - Complete tool schemas and parameters _(coming soon)_
 
@@ -135,7 +135,7 @@ MCP_RESOURCE_STORAGE=filesystem
 METRICS_AUTH_ENABLED=true
 ```
 
-[→ Complete configuration guide](CONFIGURATION.md)
+[→ Complete configuration guide](docs/CONFIGURATION.md)
 
 ## Architecture
 
@@ -165,7 +165,7 @@ Pulse Fetch uses a three-layer architecture that separates business logic from t
 - **Strategy Cascade** - Native fetch → Browser → Firecrawl fallback
 - **Pluggable Storage** - Memory, Filesystem, or Qdrant backends
 
-[→ Full architecture documentation](ARCHITECTURE.md)
+[→ Full architecture documentation](docs/ARCHITECTURE.md)
 
 ## Development
 
