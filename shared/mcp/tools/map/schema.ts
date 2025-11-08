@@ -1,10 +1,11 @@
 import { z } from 'zod';
 
 // Read defaults from environment variables
-const DEFAULT_COUNTRY = process.env.MAP_DEFAULT_COUNTRY || 'US';
-const DEFAULT_LANGUAGES = process.env.MAP_DEFAULT_LANGUAGES
-  ? process.env.MAP_DEFAULT_LANGUAGES.split(',').map((lang) => lang.trim())
-  : ['en-US'];
+// Reserved for future location filtering implementation
+// const DEFAULT_COUNTRY = process.env.MAP_DEFAULT_COUNTRY || 'US';
+// const DEFAULT_LANGUAGES = process.env.MAP_DEFAULT_LANGUAGES
+//   ? process.env.MAP_DEFAULT_LANGUAGES.split(',').map((lang) => lang.trim())
+//   : ['en-US'];
 const DEFAULT_MAX_RESULTS = (() => {
   const envValue = process.env.MAP_MAX_RESULTS_PER_PAGE;
   if (!envValue) return 200;
@@ -29,11 +30,10 @@ export const mapOptionsSchema = z.object({
   timeout: z.number().int().positive().optional(),
   location: z
     .object({
-      country: z.string().optional().default(DEFAULT_COUNTRY),
-      languages: z.array(z.string()).optional().default(DEFAULT_LANGUAGES),
+      country: z.string().optional(),
+      languages: z.array(z.string()).optional(),
     })
-    .optional()
-    .default({ country: DEFAULT_COUNTRY, languages: DEFAULT_LANGUAGES }),
+    .optional(),
 
   // Pagination parameters
   startIndex: z.number().int().min(0, 'startIndex must be non-negative').optional().default(0),
@@ -108,18 +108,15 @@ export const buildMapInputSchema = () => {
         properties: {
           country: {
             type: 'string',
-            default: DEFAULT_COUNTRY,
             description: 'Country code for localized results',
           },
           languages: {
             type: 'array',
             items: { type: 'string' },
-            default: DEFAULT_LANGUAGES,
             description: 'Language codes for results',
           },
         },
-        default: { country: DEFAULT_COUNTRY, languages: DEFAULT_LANGUAGES },
-        description: 'Location-based filtering options',
+        description: 'Location-based filtering options (optional)',
       },
       startIndex: {
         type: 'integer',

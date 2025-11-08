@@ -20,5 +20,11 @@ export async function mapPipeline(
     location: options.location,
   };
 
-  return await client.map(clientOptions);
+  console.log('[DEBUG] Map pipeline options:', JSON.stringify(clientOptions, null, 2));
+  const result = await client.map(clientOptions);
+  console.log(
+    '[DEBUG] Map pipeline result:',
+    JSON.stringify({ success: result.success, linksCount: result.links?.length || 0 }, null, 2)
+  );
+  return result;
 }

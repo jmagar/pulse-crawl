@@ -46,6 +46,7 @@ describe('Resource Shape Validation', () => {
   let mockServer: Server;
   let mockClientsFactory: () => IScrapingClients;
   let mockStrategyConfigFactory: StrategyConfigFactory;
+  let mockClients: ReturnType<typeof createMockScrapingClients>;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -53,9 +54,9 @@ describe('Resource Shape Validation', () => {
 
     mockServer = {} as Server;
 
-    // Use proper mock client factory from helper
-    const { clients } = createMockScrapingClients();
-    mockClientsFactory = () => clients;
+    // Use proper mock client factory from helper and keep reference to mocks
+    mockClients = createMockScrapingClients();
+    mockClientsFactory = () => mockClients.clients;
 
     // Provide complete strategy config mock with all required methods
     mockStrategyConfigFactory = () => ({
@@ -67,6 +68,13 @@ describe('Resource Shape Validation', () => {
   });
 
   it('should return properly formatted embedded resource for saveAndReturn mode', async () => {
+    // Configure mock to return expected content
+    mockClients.mocks.native.setMockResponse({
+      success: true,
+      status: 200,
+      data: '<h1>Test Content</h1><p>This is test content.</p>',
+    });
+
     const tool = scrapeTool(mockServer, mockClientsFactory, mockStrategyConfigFactory);
 
     const result = await tool.handler({
@@ -124,6 +132,13 @@ describe('Resource Shape Validation', () => {
   });
 
   it('should return properly formatted text for returnOnly mode', async () => {
+    // Configure mock to return expected content
+    mockClients.mocks.native.setMockResponse({
+      success: true,
+      status: 200,
+      data: '<h1>Test Content</h1><p>This is test content.</p>',
+    });
+
     const tool = scrapeTool(mockServer, mockClientsFactory, mockStrategyConfigFactory);
 
     const result = await tool.handler({

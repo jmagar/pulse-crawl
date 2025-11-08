@@ -22,6 +22,11 @@ export async function map(
   baseUrl: string,
   options: MapOptions
 ): Promise<MapResult> {
+  console.log(
+    '[DEBUG] Firecrawl map API request:',
+    JSON.stringify({ url: `${baseUrl}/map`, body: options }, null, 2)
+  );
+
   const response = await fetch(`${baseUrl}/map`, {
     method: 'POST',
     headers: {
@@ -30,6 +35,8 @@ export async function map(
     },
     body: JSON.stringify(options),
   });
+
+  console.log('[DEBUG] Firecrawl map API response status:', response.status);
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -43,7 +50,9 @@ export async function map(
   }
 
   try {
-    return await response.json();
+    const result = await response.json();
+    console.log('[DEBUG] Firecrawl map API raw response:', JSON.stringify(result, null, 2));
+    return result;
   } catch (error) {
     throw new Error(
       `Failed to parse Firecrawl API response: ${error instanceof Error ? error.message : String(error)}`

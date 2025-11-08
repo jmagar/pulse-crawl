@@ -17,6 +17,10 @@ describe('SSE Streaming End-to-End', () => {
   let baseUrl: string;
   let sessionId: string;
 
+  // Helper to wait for SSE cleanup on server side
+  // EventSource.close() is sync on client but async on server
+  const waitForSSECleanup = () => new Promise((resolve) => setTimeout(resolve, 250));
+
   beforeAll(async () => {
     // Set test environment with resumability enabled
     process.env.NODE_ENV = 'test';
@@ -81,6 +85,12 @@ describe('SSE Streaming End-to-End', () => {
       },
       body: JSON.stringify(initializedNotification),
     });
+  });
+
+  afterEach(async () => {
+    // Wait for server-side SSE cleanup after each test
+    // EventSource.close() is synchronous on client but async cleanup on server
+    await waitForSSECleanup();
   });
 
   afterAll(async () => {
@@ -169,7 +179,11 @@ describe('SSE Streaming End-to-End', () => {
   });
 
   describe('SSE Message Delivery', () => {
-    it('should receive endpoint event on connection', async () => {
+    // DEPRECATED: The 'endpoint' event was part of the old SSEServerTransport protocol (deprecated 2024-11-05).
+    // The modern StreamableHTTPServerTransport (2025-03-26) does not send endpoint events because
+    // it uses a unified /mcp endpoint for all operations (POST returns JSON, GET establishes optional SSE stream).
+    // Clients no longer need an endpoint event since they already know where to POST.
+    it.skip('should receive endpoint event on connection', async () => {
       return new Promise<void>((resolve, reject) => {
         const eventSource = new EventSource(`${baseUrl}/mcp?sessionId=${sessionId}`);
 
@@ -341,6 +355,9 @@ describe('SSE Streaming End-to-End', () => {
 
       const contentType = response.headers.get('content-type');
       expect(contentType).toContain('text/event-stream');
+
+      // Close the response stream to clean up server-side connection
+      await response.body?.cancel();
     });
 
     it('should set correct cache headers for SSE', async () => {
@@ -352,9 +369,15 @@ describe('SSE Streaming End-to-End', () => {
         },
       });
 
+      // Verify response succeeded
+      expect(response.ok, `Response failed with status ${response.status}`).toBe(true);
+
       const cacheControl = response.headers.get('cache-control');
-      expect(cacheControl).toBeTruthy();
+      expect(cacheControl, 'cache-control header should be set').toBeTruthy();
       expect(cacheControl).toContain('no-cache');
+
+      // Close the response stream to clean up server-side connection
+      await response.body?.cancel();
     });
   });
 });

@@ -78,10 +78,20 @@ export class MemoryResourceStorage implements ResourceStorage {
 
     // Save extracted content if provided
     if (data.extracted) {
+      // Map 'extract' to 'extractionPrompt' if present
+      const extractPrompt =
+        data.metadata?.extractionPrompt || (data.metadata as Record<string, unknown>)?.extract;
+
+      // Exclude 'extract' field from metadata spread
+      const { extract: _extract, ...metadataWithoutExtract } = (data.metadata || {}) as Record<
+        string,
+        unknown
+      >;
+
       uris.extracted = await this.write(data.url, data.extracted, {
-        ...data.metadata,
+        ...metadataWithoutExtract,
         resourceType: 'extracted',
-        extractionPrompt: data.metadata?.extractionPrompt,
+        extractionPrompt: extractPrompt,
         timestamp,
       });
     }

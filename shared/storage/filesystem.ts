@@ -144,13 +144,37 @@ export class FileSystemResourceStorage implements ResourceStorage {
 
     // Save extracted content if provided
     if (data.extracted) {
+      // Map 'extract' to 'extractionPrompt' if present
+      const extractPrompt =
+        data.metadata?.extractionPrompt || (data.metadata as Record<string, unknown>)?.extract;
+
+      // Exclude 'extract' field from metadata spread
+      const {
+        extract: _extract,
+        extractionPrompt: _extractionPrompt,
+        ...metadataWithoutExtract
+      } = (data.metadata || {}) as Record<string, unknown>;
+
       const extractedMetadata: ResourceMetadata = {
-        ...data.metadata,
+        ...metadataWithoutExtract,
         url: data.url,
         timestamp,
         resourceType: 'extracted',
-        extractionPrompt: data.metadata?.extractionPrompt,
+        extractionPrompt: extractPrompt,
       };
+
+      // Debug logging
+      console.log('[DEBUG] Extract field:', _extract);
+      console.log('[DEBUG] Extract prompt:', extractPrompt);
+      console.log('[DEBUG] Metadata keys:', Object.keys(extractedMetadata));
+      console.log(
+        '[DEBUG] extractionPrompt in metadata?:',
+        'extractionPrompt' in extractedMetadata
+      );
+      console.log(
+        '[DEBUG] extractedMetadata.extractionPrompt:',
+        extractedMetadata.extractionPrompt
+      );
       const extractedPath = path.join(this.rootDir, 'extracted', fileName);
       await fs.writeFile(
         extractedPath,

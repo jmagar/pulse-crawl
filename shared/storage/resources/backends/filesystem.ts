@@ -141,7 +141,11 @@ export class FileSystemResourceStorage implements ResourceStorage {
     return Date.now() >= expiresAt;
   }
 
-  async write(url: string, content: string, metadata: Partial<ResourceMetadata> = {}): Promise<string> {
+  async write(
+    url: string,
+    content: string,
+    metadata: Partial<ResourceMetadata> = {}
+  ): Promise<string> {
     await this.ensureInitialized();
 
     const resourceType = (metadata.resourceType || 'raw') as ResourceType;
@@ -199,19 +203,40 @@ export class FileSystemResourceStorage implements ResourceStorage {
         ...rawMetadata,
         resourceType: 'cleaned',
       };
-      await fs.writeFile(cleanedPath, this.createMarkdown(params.cleaned, cleanedMetadata), 'utf-8');
+      await fs.writeFile(
+        cleanedPath,
+        this.createMarkdown(params.cleaned, cleanedMetadata),
+        'utf-8'
+      );
       result.cleaned = `file://${cleanedPath}`;
     }
 
     // Write extracted content if provided
     if (params.extracted) {
       const extractedPath = path.join(this.getSubdirectory('extracted'), filename);
+
+      // Map 'extract' to 'extractionPrompt' if present
+      const extractPrompt =
+        baseMetadata.extractionPrompt || (baseMetadata as Record<string, unknown>).extract;
+
+      // Exclude 'extract' field from metadata
+      const {
+        extract: _extract,
+        extractionPrompt: _extractionPrompt,
+        ...metadataWithoutExtract
+      } = baseMetadata as Record<string, unknown>;
+
       const extractedMetadata: ResourceMetadata = {
         ...rawMetadata,
+        ...metadataWithoutExtract,
         resourceType: 'extracted',
-        extractionPrompt: baseMetadata.extractionPrompt,
+        extractionPrompt: extractPrompt,
       };
-      await fs.writeFile(extractedPath, this.createMarkdown(params.extracted, extractedMetadata), 'utf-8');
+      await fs.writeFile(
+        extractedPath,
+        this.createMarkdown(params.extracted, extractedMetadata),
+        'utf-8'
+      );
       result.extracted = `file://${extractedPath}`;
     }
 
@@ -451,8 +476,8 @@ export class FileSystemResourceStorage implements ResourceStorage {
   }
 
   async cleanup(): Promise<void> {
-    // Remove expired files
-    const allResources = await this.list();
+    // Remove expired files (not yet implemented)
+    // Future: implement expiration logic here
 
     // Enforce limits
     await this.enforceLimits();

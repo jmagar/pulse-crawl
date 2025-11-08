@@ -25,29 +25,17 @@ export function formatCrawlResponse(
     const statusResult = result as CrawlStatusResult;
     const content: CallToolResult['content'] = [];
 
-    content.push({
-      type: 'text',
-      text: `Crawl Status: ${statusResult.status}\nProgress: ${statusResult.completed}/${statusResult.total} pages\nCredits used: ${statusResult.creditsUsed}\nExpires at: ${statusResult.expiresAt}`,
-    });
-
-    if (statusResult.data.length > 0) {
-      content.push({
-        type: 'resource',
-        resource: {
-          uri: `pulse-crawl://crawl/results/${Date.now()}`,
-          name: `Crawl Results (${statusResult.completed} pages)`,
-          mimeType: 'application/json',
-          text: JSON.stringify(statusResult.data, null, 2),
-        },
-      });
-    }
+    // Only return status metadata - data is handled by webhook server
+    let statusText = `Crawl Status: ${statusResult.status}\nProgress: ${statusResult.completed}/${statusResult.total} pages\nCredits used: ${statusResult.creditsUsed}\nExpires at: ${statusResult.expiresAt}`;
 
     if (statusResult.next) {
-      content.push({
-        type: 'text',
-        text: `\nMore results available. Use pagination URL: ${statusResult.next}`,
-      });
+      statusText += `\n\nPagination URL: ${statusResult.next}`;
     }
+
+    content.push({
+      type: 'text',
+      text: statusText,
+    });
 
     return { content, isError: false };
   } else {
