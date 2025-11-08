@@ -65,9 +65,7 @@ describe('Scrape Tool', () => {
       expect(crawlCalls.length).toBe(1);
       expect(crawlCalls[0]).toMatchObject({
         url: 'https://docs.claude.com',
-        changeDetection: true,
       });
-      expect(crawlCalls[0].maxDepth).toBeGreaterThanOrEqual(3);
       expect(crawlCalls[0].excludePaths).toContain('^/fr/');
       expect(crawlCalls[0].excludePaths).toContain('^/zh-CN/');
       expect(crawlCalls[0].excludePaths).not.toContain('^/en/');

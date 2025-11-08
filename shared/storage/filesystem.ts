@@ -145,10 +145,11 @@ export class FileSystemResourceStorage implements ResourceStorage {
     // Save extracted content if provided
     if (data.extracted) {
       // Map 'extract' to 'extractionPrompt' if present
-      const extractPrompt =
-        data.metadata?.extractionPrompt || (data.metadata as Record<string, unknown>)?.extract;
+      const extractPrompt = (data.metadata?.extractionPrompt ||
+        (data.metadata as Record<string, unknown>)?.extract) as string | undefined;
 
       // Exclude 'extract' field from metadata spread
+
       const {
         extract: _extract,
         extractionPrompt: _extractionPrompt,

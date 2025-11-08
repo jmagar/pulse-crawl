@@ -216,10 +216,11 @@ export class FileSystemResourceStorage implements ResourceStorage {
       const extractedPath = path.join(this.getSubdirectory('extracted'), filename);
 
       // Map 'extract' to 'extractionPrompt' if present
-      const extractPrompt =
-        baseMetadata.extractionPrompt || (baseMetadata as Record<string, unknown>).extract;
+      const extractPrompt = (baseMetadata.extractionPrompt ||
+        (baseMetadata as Record<string, unknown>).extract) as string | undefined;
 
       // Exclude 'extract' field from metadata
+
       const {
         extract: _extract,
         extractionPrompt: _extractionPrompt,

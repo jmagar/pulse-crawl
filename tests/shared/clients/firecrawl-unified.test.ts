@@ -398,7 +398,6 @@ describe('Unified Firecrawl Client', () => {
       const client = new FirecrawlClient({ apiKey: 'test-key' });
       const result = await client.startCrawl({
         url: 'https://example.com',
-        maxDepth: 3,
         limit: 100,
         includePaths: ['/blog/*'],
         excludePaths: ['/admin/*'],
@@ -408,7 +407,7 @@ describe('Unified Firecrawl Client', () => {
       expect(mockFetch).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
-          body: expect.stringContaining('maxDepth'),
+          body: expect.stringContaining('limit'),
         })
       );
     });

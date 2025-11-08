@@ -150,12 +150,13 @@ export interface MapResult {
 
 /**
  * Options for Firecrawl crawl operation
+ *
+ * Note: maxDepth and changeDetection were removed as they are not supported in Firecrawl v2 API
  */
 export interface CrawlOptions {
   url: string;
   prompt?: string;
   limit?: number;
-  maxDepth?: number;
   crawlEntireDomain?: boolean;
   allowSubdomains?: boolean;
   allowExternalLinks?: boolean;

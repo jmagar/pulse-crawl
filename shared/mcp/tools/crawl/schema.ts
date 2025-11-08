@@ -35,12 +35,11 @@ export const crawlOptionsSchema = z
           '"Crawl the documentation section and extract API endpoints", ' +
           '"Get all product pages with pricing information", ' +
           '"Map the entire site but exclude admin pages". ' +
-          'When provided, this takes precedence over manual parameters like limit, maxDepth, etc.'
+          'When provided, this takes precedence over manual parameters.'
       ),
 
     // Crawl configuration options (only used with url)
     limit: z.number().int().min(1).max(100000).optional().default(100),
-    maxDepth: z.number().int().min(1).optional(),
     crawlEntireDomain: z.boolean().optional().default(false),
     allowSubdomains: z.boolean().optional().default(false),
     allowExternalLinks: z.boolean().optional().default(false),
@@ -67,8 +66,7 @@ export const crawlOptionsSchema = z
       .optional(),
   })
   // Note: When 'prompt' is provided, Firecrawl API will use it to generate
-  // optimal parameters. Manual parameters (limit, maxDepth, etc.) are still
-  // sent but may be overridden by the AI-generated configuration.
+  // optimal parameters. Manual parameters may be overridden by the AI-generated configuration.
   .refine(
     (data) => {
       // Exactly one of url or jobId must be provided
@@ -119,7 +117,7 @@ export const buildCrawlInputSchema = () => {
           '"Crawl the documentation section and extract API endpoints", ' +
           '"Get all product pages with pricing information", ' +
           '"Map the entire site but exclude admin pages". ' +
-          'When provided, this takes precedence over manual parameters like limit, maxDepth, etc.',
+          'When provided, this takes precedence over manual parameters.',
       },
       limit: {
         type: 'integer',
@@ -127,11 +125,6 @@ export const buildCrawlInputSchema = () => {
         maximum: 100000,
         default: 100,
         description: 'Maximum pages to crawl (1-100000, default 100)',
-      },
-      maxDepth: {
-        type: 'integer',
-        minimum: 1,
-        description: 'Maximum crawl depth (number of link levels to follow)',
       },
       crawlEntireDomain: {
         type: 'boolean',

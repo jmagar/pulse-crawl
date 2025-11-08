@@ -43,8 +43,12 @@ COPY --from=builder /app/remote/dist ./remote/dist
 # Copy shared dist into remote/dist/remote/shared to match compiled import paths
 COPY --from=builder /app/shared/dist ./remote/dist/remote/shared
 
-# Install production dependencies and set ownership
-RUN npm ci --omit=dev --ignore-scripts && chown -R nodejs:nodejs /app
+# Install production dependencies
+RUN npm ci --omit=dev --ignore-scripts
+
+# Create resources directory with proper ownership
+RUN mkdir -p /app/resources && \
+    chown -R nodejs:nodejs /app
 
 # Move to remote directory for runtime
 WORKDIR /app/remote

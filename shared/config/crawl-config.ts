@@ -2,12 +2,10 @@
  * @fileoverview Crawl configuration and URL filtering
  *
  * Provides configuration for background crawl operations including
- * language path exclusions and crawl depth limits.
+ * language path exclusions.
  *
  * @module shared/config/crawl-config
  */
-
-const DEFAULT_MAX_DEPTH = 5;
 
 const UNIVERSAL_LANGUAGE_EXCLUDES = [
   '^/de/',
@@ -46,14 +44,13 @@ const DOMAIN_LANGUAGE_EXCLUDES: Record<string, string[]> = {
 /**
  * Configuration for Firecrawl crawl request
  *
- * Defines crawl parameters including base URL, path exclusions,
- * depth limits, and change detection settings.
+ * Defines crawl parameters including base URL and path exclusions.
+ *
+ * Note: maxDepth and changeDetection removed - not supported in Firecrawl v2 API
  */
 export interface CrawlRequestConfig {
   url: string;
   excludePaths: string[];
-  maxDepth: number;
-  changeDetection: boolean;
 }
 
 /**
@@ -76,8 +73,6 @@ export function buildCrawlRequestConfig(targetUrl: string): CrawlRequestConfig |
     return {
       url: baseUrl,
       excludePaths,
-      maxDepth: DEFAULT_MAX_DEPTH,
-      changeDetection: true,
     };
   } catch {
     return null;

@@ -8,8 +8,6 @@ describe('Crawl config builder', () => {
     expect(config?.url).toBe('https://docs.claude.com');
     expect(config?.excludePaths).toContain('^/fr/');
     expect(config?.excludePaths).not.toContain('^/en/');
-    expect(config?.maxDepth).toBeGreaterThanOrEqual(3);
-    expect(config?.changeDetection).toBe(true);
   });
 
   it('falls back to universal excludes for unknown domains', () => {

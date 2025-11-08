@@ -52,11 +52,9 @@ describe('Crawl Options Schema', () => {
         url: 'https://example.com',
         prompt: 'Find documentation pages',
         limit: 50,
-        maxDepth: 3,
       });
       expect(result.prompt).toBe('Find documentation pages');
       expect(result.limit).toBe(50);
-      expect(result.maxDepth).toBe(3);
     });
   });
 
