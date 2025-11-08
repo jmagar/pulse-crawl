@@ -10,7 +10,10 @@ import { displayStartupInfo } from './startup/display.js';
 config();
 
 /**
- * Validates environment variables and logs configuration
+ * Validates environment variables
+ *
+ * Only validates that required environment variables are present and valid.
+ * Detailed configuration is displayed in the startup banner.
  */
 function validateEnvironment(): void {
   // Validate OPTIMIZE_FOR if provided
@@ -21,29 +24,6 @@ function validateEnvironment(): void {
     });
     process.exit(1);
   }
-
-  // Log available services
-  const available: string[] = [];
-  if (process.env.FIRECRAWL_API_KEY) available.push('Firecrawl');
-  if (process.env.ANTHROPIC_API_KEY) available.push('Anthropic');
-  if (process.env.OPENAI_API_KEY) available.push('OpenAI');
-
-  logInfo(
-    'startup',
-    `Pulse Fetch HTTP Server starting with services: native${
-      available.length > 0 ? ', ' + available.join(', ') : ''
-    }`,
-    {
-      services: ['native', ...available],
-    }
-  );
-
-  if (optimizeFor) {
-    logInfo('startup', `Optimization strategy: ${optimizeFor}`, { optimizeFor });
-  }
-
-  const resumability = process.env.ENABLE_RESUMABILITY === 'true';
-  logInfo('startup', `Resumability: ${resumability ? 'enabled' : 'disabled'}`, { resumability });
 }
 
 /**
