@@ -51,6 +51,38 @@ describe('Search Pipeline', () => {
     });
   });
 
+  it('should pass tbs parameter to Firecrawl client', async () => {
+    mockClient.search.mockResolvedValue({
+      success: true,
+      data: [{ url: 'https://example.com', title: 'Test', description: 'Desc' }],
+      creditsUsed: 2,
+    });
+
+    const options: SearchOptions = {
+      query: 'test query',
+      limit: 5,
+      tbs: 'qdr:d',
+      lang: 'en',
+      ignoreInvalidURLs: false,
+    };
+
+    await searchPipeline(mockClient as unknown as FirecrawlSearchClient, options);
+
+    expect(mockClient.search).toHaveBeenCalledWith({
+      query: 'test query',
+      limit: 5,
+      lang: 'en',
+      tbs: 'qdr:d',
+      ignoreInvalidURLs: false,
+      sources: undefined,
+      categories: undefined,
+      country: undefined,
+      location: undefined,
+      timeout: undefined,
+      scrapeOptions: undefined,
+    });
+  });
+
   it('should handle search errors', async () => {
     mockClient.search.mockRejectedValue(new Error('API error'));
 

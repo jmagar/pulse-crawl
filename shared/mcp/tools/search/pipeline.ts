@@ -19,6 +19,7 @@ export async function searchPipeline(
     location: options.location,
     timeout: options.timeout,
     ignoreInvalidURLs: options.ignoreInvalidURLs,
+    tbs: options.tbs,
     scrapeOptions: options.scrapeOptions,
   };
 
