@@ -79,18 +79,24 @@ export async function checkCache(
     const cachedResources = await storage.findByUrlAndExtract(url, extract);
 
     if (cachedResources.length > 0) {
-      const cachedResource = cachedResources[0];
-      const cachedContent = await storage.read(cachedResource.uri);
+      // Prioritize cleaned > extracted > raw
+      // Cleaned is most useful (readable markdown), raw is HTML soup
+      const preferredResource =
+        cachedResources.find((r) => r.uri.includes('/cleaned/')) ||
+        cachedResources.find((r) => r.uri.includes('/extracted/')) ||
+        cachedResources[0];
+
+      const cachedContent = await storage.read(preferredResource.uri);
 
       return {
         found: true,
         content: cachedContent.text || '',
-        uri: cachedResource.uri,
-        name: cachedResource.name,
-        mimeType: cachedResource.mimeType,
-        description: cachedResource.description,
-        source: (cachedResource.metadata.source as string) || 'unknown',
-        timestamp: cachedResource.metadata.timestamp as string,
+        uri: preferredResource.uri,
+        name: preferredResource.name,
+        mimeType: preferredResource.mimeType,
+        description: preferredResource.description,
+        source: (preferredResource.metadata.source as string) || 'unknown',
+        timestamp: preferredResource.metadata.timestamp as string,
       };
     }
   } catch (error) {
