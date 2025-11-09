@@ -18,6 +18,7 @@ export async function crawlPipeline(
       url: options.url,
       prompt: options.prompt,
       limit: options.limit,
+      maxDiscoveryDepth: options.maxDiscoveryDepth,
       crawlEntireDomain: options.crawlEntireDomain,
       allowSubdomains: options.allowSubdomains,
       allowExternalLinks: options.allowExternalLinks,

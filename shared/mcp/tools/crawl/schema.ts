@@ -40,6 +40,7 @@ export const crawlOptionsSchema = z
 
     // Crawl configuration options (only used with url)
     limit: z.number().int().min(1).max(100000).optional().default(100),
+    maxDiscoveryDepth: z.number().int().min(1).optional(),
     crawlEntireDomain: z.boolean().optional().default(false),
     allowSubdomains: z.boolean().optional().default(false),
     allowExternalLinks: z.boolean().optional().default(false),
@@ -51,7 +52,22 @@ export const crawlOptionsSchema = z
     maxConcurrency: z.number().int().min(1).optional(),
     scrapeOptions: z
       .object({
-        formats: z.array(z.string()).optional().default(['markdown']),
+        formats: z
+          .array(
+            z.enum([
+              'markdown',
+              'html',
+              'rawHtml',
+              'links',
+              'images',
+              'screenshot',
+              'summary',
+              'branding',
+              'changeTracking',
+            ])
+          )
+          .optional()
+          .default(['markdown']),
         onlyMainContent: z.boolean().optional().default(true),
         includeTags: z.array(z.string()).optional(),
         excludeTags: z.array(z.string()).optional(),
@@ -125,6 +141,14 @@ export const buildCrawlInputSchema = () => {
         maximum: 100000,
         default: 100,
         description: 'Maximum pages to crawl (1-100000, default 100)',
+      },
+      maxDiscoveryDepth: {
+        type: 'integer',
+        minimum: 1,
+        description:
+          'Maximum depth to crawl based on discovery order. ' +
+          'The root site and sitemapped pages have a discovery depth of 0. ' +
+          'For example, if set to 1 with sitemap: "skip", only the entered URL and directly linked pages will be crawled.',
       },
       crawlEntireDomain: {
         type: 'boolean',

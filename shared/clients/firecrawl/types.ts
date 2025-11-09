@@ -24,7 +24,15 @@ export type FirecrawlConfig = BaseFirecrawlConfig;
  */
 export interface FirecrawlScrapingOptions {
   formats?: Array<
-    'markdown' | 'html' | 'rawHtml' | 'links' | 'images' | 'screenshot' | 'summary' | 'branding'
+    | 'markdown'
+    | 'html'
+    | 'rawHtml'
+    | 'links'
+    | 'images'
+    | 'screenshot'
+    | 'summary'
+    | 'branding'
+    | 'changeTracking'
   >;
   onlyMainContent?: boolean;
   waitFor?: number;
@@ -151,12 +159,13 @@ export interface MapResult {
 /**
  * Options for Firecrawl crawl operation
  *
- * Note: maxDepth and changeDetection were removed as they are not supported in Firecrawl v2 API
+ * Note: v2 API renamed maxDepth to maxDiscoveryDepth, removed changeDetection
  */
 export interface CrawlOptions {
   url: string;
   prompt?: string;
   limit?: number;
+  maxDiscoveryDepth?: number;
   crawlEntireDomain?: boolean;
   allowSubdomains?: boolean;
   allowExternalLinks?: boolean;
@@ -166,13 +175,7 @@ export interface CrawlOptions {
   sitemap?: 'include' | 'skip';
   delay?: number;
   maxConcurrency?: number;
-  scrapeOptions?: {
-    formats?: string[];
-    onlyMainContent?: boolean;
-    includeTags?: string[];
-    excludeTags?: string[];
-    actions?: BrowserAction[];
-  };
+  scrapeOptions?: FirecrawlScrapingOptions;
 }
 
 /**
