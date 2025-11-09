@@ -786,7 +786,7 @@ curl -H "X-Metrics-Key: $KEY" http://localhost:3060/metrics/json
 
 ## Next Steps
 
-- **[Configuration](docs/CONFIGURATION.md)** - Environment variables for tuning
+- **[Configuration](CONFIGURATION.md)** - Environment variables for tuning
 - **[Deployment](DEPLOYMENT.md)** - Production setup
 - **[Troubleshooting](TROUBLESHOOTING.md)** - Common performance issues
-- **[Architecture](docs/ARCHITECTURE.md)** - System design and data flows
+- **[Architecture](ARCHITECTURE.md)** - System design and data flows

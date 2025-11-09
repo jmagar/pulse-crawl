@@ -100,10 +100,7 @@ Detailed references for each of the four tools:
 - [x] Deployment Guide
 - [x] Troubleshooting Guide
 - [x] Performance Guide
-
-### 🚧 Coming Soon
-
-- [ ] Contributing Guide
+- [x] Development Guide (Contributing)
 
 ## Finding What You Need
 

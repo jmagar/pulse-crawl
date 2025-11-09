@@ -102,20 +102,27 @@ Format: `cdr:a,cd_min:MM/DD/YYYY,cd_max:MM/DD/YYYY`
 
 **Examples:**
 
+Find AI news from the past day:
+
 ```json
-// Find AI news from the past day
 {
   "query": "AI news",
   "tbs": "qdr:d"
 }
+```
 
-// Search for articles from 2024
+Search for articles from 2024:
+
+```json
 {
   "query": "web scraping",
   "tbs": "cdr:a,cd_min:01/01/2024,cd_max:12/31/2024"
 }
+```
 
-// Recent research papers (past month)
+Recent research papers (past month):
+
+```json
 {
   "query": "machine learning",
   "categories": ["research"],
@@ -137,11 +144,28 @@ Returns search results as MCP resources with metadata including credits used.
       "url": "https://example.com/page1",
       "title": "Page Title",
       "description": "Page description",
-      "markdown": "...", // If scrapeOptions provided
       "position": 1
     }
   ],
   "creditsUsed": 2
+}
+```
+
+With scrapeOptions (includes scraped content):
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "url": "https://example.com/page1",
+      "title": "Page Title",
+      "description": "Page description",
+      "markdown": "# Page Title\n\nScraped content in markdown format...",
+      "position": 1
+    }
+  ],
+  "creditsUsed": 3
 }
 ```
 

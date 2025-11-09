@@ -762,5 +762,5 @@ Server1 Server2  ← Stateless HTTP servers
 
 - **[Getting Started](GETTING_STARTED.md)** - Installation and first scrape
 - **[Configuration](CONFIGURATION.md)** - Environment variables reference
-- **[Tool Documentation](docs/tools/)** - Detailed tool parameters
-- **[DEVELOPMENT.md](DEVELOPMENT.md)** - Contributing guide (coming soon)
+- **[Tool Documentation](tools/)** - Detailed tool parameters
+- **[Development Guide](DEVELOPMENT.md)** - Contributing guide

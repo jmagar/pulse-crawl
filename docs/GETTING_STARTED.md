@@ -435,6 +435,6 @@ LLM_MODEL=claude-sonnet-4-20250514
 
 ### Need more help?
 
-- Check [TROUBLESHOOTING.md](TROUBLESHOOTING.md) (coming soon)
+- Check [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for common issues
 - Review tool-specific docs in `docs/tools/`
 - Open an issue on GitHub

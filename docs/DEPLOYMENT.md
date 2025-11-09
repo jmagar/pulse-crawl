@@ -838,7 +838,7 @@ Before deploying to production, verify:
 
 ## Next Steps
 
-- **[Configuration Reference](docs/CONFIGURATION.md)** - Complete environment variable documentation
+- **[Configuration Reference](CONFIGURATION.md)** - Complete environment variable documentation
 - **[Troubleshooting](TROUBLESHOOTING.md)** - Common deployment issues
 - **[Performance Guide](PERFORMANCE.md)** - Optimization strategies
-- **[Architecture](docs/ARCHITECTURE.md)** - System design and components
+- **[Architecture](ARCHITECTURE.md)** - System design and components

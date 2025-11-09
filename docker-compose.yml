@@ -12,9 +12,9 @@ services:
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-*}
       - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost:3060}
       - ENABLE_RESUMABILITY=${ENABLE_RESUMABILITY:-true}
-      - OPTIMIZE_FOR=${OPTIMIZE_FOR:-speed}
+      - OPTIMIZE_FOR=${OPTIMIZE_FOR:-cost}
       - MCP_RESOURCE_STORAGE=${MCP_RESOURCE_STORAGE:-filesystem}
-      - MCP_RESOURCE_FILESYSTEM_ROOT=${MCP_RESOURCE_FILESYSTEM_ROOT:-/tmp/pulse-resources}
+      - MCP_RESOURCE_FILESYSTEM_ROOT=${MCP_RESOURCE_FILESYSTEM_ROOT:-/app/resources}
       - FORCE_COLOR=1
     env_file:
       - .env
@@ -26,12 +26,15 @@ services:
       timeout: 3s
       start_period: 5s
       retries: 3
-    # volumes:
-      # Removed bind mount - using /tmp inside container instead
-      # For persistent storage, use a named volume:
-      # - pulse-resources:/app/resources
+    volumes:
+      # Named volume for persistent storage (Docker manages permissions)
+      - pulse-resources:/app/resources
     networks:
       - pulse-crawl-network
+
+volumes:
+  pulse-resources:
+    driver: local
 
 networks:
   pulse-crawl-network:

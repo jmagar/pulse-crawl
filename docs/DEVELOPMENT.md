@@ -896,8 +896,8 @@ Before submitting a PR:
 
 ## Getting Help
 
-- **Documentation**: [docs/](docs/)
-- **Architecture**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- **Documentation**: [Documentation Index](index.md)
+- **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md)
 - **Troubleshooting**: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 - **GitHub Issues**: [github.com/your-org/pulse-fetch/issues](https://github.com/your-org/pulse-fetch/issues)
 - **Discussions**: [github.com/your-org/pulse-fetch/discussions](https://github.com/your-org/pulse-fetch/discussions)
@@ -906,6 +906,6 @@ Before submitting a PR:
 
 ## Next Steps
 
-- **[Architecture](docs/ARCHITECTURE.md)** - Understand system design
+- **[Architecture](ARCHITECTURE.md)** - Understand system design
 - **[API Reference](API_REFERENCE.md)** - Tool schemas and types
 - **[Performance Guide](PERFORMANCE.md)** - Optimization strategies

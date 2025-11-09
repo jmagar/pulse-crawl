@@ -88,6 +88,16 @@ Extract content from a single URL with intelligent strategy selection, caching, 
 }
 ```
 
+**Firecrawl Configuration:**
+
+The Firecrawl API base URL can be configured via environment variable for self-hosted instances:
+
+```bash
+FIRECRAWL_BASE_URL=https://api.firecrawl.dev  # Default
+# Or for self-hosted:
+FIRECRAWL_BASE_URL=https://firecrawl.yourcompany.com
+```
+
 #### Browser Actions
 
 ```typescript
@@ -690,7 +700,7 @@ Basic health check.
 {
   "status": "healthy",
   "timestamp": "2025-01-08T12:34:56.789Z",
-  "version": "0.0.1",
+  "version": "0.3.0",
   "transport": "http-streaming"
 }
 ```
@@ -1007,7 +1017,7 @@ interface ResourceMetadata {
 
 ## Next Steps
 
-- **[Tool Documentation](docs/tools/)** - Detailed guides for each tool
-- **[Configuration](docs/CONFIGURATION.md)** - Environment variables
+- **[Tool Documentation](tools/)** - Detailed guides for each tool
+- **[Configuration](CONFIGURATION.md)** - Environment variables
 - **[Troubleshooting](TROUBLESHOOTING.md)** - Common issues
 - **[Development](DEVELOPMENT.md)** - Adding new features

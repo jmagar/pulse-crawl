@@ -850,7 +850,7 @@ When reporting issues, include:
 
 ## Next Steps
 
-- **[Configuration Reference](docs/CONFIGURATION.md)** - Verify all environment variables
-- **[Getting Started](docs/GETTING_STARTED.md)** - Review installation steps
+- **[Configuration Reference](CONFIGURATION.md)** - Verify all environment variables
+- **[Getting Started](GETTING_STARTED.md)** - Review installation steps
 - **[Deployment Guide](DEPLOYMENT.md)** - Production deployment checklist
 - **[Performance Guide](PERFORMANCE.md)** - Optimization strategies

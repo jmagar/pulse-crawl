@@ -360,7 +360,12 @@ MCP_RESOURCE_FILESYSTEM_ROOT=/path/to/storage
     },
     {
       "type": "resource",
-      "resource": { ... }
+      "resource": {
+        "uri": "scraped://example.com/page_2025-01-15T10:30:00Z",
+        "name": "https://example.com/page",
+        "mimeType": "text/plain",
+        "text": "Scraped content here..."
+      }
     }
   ]
 }
@@ -472,15 +477,19 @@ All errors include:
 
 ### Pagination Through Large Documents
 
+First chunk:
+
 ```json
-// First chunk
 {
   "url": "https://example.com/long-article",
   "maxChars": 50000,
   "startIndex": 0
 }
+```
 
-// Second chunk (if truncated)
+Second chunk (if truncated):
+
+```json
 {
   "url": "https://example.com/long-article",
   "maxChars": 50000,

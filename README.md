@@ -162,7 +162,7 @@ Pulse Fetch uses a three-layer architecture that separates business logic from t
 
 - **Monorepo Structure** - Shared business logic, multiple transport implementations
 - **Multi-Tier Caching** - Raw HTML, cleaned Markdown, and extracted data
-- **Strategy Cascade** - Native fetch → Browser → Firecrawl fallback
+- **Strategy Cascade** - Native fetch → Firecrawl fallback
 - **Pluggable Storage** - Memory, Filesystem, or Qdrant backends
 
 [→ Full architecture documentation](docs/ARCHITECTURE.md)
@@ -220,7 +220,7 @@ pulse-fetch/
     └── manual/      # Manual verification tests
 ```
 
-[→ Contributing guide](DEVELOPMENT.md) _(coming soon)_
+[→ Contributing guide](docs/DEVELOPMENT.md)
 
 ## Why Pulse Fetch?
 

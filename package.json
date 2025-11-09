@@ -1,6 +1,6 @@
 {
   "name": "@pulsemcp/pulse-crawl",
-  "version": "0.0.1",
+  "version": "0.3.0",
   "description": "MCP server for fetching and processing web content",
   "author": "PulseMCP",
   "license": "MIT",
