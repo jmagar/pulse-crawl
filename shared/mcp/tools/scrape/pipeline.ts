@@ -14,7 +14,7 @@ import type { IScrapingClients, StrategyConfigFactory } from '../../../server.js
 import { scrapeWithStrategy } from '../../../scraping/strategies/selector.js';
 import { detectContentType, startBaseUrlCrawl } from './helpers.js';
 import type { ScrapeDiagnostics } from '../../../types.js';
-import { logWarning, logError } from '../../../utils/logging.js';
+import { logWarning, logError, logDebug, logInfo } from '../../../utils/logging.js';
 
 /**
  * Configuration options for scraping pipeline
@@ -70,15 +70,33 @@ export async function checkCache(
   | { found: false }
 > {
   // Skip cache if forceRescrape or saveOnly mode
-  if (forceRescrape || resultHandling === 'saveOnly') {
+  if (forceRescrape) {
+    logDebug('checkCache', 'Cache bypassed: forceRescrape=true', { url });
+    return { found: false };
+  }
+
+  if (resultHandling === 'saveOnly') {
+    logDebug('checkCache', 'Cache bypassed: saveOnly mode', { url });
     return { found: false };
   }
 
   try {
+    logDebug('checkCache', 'Checking cache for URL', { url, extract: !!extract });
     const storage = await ResourceStorageFactory.create();
     const cachedResources = await storage.findByUrlAndExtract(url, extract);
 
     if (cachedResources.length > 0) {
+      logDebug('checkCache', 'Cache hit: found resources', {
+        url,
+        count: cachedResources.length,
+        tiers: cachedResources.map((r) => {
+          if (r.uri.includes('/cleaned/')) return 'cleaned';
+          if (r.uri.includes('/extracted/')) return 'extracted';
+          if (r.uri.includes('/raw/')) return 'raw';
+          return 'unknown';
+        }),
+      });
+
       // Prioritize cleaned > extracted > raw
       // Cleaned is most useful (readable markdown), raw is HTML soup
       const preferredResource =
@@ -86,7 +104,22 @@ export async function checkCache(
         cachedResources.find((r) => r.uri.includes('/extracted/')) ||
         cachedResources[0];
 
+      const tier = preferredResource.uri.includes('/cleaned/')
+        ? 'cleaned'
+        : preferredResource.uri.includes('/extracted/')
+          ? 'extracted'
+          : preferredResource.uri.includes('/raw/')
+            ? 'raw'
+            : 'unknown';
+
       const cachedContent = await storage.read(preferredResource.uri);
+
+      logInfo('checkCache', 'Cache hit: returning content', {
+        url,
+        tier,
+        uri: preferredResource.uri,
+        size: cachedContent.text?.length || 0,
+      });
 
       return {
         found: true,
@@ -99,6 +132,8 @@ export async function checkCache(
         timestamp: preferredResource.metadata.timestamp as string,
       };
     }
+
+    logDebug('checkCache', 'Cache miss: no resources found', { url });
   } catch (error) {
     logWarning('checkCache', 'Cache lookup failed, proceeding with fresh scrape', { url, error });
   }
