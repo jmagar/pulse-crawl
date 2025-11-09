@@ -144,10 +144,36 @@ function formatLog(
     return JSON.stringify(logEntry);
   }
 
-  // Plain text format with optional metadata
+  // Apply colors based on log level
+  let levelColor: string;
+  let levelText: string;
+  switch (level) {
+    case LogLevel.ERROR:
+      levelColor = Colors.red + Colors.bold;
+      levelText = 'ERROR';
+      break;
+    case LogLevel.WARN:
+      levelColor = Colors.yellow + Colors.bold;
+      levelText = 'WARN';
+      break;
+    case LogLevel.INFO:
+      levelColor = Colors.cyan;
+      levelText = 'INFO';
+      break;
+    case LogLevel.DEBUG:
+      levelColor = Colors.dim;
+      levelText = 'DEBUG';
+      break;
+  }
+
+  const colorizedLevel = colorize(levelText, levelColor);
+  const colorizedContext = colorize(context, Colors.dim);
   const metadataStr =
-    metadata && Object.keys(metadata).length > 0 ? ` ${JSON.stringify(metadata)}` : '';
-  return `[${level}] ${context}: ${message}${metadataStr}`;
+    metadata && Object.keys(metadata).length > 0
+      ? ' ' + colorize(JSON.stringify(metadata), Colors.dim)
+      : '';
+
+  return `[${colorizedLevel}] ${colorizedContext}: ${message}${metadataStr}`;
 }
 
 /**
