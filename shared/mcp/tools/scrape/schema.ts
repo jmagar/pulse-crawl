@@ -47,7 +47,7 @@ export const PARAM_DESCRIPTIONS = {
   excludeTags:
     'HTML tags, classes, or IDs to exclude from scraped content. Blacklist filter to remove unwanted elements. Examples: ["#ad", ".sidebar", "nav"], [".advertisement", "aside"], ["script", "style"]',
   formats:
-    'Output formats to extract from the page. Options: "markdown" (clean text), "html" (processed HTML), "rawHtml" (unprocessed), "links" (all hyperlinks), "images" (all image URLs), "screenshot" (page screenshot), "summary" (AI-generated summary), "branding" (brand colors/fonts). Default: ["markdown", "html"]',
+    'Output formats to extract from the page. Options: "markdown" (clean text), "html" (processed HTML), "rawHtml" (unprocessed), "links" (all hyperlinks), "images" (all image URLs), "screenshot" (page screenshot), "summary" (AI-generated summary), "branding" (brand colors/fonts), "changeTracking" (track content changes over time). Default: ["markdown", "html"]',
   onlyMainContent:
     'Extract only main content, excluding headers, navigation, footers, and ads. Uses intelligent content detection to identify the primary article/content area. Default: true',
   actions: `Browser automation actions to perform before scraping. Enables interaction with dynamic pages that require user input.
@@ -207,6 +207,7 @@ export const buildScrapeArgsSchema = () => {
           'screenshot',
           'summary',
           'branding',
+          'changeTracking',
         ])
       )
       .optional()
@@ -335,6 +336,7 @@ export const buildInputSchema = () => {
           'screenshot',
           'summary',
           'branding',
+          'changeTracking',
         ],
       },
       default: ['markdown', 'html'],

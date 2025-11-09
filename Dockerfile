@@ -48,7 +48,7 @@ RUN npm ci --omit=dev --ignore-scripts
 
 # Create resources directory with proper ownership
 RUN mkdir -p /app/resources && \
-    chown -R nodejs:nodejs /app
+    chown -R nodejs:nodejs /app/resources
 
 # Move to remote directory for runtime
 WORKDIR /app/remote
